@@ -1,0 +1,17 @@
+{
+  "name": "cmap",
+  "version": "0.0.1",
+  "description": "Interactive visualization library for concept map",
+  "main": "cmap.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ionstage/cmap.git"
+  },
+  "keywords": [
+    "concept map",
+    "interactive",
+    "visualization"
+  ],
+  "author": "iOnStage",
+  "license": "MIT"
+}
