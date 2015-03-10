@@ -3,6 +3,13 @@
   "version": "0.0.1",
   "description": "Interactive visualization library for concept map",
   "main": "cmap.js",
+  "scripts": {
+    "test": "browser-sync start --files='./cmap.js, test/test.html, test/*.js' --server --startPath='test/test.html'"
+  },
+  "devDependencies": {
+    "browser-sync": "*",
+    "mocha": "*"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ionstage/cmap.git"
