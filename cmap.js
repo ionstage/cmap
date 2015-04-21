@@ -19,7 +19,14 @@
     this.height = prop(option.height || 30);
   };
 
+  var Link = function(option) {
+    this.label = prop(option.label || '');
+    this.source = prop(option.source || null);
+    this.target = prop(option.target || null);
+  };
+
   cmap.Node = Node;
+  cmap.Link = Link;
 
   if (typeof module !== 'undefined' && module.exports)
     module.exports = cmap;

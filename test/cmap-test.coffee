@@ -16,3 +16,14 @@ describe 'cmap', ->
     assert.equal(node.height(), 45)
     node.x(200)
     assert.equal(node.x(), 200)
+
+  it 'Link', ->
+    node = new cmap.Node
+      label: 'node'
+    link = new cmap.Link
+      label: 'link'
+      source: node
+      target: null
+    assert.equal(link.label(), 'link')
+    assert.equal(link.source(), node)
+    assert.equal(link.target(), null)
