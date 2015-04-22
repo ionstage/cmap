@@ -12,7 +12,7 @@
   };
 
   var Node = function(option) {
-    this.label = prop(option.label || '');
+    this.text = prop(option.text || '');
     this.x = prop(option.x || 0);
     this.y = prop(option.y || 0);
     this.width = prop(option.width || 75);
@@ -20,7 +20,7 @@
   };
 
   var Link = function(option) {
-    this.label = prop(option.label || '');
+    this.text = prop(option.text || '');
     this.source = prop(option.source || null);
     this.target = prop(option.target || null);
   };

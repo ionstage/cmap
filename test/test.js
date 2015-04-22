@@ -1,13 +1,13 @@
 describe('cmap', function() {
   it('Node', function() {
     var node = new cmap.Node({
-      label: 'node',
+      text: 'node',
       x: 100,
       y: 200,
       width: 120,
       height: 45
     });
-    assert.equal(node.label(), 'node');
+    assert.equal(node.text(), 'node');
     assert.equal(node.x(), 100);
     assert.equal(node.y(), 200);
     assert.equal(node.width(), 120);
@@ -18,14 +18,14 @@ describe('cmap', function() {
 
   it('Link', function() {
     var node = new cmap.Node({
-      label: 'node'
+      text: 'node'
     });
     var link = new cmap.Link({
-      label: 'link',
+      text: 'link',
       source: node,
       target: null
     });
-    assert.equal(link.label(), 'link');
+    assert.equal(link.text(), 'link');
     assert.equal(link.source(), node);
     assert.equal(link.target(), null);
   });
