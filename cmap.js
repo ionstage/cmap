@@ -11,6 +11,10 @@
     };
   };
 
+  var Paper = function(option) {
+    this.element = prop(option.element || null);
+  };
+
   var Node = function(option) {
     this.text = prop(option.text || '');
     this.x = prop(option.x || 0);
@@ -25,6 +29,7 @@
     this.target = prop(option.target || null);
   };
 
+  cmap.Paper = Paper;
   cmap.Node = Node;
   cmap.Link = Link;
 

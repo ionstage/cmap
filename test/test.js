@@ -1,4 +1,12 @@
 describe('cmap', function() {
+  it('Paper', function() {
+    var element = document.getElementById('cmap');
+    var paper = new cmap.Paper({
+      element: element
+    });
+    assert.equal(paper.element(), element);
+  });
+
   it('Node', function() {
     var node = new cmap.Node({
       text: 'node',
