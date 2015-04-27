@@ -1,6 +1,5 @@
 (function(global) {
   'use strict';
-  var cmap = {};
 
   var prop = function(initialValue) {
     var cache = initialValue;
@@ -9,10 +8,6 @@
         return cache;
       cache = value;
     };
-  };
-
-  var Paper = function(option) {
-    this.element = prop(option.element || null);
   };
 
   var Node = function(option) {
@@ -29,12 +24,22 @@
     this.target = prop(option.target || null);
   };
 
-  cmap.Paper = Paper;
-  cmap.Node = Node;
-  cmap.Link = Link;
+  var Paper = function() {};
+
+  Paper.prototype.node = function(option) {
+    return new Node(option);
+  };
+
+  Paper.prototype.link = function(option) {
+    return new Link(option);
+  };
+
+  var Cmap = function() {
+    return new Paper();
+  };
 
   if (typeof module !== 'undefined' && module.exports)
-    module.exports = cmap;
+    module.exports = Cmap;
   else
-    global.cmap = cmap;
+    global.Cmap = Cmap;
 })(this);
