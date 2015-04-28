@@ -1,7 +1,7 @@
-describe('cmap', function() {
-  it('Node', function() {
-    var cmap = Cmap();
-    var node = cmap.node({
+describe('Paper', function() {
+  it('#node', function() {
+    var paper = Cmap();
+    var node = paper.node({
       text: 'node',
       x: 100,
       y: 200,
@@ -17,12 +17,12 @@ describe('cmap', function() {
     assert.equal(node.x(), 200);
   });
 
-  it('Link', function() {
-    var cmap = Cmap();
-    var node = cmap.node({
+  it('#link', function() {
+    var paper = Cmap();
+    var node = paper.node({
       text: 'node'
     });
-    var link = cmap.link({
+    var link = paper.link({
       text: 'link',
       source: node,
       target: null
