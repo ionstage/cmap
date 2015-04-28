@@ -31,4 +31,18 @@ describe('Paper', function() {
     assert.equal(link.source(), node);
     assert.equal(link.target(), null);
   });
+
+  it('#nodeList', function() {
+    var paper = Cmap();
+    paper.node({text: 'node0'});
+    paper.node({text: 'node1'});
+    assert.equal(paper.nodeList().length, 2);
+  });
+
+  it('#linkList', function() {
+    var paper = Cmap();
+    paper.link({text: 'link0'});
+    paper.link({text: 'link1'});
+    assert.equal(paper.linkList().length, 2);
+  });
 });

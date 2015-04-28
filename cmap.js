@@ -24,14 +24,23 @@
     this.target = prop(option.target || null);
   };
 
-  var Paper = function() {};
+  var Paper = function() {
+    this.nodeList = prop([]);
+    this.linkList = prop([]);
+  };
 
   Paper.prototype.node = function(option) {
-    return new Node(option);
+    var node = new Node(option);
+    var nodeList = this.nodeList();
+    nodeList.push(node);
+    return node;
   };
 
   Paper.prototype.link = function(option) {
-    return new Link(option);
+    var link = new Link(option);
+    var linkList = this.linkList();
+    linkList.push(link);
+    return link;
   };
 
   var Cmap = function() {
