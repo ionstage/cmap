@@ -19,9 +19,7 @@ describe('Paper', function() {
 
   it('#link', function() {
     var paper = Cmap();
-    var node = paper.node({
-      text: 'node'
-    });
+    var node = paper.node();
     var link = paper.link({
       text: 'link',
       source: node,
@@ -34,15 +32,15 @@ describe('Paper', function() {
 
   it('#nodeList', function() {
     var paper = Cmap();
-    paper.node({text: 'node0'});
-    paper.node({text: 'node1'});
+    paper.node();
+    paper.node();
     assert.equal(paper.nodeList().length, 2);
   });
 
   it('#linkList', function() {
     var paper = Cmap();
-    paper.link({text: 'link0'});
-    paper.link({text: 'link1'});
+    paper.link();
+    paper.link();
     assert.equal(paper.linkList().length, 2);
   });
 });

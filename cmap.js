@@ -30,14 +30,14 @@
   };
 
   Paper.prototype.node = function(option) {
-    var node = new Node(option);
+    var node = new Node(option || {});
     var nodeList = this.nodeList();
     nodeList.push(node);
     return node;
   };
 
   Paper.prototype.link = function(option) {
-    var link = new Link(option);
+    var link = new Link(option || {});
     var linkList = this.linkList();
     linkList.push(link);
     return link;
