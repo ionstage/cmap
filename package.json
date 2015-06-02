@@ -7,8 +7,8 @@
     "test": "browser-sync start --files='./cmap.js, test/test.html, test/*.js' --server --startPath='test/test.html'"
   },
   "devDependencies": {
-    "browser-sync": "*",
-    "mocha": "*"
+    "browser-sync": "^2.7.6",
+    "mocha": "^2.2.5"
   },
   "repository": {
     "type": "git",
