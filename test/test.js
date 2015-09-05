@@ -1,3 +1,6 @@
+var assert = require('assert');
+var Cmap = require('../cmap.js');
+
 describe('Paper', function() {
   it('#node', function() {
     var paper = Cmap();

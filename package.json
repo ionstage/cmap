@@ -4,10 +4,9 @@
   "description": "Interactive visualization library for concept map",
   "main": "cmap.js",
   "scripts": {
-    "test": "browser-sync start --files='./cmap.js, test/test.html, test/*.js' --server --startPath='test/test.html'"
+    "test": "mocha"
   },
   "devDependencies": {
-    "browser-sync": "^2.7.6",
     "mocha": "^2.2.5"
   },
   "repository": {
