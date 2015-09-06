@@ -1,10 +1,10 @@
 var assert = require('assert');
 var Cmap = require('../cmap.js');
 
-describe('Paper', function() {
+describe('Cmap', function() {
   it('#node', function() {
-    var paper = Cmap();
-    var node = paper.node({
+    var cmap = Cmap();
+    var node = cmap.node({
       text: 'node',
       x: 100,
       y: 200,
@@ -21,9 +21,9 @@ describe('Paper', function() {
   });
 
   it('#link', function() {
-    var paper = Cmap();
-    var node = paper.node();
-    var link = paper.link({
+    var cmap = Cmap();
+    var node = cmap.node();
+    var link = cmap.link({
       text: 'link',
       source: node,
       target: null
@@ -34,16 +34,16 @@ describe('Paper', function() {
   });
 
   it('#nodeList', function() {
-    var paper = Cmap();
-    paper.node();
-    paper.node();
-    assert.equal(paper.nodeList().length, 2);
+    var cmap = Cmap();
+    cmap.node();
+    cmap.node();
+    assert.equal(cmap.nodeList().length, 2);
   });
 
   it('#linkList', function() {
-    var paper = Cmap();
-    paper.link();
-    paper.link();
-    assert.equal(paper.linkList().length, 2);
+    var cmap = Cmap();
+    cmap.link();
+    cmap.link();
+    assert.equal(cmap.linkList().length, 2);
   });
 });

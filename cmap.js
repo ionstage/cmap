@@ -24,27 +24,26 @@
     this.target = prop(option.target || null);
   };
 
-  var Paper = function() {
+  var Cmap = function() {
+    if (!(this instanceof Cmap))
+      return new Cmap();
+
     this.nodeList = prop([]);
     this.linkList = prop([]);
   };
 
-  Paper.prototype.node = function(option) {
+  Cmap.prototype.node = function(option) {
     var node = new Node(option || {});
     var nodeList = this.nodeList();
     nodeList.push(node);
     return node;
   };
 
-  Paper.prototype.link = function(option) {
+  Cmap.prototype.link = function(option) {
     var link = new Link(option || {});
     var linkList = this.linkList();
     linkList.push(link);
     return link;
-  };
-
-  var Cmap = function() {
-    return new Paper();
   };
 
   if (typeof module !== 'undefined' && module.exports)
