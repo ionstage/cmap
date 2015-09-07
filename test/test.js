@@ -47,3 +47,21 @@ describe('Cmap', function() {
     assert.equal(cmap.linkList().length, 2);
   });
 });
+
+describe('Node', function() {
+  it('#remove', function() {
+    var cmap = Cmap();
+    var node = cmap.node();
+    node.remove();
+    assert.equal(cmap.nodeList().length, 0);
+  });
+});
+
+describe('Link', function() {
+  it('#remove', function() {
+    var cmap = Cmap();
+    var link = cmap.link();
+    link.remove();
+    assert.equal(cmap.linkList().length, 0);
+  });
+});
