@@ -28,6 +28,7 @@
     var index = nodeList.indexOf(this);
     if (index !== -1)
       nodeList.splice(index, 1);
+    this.cmap(null);
   };
 
   var Link = function(option) {
@@ -46,6 +47,7 @@
     var index = linkList.indexOf(this);
     if (index !== -1)
       linkList.splice(index, 1);
+    this.cmap(null);
   };
 
   var Cmap = function() {
