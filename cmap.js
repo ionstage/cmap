@@ -20,6 +20,13 @@
     return document.querySelector(selector);
   };
 
+  dom.css = function(el, props) {
+    var style = el.style;
+    for (var prop in props) {
+      style[prop] = props[prop];
+    }
+  };
+
   var Node = function(option) {
     this.text = prop(option.text || '');
     this.x = prop(option.x || 0);
@@ -66,7 +73,12 @@
 
     this.nodeList = prop([]);
     this.linkList = prop([]);
-    this.element = prop(element || dom.el('<div>'));
+
+    if (!element)
+      element = dom.el('<div>');
+
+    dom.css(element, defaultCmapElementStyle);
+    this.element = prop(element);
   };
 
   Cmap.prototype.node = function(option) {
@@ -83,6 +95,18 @@
     link.cmap(this);
     linkList.push(link);
     return link;
+  };
+
+  var defaultCmapElementStyle = {
+    color: '#333',
+    cursor: 'default',
+    fontFamily: 'sans-serif',
+    fontSize: '14px',
+    MozUserSelect: 'none',
+    msUserSelect: 'none',
+    position: 'relative',
+    userSelect: 'none',
+    webkitUserSelect: 'none'
   };
 
   Cmap.dom = dom;

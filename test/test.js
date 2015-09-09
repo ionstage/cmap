@@ -5,6 +5,7 @@ var Cmap = require('../cmap.js');
 beforeEach(function() {
   var dom = Cmap.dom;
   dom.el = sinon.spy();
+  dom.css = sinon.spy();
 });
 
 describe('Cmap', function() {
