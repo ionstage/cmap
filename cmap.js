@@ -10,6 +10,16 @@
     };
   };
 
+  var dom = {};
+
+  dom.el = function(selector) {
+    if (selector[0] === '<') {
+      selector = selector.match(/<(.+)>/)[1];
+      return document.createElement(selector);
+    }
+    return document.querySelector(selector);
+  };
+
   var Node = function(option) {
     this.text = prop(option.text || '');
     this.x = prop(option.x || 0);
@@ -50,12 +60,13 @@
     this.cmap(null);
   };
 
-  var Cmap = function() {
+  var Cmap = function(element) {
     if (!(this instanceof Cmap))
-      return new Cmap();
+      return new Cmap(element);
 
     this.nodeList = prop([]);
     this.linkList = prop([]);
+    this.element = prop(element || dom.el('<div>'));
   };
 
   Cmap.prototype.node = function(option) {
@@ -73,6 +84,8 @@
     linkList.push(link);
     return link;
   };
+
+  Cmap.dom = dom;
 
   if (typeof module !== 'undefined' && module.exports)
     module.exports = Cmap;

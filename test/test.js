@@ -1,5 +1,11 @@
 var assert = require('assert');
+var sinon = require('sinon');
 var Cmap = require('../cmap.js');
+
+beforeEach(function() {
+  var dom = Cmap.dom;
+  dom.el = sinon.spy();
+});
 
 describe('Cmap', function() {
   it('#node', function() {
