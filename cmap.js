@@ -116,7 +116,7 @@
     if (!element)
       element = dom.el('<div>');
 
-    dom.css(element, defaultCmapElementStyle);
+    dom.css(element, this.style());
     this.element = prop(element);
   };
 
@@ -137,16 +137,18 @@
     return link;
   };
 
-  var defaultCmapElementStyle = {
-    color: '#333',
-    cursor: 'default',
-    fontFamily: 'sans-serif',
-    fontSize: '14px',
-    MozUserSelect: 'none',
-    msUserSelect: 'none',
-    position: 'relative',
-    userSelect: 'none',
-    webkitUserSelect: 'none'
+  Cmap.prototype.style = function() {
+    return {
+      color: '#333',
+      cursor: 'default',
+      fontFamily: 'sans-serif',
+      fontSize: '14px',
+      MozUserSelect: 'none',
+      msUserSelect: 'none',
+      position: 'relative',
+      userSelect: 'none',
+      webkitUserSelect: 'none'
+    };
   };
 
   Cmap.dom = dom;
