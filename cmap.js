@@ -27,6 +27,18 @@
     }
   };
 
+  dom.append = function(parent, el) {
+    parent.appendChild(el);
+  };
+
+  dom.remove = function(el) {
+    el.parentNode.removeChild(el);
+  };
+
+  dom.text = function(el, s) {
+    el.textContent = s;
+  };
+
   var Node = function(option) {
     this.text = prop(option.text || '');
     this.x = prop(option.x || 0);
@@ -34,6 +46,11 @@
     this.width = prop(option.width || 75);
     this.height = prop(option.height || 30);
     this.cmap = prop(null);
+
+    var element = dom.el('<div>');
+    dom.text(element, this.text());
+    dom.css(element, this.style());
+    this.element = prop(element);
   };
 
   Node.prototype.remove = function() {
@@ -46,6 +63,28 @@
     if (index !== -1)
       nodeList.splice(index, 1);
     this.cmap(null);
+    dom.remove(this.element());
+  };
+
+  Node.prototype.style = function() {
+    var translate = 'translate(' + this.x() + 'px, ' + this.y() + 'px)';
+    return {
+      backgroundColor: '#a7cbe6',
+      border: '2px solid #333',
+      borderRadius: '4px',
+      height: this.height() + 'px',
+      lineHeight: this.height() + 'px',
+      MozTransform: translate,
+      msTransform: translate,
+      overflow: 'hidden',
+      position: 'absolute',
+      textAlign: 'center',
+      textOverflow: 'ellipsis',
+      transform: translate,
+      webkitTransform: translate,
+      whiteSpace: 'nowrap',
+      width: this.width() + 'px'
+    };
   };
 
   var Link = function(option) {
@@ -86,6 +125,7 @@
     var nodeList = this.nodeList();
     node.cmap(this);
     nodeList.push(node);
+    dom.append(this.element(), node.element());
     return node;
   };
 
