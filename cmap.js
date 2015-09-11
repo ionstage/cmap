@@ -7,7 +7,36 @@
       if (typeof value === 'undefined')
         return cache;
       cache = value;
+      markDirty(this);
     };
+  };
+
+  var markDirty = (function() {
+    var dirtyComponents = [];
+    var requestId = null;
+    var callback = function() {
+      dirtyComponents.forEach(function(component) {
+        component.redraw();
+      });
+      dirtyComponents = [];
+      requestId = null;
+    };
+    return function(component) {
+      if (dirtyComponents.indexOf(component) === -1)
+        dirtyComponents.push(component);
+      if (requestId !== null)
+        return;
+      requestId = dom.animate(callback);
+    };
+  })();
+
+  var diffObj = function(newObj, oldObj) {
+    var diff = {};
+    for (var key in newObj) {
+      if (newObj[key] !== oldObj[key])
+        diff[key] = newObj[key];
+    }
+    return diff;
   };
 
   var dom = {};
@@ -39,6 +68,10 @@
     el.textContent = s;
   };
 
+  dom.animate = function(callback) {
+    return window.requestAnimationFrame(callback);
+  };
+
   var Node = function(option) {
     this.text = prop(option.text || '');
     this.x = prop(option.x || 0);
@@ -46,11 +79,8 @@
     this.width = prop(option.width || 75);
     this.height = prop(option.height || 30);
     this.cmap = prop(null);
-
-    var element = dom.el('<div>');
-    dom.text(element, this.text());
-    dom.css(element, this.style());
-    this.element = prop(element);
+    this.element = prop(dom.el('<div>'));
+    this.cache = prop({});
   };
 
   Node.prototype.remove = function() {
@@ -85,6 +115,22 @@
       whiteSpace: 'nowrap',
       width: this.width() + 'px'
     };
+  };
+
+  Node.prototype.redraw = function() {
+    var text = this.text();
+    var style = this.style();
+    var element = this.element();
+    var cache = this.cache();
+
+    if (text !== cache.text) {
+      dom.text(element, text);
+      cache.text = text;
+    }
+
+    var diffStyle = diffObj(style, cache.style || {});
+    dom.css(element, diffStyle);
+    cache.style = style;
   };
 
   var Link = function(option) {
