@@ -78,6 +78,10 @@
     this.y = prop(option.y || 0);
     this.width = prop(option.width || 75);
     this.height = prop(option.height || 30);
+    this.backgroundColor = prop(option.backgroundColor || '#a7cbe6');
+    this.borderColor = prop(option.borderColor || '#333');
+    this.borderWidth = prop(option.borderWidth || 2);
+    this.textColor = prop(option.textColor || '#333');
     this.cmap = prop(null);
     this.element = prop(dom.el('<div>'));
     this.cache = prop({});
@@ -99,9 +103,10 @@
   Node.prototype.style = function() {
     var translate = 'translate(' + this.x() + 'px, ' + this.y() + 'px)';
     return {
-      backgroundColor: '#a7cbe6',
-      border: '2px solid #333',
+      backgroundColor: this.backgroundColor(),
+      border: this.borderWidth() + 'px solid ' + this.borderColor(),
       borderRadius: '4px',
+      color: this.textColor(),
       height: this.height() + 'px',
       lineHeight: this.height() + 'px',
       MozTransform: translate,
