@@ -68,12 +68,17 @@
     el.textContent = s;
   };
 
+  dom.html = function(el, s) {
+    el.innerHTML = s;
+  };
+
   dom.animate = function(callback) {
     return window.requestAnimationFrame(callback);
   };
 
   var Node = function(option) {
-    this.text = prop(option.text || '');
+    this.content = prop(option.content || '');
+    this.contentType = prop(option.contentType || Node.CONTENT_TYPE_TEXT);
     this.x = prop(option.x || 0);
     this.y = prop(option.y || 0);
     this.width = prop(option.width || 75);
@@ -85,6 +90,20 @@
     this.cmap = prop(null);
     this.element = prop(dom.el('<div>'));
     this.cache = prop({});
+  };
+
+  Node.prototype.text = function(text) {
+    if (typeof text === 'undefined')
+      return this.content();
+    this.content(text);
+    this.contentType(Node.CONTENT_TYPE_TEXT);
+  };
+
+  Node.prototype.html = function(html) {
+    if (typeof html === 'undefined')
+      return this.content();
+    this.content(html);
+    this.contentType(Node.CONTENT_TYPE_HTML);
   };
 
   Node.prototype.remove = function() {
@@ -101,6 +120,9 @@
   };
 
   Node.prototype.style = function() {
+    var contentType = this.contentType();
+    var lineHeight = (contentType === Node.CONTENT_TYPE_TEXT) ? this.height() : 14;
+    var textAlign = (contentType === Node.CONTENT_TYPE_TEXT) ? 'center' : 'left';
     var translate = 'translate(' + this.x() + 'px, ' + this.y() + 'px)';
     return {
       backgroundColor: this.backgroundColor(),
@@ -108,12 +130,12 @@
       borderRadius: '4px',
       color: this.textColor(),
       height: this.height() + 'px',
-      lineHeight: this.height() + 'px',
+      lineHeight: lineHeight + 'px',
       MozTransform: translate,
       msTransform: translate,
       overflow: 'hidden',
       position: 'absolute',
-      textAlign: 'center',
+      textAlign: textAlign,
       textOverflow: 'ellipsis',
       transform: translate,
       webkitTransform: translate,
@@ -123,20 +145,27 @@
   };
 
   Node.prototype.redraw = function() {
-    var text = this.text();
+    var content = this.content();
+    var contentType = this.contentType();
     var style = this.style();
     var element = this.element();
     var cache = this.cache();
 
-    if (text !== cache.text) {
-      dom.text(element, text);
-      cache.text = text;
+    if (content !== cache.content) {
+      if (contentType === Node.CONTENT_TYPE_TEXT)
+        dom.text(element, content);
+      else if (contentType === Node.CONTENT_TYPE_HTML)
+        dom.html(element, content);
+      cache.content = content;
     }
 
     var diffStyle = diffObj(style, cache.style || {});
     dom.css(element, diffStyle);
     cache.style = style;
   };
+
+  Node.CONTENT_TYPE_TEXT = 'text';
+  Node.CONTENT_TYPE_HTML = 'html';
 
   var Link = function(option) {
     this.text = prop(option.text || '');

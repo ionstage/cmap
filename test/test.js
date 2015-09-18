@@ -13,13 +13,13 @@ describe('Cmap', function() {
   it('#node', function() {
     var cmap = Cmap();
     var node = cmap.node({
-      text: 'node',
+      content: 'node',
       x: 100,
       y: 200,
       width: 120,
       height: 45
     });
-    assert.equal(node.text(), 'node');
+    assert.equal(node.content(), 'node');
     assert.equal(node.x(), 100);
     assert.equal(node.y(), 200);
     assert.equal(node.width(), 120);
