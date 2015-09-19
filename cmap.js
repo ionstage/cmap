@@ -22,6 +22,8 @@
       requestId = null;
     };
     return function(component) {
+      if (typeof document === 'undefined')
+        return;
       if (dirtyComponents.indexOf(component) === -1)
         dirtyComponents.push(component);
       if (requestId !== null)
@@ -88,7 +90,8 @@
     this.borderWidth = prop(option.borderWidth || 2);
     this.textColor = prop(option.textColor || '#333');
     this.cmap = prop(null);
-    this.element = prop(dom.el('<div>'));
+    this.element = prop(null);
+    this.parentElement = prop(null);
     this.cache = prop({});
   };
 
@@ -116,7 +119,7 @@
     if (index !== -1)
       nodeList.splice(index, 1);
     this.cmap(null);
-    dom.remove(this.element());
+    this.parentElement(null);
   };
 
   Node.prototype.style = function() {
@@ -149,7 +152,23 @@
     var contentType = this.contentType();
     var style = this.style();
     var element = this.element();
+    var parentElement = this.parentElement();
     var cache = this.cache();
+
+    // add element
+    if (parentElement && !element) {
+      element = dom.el('<div>');
+      this.element(element);
+      this.redraw();
+      dom.append(parentElement, element);
+      return;
+    }
+
+    // remove element
+    if (!parentElement && element) {
+      dom.remove(element);
+      return;
+    }
 
     if (content !== cache.content) {
       if (contentType === Node.CONTENT_TYPE_TEXT)
@@ -192,20 +211,17 @@
 
     this.nodeList = prop([]);
     this.linkList = prop([]);
-
-    if (!element)
-      element = dom.el('<div>');
-
-    dom.css(element, this.style());
     this.element = prop(element);
+
+    markDirty(this);
   };
 
   Cmap.prototype.node = function(option) {
     var node = new Node(option || {});
     var nodeList = this.nodeList();
     node.cmap(this);
+    node.parentElement(this.element());
     nodeList.push(node);
-    dom.append(this.element(), node.element());
     return node;
   };
 
@@ -231,7 +247,16 @@
     };
   };
 
-  Cmap.dom = dom;
+  Cmap.prototype.redraw = function() {
+    var element = this.element();
+
+    if (!element) {
+      element = dom.el('<div>');
+      this.element(element);
+    }
+
+    dom.css(element, this.style());
+  };
 
   if (typeof module !== 'undefined' && module.exports)
     module.exports = Cmap;
