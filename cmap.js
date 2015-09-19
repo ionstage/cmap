@@ -191,6 +191,8 @@
     this.source = prop(option.source || null);
     this.target = prop(option.target || null);
     this.cmap = prop(null);
+    this.element = prop(null);
+    this.parentElement = prop(null);
   };
 
   Link.prototype.remove = function() {
@@ -203,6 +205,26 @@
     if (index !== -1)
       linkList.splice(index, 1);
     this.cmap(null);
+    this.parentElement(null);
+  };
+
+  Link.prototype.redraw = function() {
+    var element = this.element();
+    var parentElement = this.parentElement();
+
+    // add element
+    if (parentElement && !element) {
+      element = dom.el('<div>');
+      this.element(element);
+      dom.append(parentElement, element);
+      return;
+    }
+
+    // remove element
+    if (!parentElement && element) {
+      dom.remove(element);
+      return;
+    }
   };
 
   var Cmap = function(element) {
@@ -229,6 +251,7 @@
     var link = new Link(option || {});
     var linkList = this.linkList();
     link.cmap(this);
+    link.parentElement(this.element());
     linkList.push(link);
     return link;
   };
