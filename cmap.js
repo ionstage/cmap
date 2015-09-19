@@ -167,6 +167,8 @@
     // remove element
     if (!parentElement && element) {
       dom.remove(element);
+      this.element(null);
+      this.cache({});
       return;
     }
 
@@ -223,6 +225,8 @@
     // remove element
     if (!parentElement && element) {
       dom.remove(element);
+      this.element(null);
+      this.cache({});
       return;
     }
   };
