@@ -1,5 +1,4 @@
 var assert = require('assert');
-var sinon = require('sinon');
 var Cmap = require('../cmap.js');
 
 describe('Cmap', function() {
