@@ -207,8 +207,6 @@
     if (!(this instanceof Cmap))
       return new Cmap(element);
 
-    this.nodeList = prop([]);
-    this.linkList = prop([]);
     this.element = prop(element);
 
     markDirty(this);
@@ -223,38 +221,11 @@
   };
 
   Cmap.prototype.add = function(child) {
-    var list = this.getListOfChild(child);
-
-    if (!list)
-      return;
-
-    var index = list.indexOf(child);
-    if (index === -1)
-      list.push(child);
-
     child.parentElement(this.element());
   };
 
   Cmap.prototype.remove = function(child) {
-    var list = this.getListOfChild(child);
-
-    if (!list)
-      return;
-
-    var index = list.indexOf(child);
-    if (index !== -1)
-      list.splice(index, 1);
-
     child.parentElement(null);
-  };
-
-  Cmap.prototype.getListOfChild = function(child) {
-    if (child.constructor === Node)
-      return this.nodeList();
-    else if (child.constructor === Link)
-      return this.linkList();
-    else
-      return null;
   };
 
   Cmap.prototype.style = function() {
