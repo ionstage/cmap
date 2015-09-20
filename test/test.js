@@ -5,20 +5,28 @@ var Cmap = require('../cmap.js');
 describe('Cmap', function() {
   it('#createNode', function() {
     var cmap = Cmap();
-    var node = cmap.createNode({
+    var attrs = {
       content: 'node',
       x: 100,
       y: 200,
       width: 120,
-      height: 45
-    });
-    assert.equal(node.content(), 'node');
-    assert.equal(node.x(), 100);
-    assert.equal(node.y(), 200);
-    assert.equal(node.width(), 120);
-    assert.equal(node.height(), 45);
-    node.x(200);
-    assert.equal(node.x(), 200);
+      height: 45,
+      backgroundColor: 'white',
+      borderColor: 'black',
+      borderWidth: 4,
+      textColor: 'black'
+    };
+    var node = cmap.createNode(attrs);
+    for (var key in attrs) {
+      assert.equal(node[key](), attrs[key]);
+    }
+    node = cmap.createNode();
+    for (var key in attrs) {
+      node[key](attrs[key]);
+    }
+    for (var key in attrs) {
+      assert.equal(node[key](), attrs[key]);
+    }
   });
 
   it('#createLink', function() {
