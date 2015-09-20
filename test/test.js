@@ -3,9 +3,9 @@ var sinon = require('sinon');
 var Cmap = require('../cmap.js');
 
 describe('Cmap', function() {
-  it('#node', function() {
+  it('#createNode', function() {
     var cmap = Cmap();
-    var node = cmap.node({
+    var node = cmap.createNode({
       content: 'node',
       x: 100,
       y: 200,
@@ -21,19 +21,10 @@ describe('Cmap', function() {
     assert.equal(node.x(), 200);
   });
 
-  it('#node - reassign', function() {
+  it('#createLink', function() {
     var cmap = Cmap();
-    var node = cmap.node();
-    cmap.remove(node);
-    var ret = cmap.node(node);
-    assert.equal(node, ret);
-    assert.equal(cmap.nodeList().length, 1);
-  });
-
-  it('#link', function() {
-    var cmap = Cmap();
-    var node = cmap.node();
-    var link = cmap.link({
+    var node = cmap.createNode();
+    var link = cmap.createLink({
       text: 'link',
       source: node,
       target: null
@@ -43,35 +34,24 @@ describe('Cmap', function() {
     assert.equal(link.target(), null);
   });
 
-  it('#link - reassign', function() {
+  it('#add', function() {
     var cmap = Cmap();
-    var link = cmap.link();
-    cmap.remove(link);
-    var ret = cmap.link(link);
-    assert.equal(link, ret);
-    assert.equal(cmap.linkList().length, 1);
-  });
-
-  it('#nodeList', function() {
-    var cmap = Cmap();
-    cmap.node();
-    cmap.node();
+    cmap.add(cmap.createNode());
+    cmap.add(cmap.createNode());
     assert.equal(cmap.nodeList().length, 2);
-  });
-
-  it('#linkList', function() {
-    var cmap = Cmap();
-    cmap.link();
-    cmap.link();
+    cmap.add(cmap.createLink());
+    cmap.add(cmap.createLink());
     assert.equal(cmap.linkList().length, 2);
   });
 
   it('#remove', function() {
     var cmap = Cmap();
-    var node = cmap.node();
+    var node = cmap.createNode();
+    cmap.add(node);
     cmap.remove(node);
     assert.equal(cmap.nodeList().length, 0);
-    var link = cmap.link();
+    var link = cmap.createLink();
+    cmap.add(link);
     cmap.remove(link);
     assert.equal(cmap.linkList().length, 0);
   });

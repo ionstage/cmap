@@ -214,24 +214,29 @@
     markDirty(this);
   };
 
-  Cmap.prototype.node = function(option) {
-    var node = (option instanceof Node) ? option : new Node(option || {});
-    var nodeList = this.nodeList();
-    var index = nodeList.indexOf(node);
-    if (index === -1)
-      nodeList.push(node);
-    node.parentElement(this.element());
-    return node;
+  Cmap.prototype.createNode = function(option) {
+    return new Node(option || {});
   };
 
-  Cmap.prototype.link = function(option) {
-    var link = (option instanceof Link) ? option : new Link(option || {});
-    var linkList = this.linkList();
-    var index = linkList.indexOf(link);
+  Cmap.prototype.createLink = function(option) {
+    return new Link(option || {});
+  };
+
+  Cmap.prototype.add = function(child) {
+    var list;
+
+    if (child instanceof Node)
+      list = this.nodeList();
+    else if (child instanceof Link)
+      list = this.linkList();
+    else
+      return;
+
+    var index = list.indexOf(child);
     if (index === -1)
-      linkList.push(link);
-    link.parentElement(this.element());
-    return link;
+      list.push(child);
+
+    child.parentElement(this.element());
   };
 
   Cmap.prototype.remove = function(child) {
