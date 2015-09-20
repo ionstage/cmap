@@ -243,20 +243,24 @@
   };
 
   Cmap.prototype.node = function(option) {
-    var node = new Node(option || {});
+    var node = (option instanceof Node) ? option : new Node(option || {});
     var nodeList = this.nodeList();
+    var index = nodeList.indexOf(node);
+    if (index === -1)
+      nodeList.push(node);
     node.cmap(this);
     node.parentElement(this.element());
-    nodeList.push(node);
     return node;
   };
 
   Cmap.prototype.link = function(option) {
-    var link = new Link(option || {});
+    var link = (option instanceof Link) ? option : new Link(option || {});
     var linkList = this.linkList();
+    var index = linkList.indexOf(link);
+    if (index === -1)
+      linkList.push(link);
     link.cmap(this);
     link.parentElement(this.element());
-    linkList.push(link);
     return link;
   };
 

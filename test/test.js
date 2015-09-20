@@ -21,6 +21,15 @@ describe('Cmap', function() {
     assert.equal(node.x(), 200);
   });
 
+  it('#node - reassign', function() {
+    var cmap = Cmap();
+    var node = cmap.node();
+    node.remove();
+    var ret = cmap.node(node);
+    assert.equal(node, ret);
+    assert.equal(cmap.nodeList().length, 1);
+  });
+
   it('#link', function() {
     var cmap = Cmap();
     var node = cmap.node();
@@ -32,6 +41,15 @@ describe('Cmap', function() {
     assert.equal(link.text(), 'link');
     assert.equal(link.source(), node);
     assert.equal(link.target(), null);
+  });
+
+  it('#link - reassign', function() {
+    var cmap = Cmap();
+    var link = cmap.link();
+    link.remove();
+    var ret = cmap.link(link);
+    assert.equal(link, ret);
+    assert.equal(cmap.linkList().length, 1);
   });
 
   it('#nodeList', function() {
