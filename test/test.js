@@ -24,7 +24,7 @@ describe('Cmap', function() {
   it('#node - reassign', function() {
     var cmap = Cmap();
     var node = cmap.node();
-    node.remove();
+    cmap.remove(node);
     var ret = cmap.node(node);
     assert.equal(node, ret);
     assert.equal(cmap.nodeList().length, 1);
@@ -46,7 +46,7 @@ describe('Cmap', function() {
   it('#link - reassign', function() {
     var cmap = Cmap();
     var link = cmap.link();
-    link.remove();
+    cmap.remove(link);
     var ret = cmap.link(link);
     assert.equal(link, ret);
     assert.equal(cmap.linkList().length, 1);
@@ -65,22 +65,14 @@ describe('Cmap', function() {
     cmap.link();
     assert.equal(cmap.linkList().length, 2);
   });
-});
 
-describe('Node', function() {
   it('#remove', function() {
     var cmap = Cmap();
     var node = cmap.node();
-    node.remove();
+    cmap.remove(node);
     assert.equal(cmap.nodeList().length, 0);
-  });
-});
-
-describe('Link', function() {
-  it('#remove', function() {
-    var cmap = Cmap();
     var link = cmap.link();
-    link.remove();
+    cmap.remove(link);
     assert.equal(cmap.linkList().length, 0);
   });
 });

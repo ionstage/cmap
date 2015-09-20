@@ -89,7 +89,6 @@
     this.borderColor = prop(option.borderColor || '#333');
     this.borderWidth = prop(option.borderWidth || 2);
     this.textColor = prop(option.textColor || '#333');
-    this.cmap = prop(null);
     this.element = prop(null);
     this.parentElement = prop(null);
     this.cache = prop({});
@@ -107,19 +106,6 @@
       return this.content();
     this.content(html);
     this.contentType(Node.CONTENT_TYPE_HTML);
-  };
-
-  Node.prototype.remove = function() {
-    var cmap = this.cmap();
-    if (!cmap)
-      return;
-
-    var nodeList = cmap.nodeList();
-    var index = nodeList.indexOf(this);
-    if (index !== -1)
-      nodeList.splice(index, 1);
-    this.cmap(null);
-    this.parentElement(null);
   };
 
   Node.prototype.style = function() {
@@ -192,22 +178,8 @@
     this.text = prop(option.text || '');
     this.source = prop(option.source || null);
     this.target = prop(option.target || null);
-    this.cmap = prop(null);
     this.element = prop(null);
     this.parentElement = prop(null);
-  };
-
-  Link.prototype.remove = function() {
-    var cmap = this.cmap();
-    if (!cmap)
-      return;
-
-    var linkList = cmap.linkList();
-    var index = linkList.indexOf(this);
-    if (index !== -1)
-      linkList.splice(index, 1);
-    this.cmap(null);
-    this.parentElement(null);
   };
 
   Link.prototype.redraw = function() {
@@ -248,7 +220,6 @@
     var index = nodeList.indexOf(node);
     if (index === -1)
       nodeList.push(node);
-    node.cmap(this);
     node.parentElement(this.element());
     return node;
   };
@@ -259,9 +230,25 @@
     var index = linkList.indexOf(link);
     if (index === -1)
       linkList.push(link);
-    link.cmap(this);
     link.parentElement(this.element());
     return link;
+  };
+
+  Cmap.prototype.remove = function(child) {
+    var list;
+
+    if (child instanceof Node)
+      list = this.nodeList();
+    else if (child instanceof Link)
+      list = this.linkList();
+    else
+      return;
+
+    var index = list.indexOf(child);
+    if (index !== -1)
+      list.splice(index, 1);
+
+    child.parentElement(null);
   };
 
   Cmap.prototype.style = function() {
