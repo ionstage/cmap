@@ -199,6 +199,20 @@
     this.parentElement = prop(null);
   };
 
+  Link.prototype.text = function(text) {
+    if (typeof text === 'undefined')
+      return this.content();
+    this.content(text);
+    this.contentType(Link.CONTENT_TYPE_TEXT);
+  };
+
+  Link.prototype.html = function(html) {
+    if (typeof html === 'undefined')
+      return this.content();
+    this.content(html);
+    this.contentType(Link.CONTENT_TYPE_HTML);
+  };
+
   Link.prototype.redraw = function() {
     var element = this.element();
     var parentElement = this.parentElement();
