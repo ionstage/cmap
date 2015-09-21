@@ -113,13 +113,14 @@
     var lineHeight = (contentType === Node.CONTENT_TYPE_TEXT) ? this.height() : 14;
     var textAlign = (contentType === Node.CONTENT_TYPE_TEXT) ? 'center' : 'left';
     var translate = 'translate(' + this.x() + 'px, ' + this.y() + 'px)';
+    var borderWidthOffset = this.borderWidth() * 2;
     return {
       backgroundColor: this.backgroundColor(),
       border: this.borderWidth() + 'px solid ' + this.borderColor(),
       borderRadius: '4px',
       color: this.textColor(),
-      height: this.height() + 'px',
-      lineHeight: lineHeight + 'px',
+      height: (this.height() - borderWidthOffset) + 'px',
+      lineHeight: (lineHeight - borderWidthOffset) + 'px',
       MozTransform: translate,
       msTransform: translate,
       overflow: 'hidden',
@@ -129,7 +130,7 @@
       transform: translate,
       webkitTransform: translate,
       whiteSpace: 'nowrap',
-      width: this.width() + 'px'
+      width: (this.width() - borderWidthOffset) + 'px'
     };
   };
 
