@@ -30,15 +30,34 @@ describe('Cmap', function() {
 
   it('#createLink', function() {
     var cmap = Cmap();
-    var node = cmap.createNode();
-    var link = cmap.createLink({
-      text: 'link',
-      source: node,
-      target: null
-    });
-    assert.equal(link.text(), 'link');
-    assert.equal(link.source(), node);
-    assert.equal(link.target(), null);
+    var attrs = {
+      content: 'link',
+      x: 100,
+      y: 200,
+      width: 120,
+      height: 45,
+      backgroundColor: 'black',
+      borderColor: 'white',
+      borderWidth: 4,
+      textColor: 'white',
+      sourceX: 50,
+      sourceY: 100,
+      targetX: 150,
+      targetY: 300,
+      lineColor: 'white',
+      lineWidth: 4
+    };
+    var link = cmap.createLink(attrs);
+    for (var key in attrs) {
+      assert.equal(link[key](), attrs[key]);
+    }
+    link = cmap.createLink();
+    for (var key in attrs) {
+      link[key](attrs[key]);
+    }
+    for (var key in attrs) {
+      assert.equal(link[key](), attrs[key]);
+    }
   });
 
   it('#add', function() {

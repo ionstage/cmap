@@ -175,9 +175,22 @@
   Node.CONTENT_TYPE_HTML = 'html';
 
   var Link = function(option) {
-    this.text = prop(option.text || '');
-    this.source = prop(option.source || null);
-    this.target = prop(option.target || null);
+    this.content = prop(option.content || '');
+    this.contentType = prop(option.contentType || Link.CONTENT_TYPE_TEXT);
+    this.x = prop(option.x || 60);
+    this.y = prop(option.y || 30);
+    this.width = prop(option.width || 50);
+    this.height = prop(option.height || 20);
+    this.backgroundColor = prop(option.backgroundColor || 'white');
+    this.borderColor = prop(option.borderColor || '#333');
+    this.borderWidth = prop(option.borderWidth || 2);
+    this.textColor = prop(option.textColor || '#333');
+    this.sourceX = prop(option.sourceX || option.x - 45 || 15);
+    this.sourceY = prop(option.sourceY || option.y || 30);
+    this.targetX = prop(option.targetX || option.x + 45 || 105);
+    this.targetY = prop(option.targetY || option.y || 30);
+    this.lineColor = prop(option.lineColor || '#333');
+    this.lineWidth = prop(option.lineWidth || 2);
     this.element = prop(null);
     this.parentElement = prop(null);
   };
@@ -202,6 +215,9 @@
       return;
     }
   };
+
+  Link.CONTENT_TYPE_TEXT = 'text';
+  Link.CONTENT_TYPE_HTML = 'html';
 
   var Cmap = function(element) {
     if (!(this instanceof Cmap))
