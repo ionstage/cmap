@@ -142,6 +142,9 @@
     var parentElement = this.parentElement();
     var cache = this.cache();
 
+    if (!parentElement && !element)
+      return;
+
     // add element
     if (parentElement && !element) {
       element = dom.el('<div>');
@@ -199,6 +202,9 @@
   Link.prototype.redraw = function() {
     var element = this.element();
     var parentElement = this.parentElement();
+
+    if (!parentElement && !element)
+      return;
 
     // add element
     if (parentElement && !element) {
