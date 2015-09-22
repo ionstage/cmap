@@ -176,8 +176,7 @@
       cache.content = content;
     }
 
-    var diffStyle = diffObj(style, cache.style || {});
-    dom.css(element, diffStyle);
+    dom.css(element, cache.style ? diffObj(style, cache.style) : style);
     cache.style = style;
   };
 
@@ -307,8 +306,7 @@
     // update path element
     pathElement = element.children[0].childNodes[0];
 
-    var diffPathAttributes = diffObj(pathAttributes, cache.pathAttributes || {});
-    dom.attr(pathElement, diffPathAttributes);
+    dom.attr(pathElement, cache.pathAttributes ? diffObj(pathAttributes, cache.pathAttributes) : pathAttributes);
     cache.pathAttributes = pathAttributes;
 
     // update content element
@@ -322,8 +320,7 @@
       cache.content = content;
     }
 
-    var diffContentStyle = diffObj(contentStyle, cache.contentStyle || {});
-    dom.css(contentElement, diffContentStyle);
+    dom.css(contentElement, cache.contentStyle ? diffObj(contentStyle, cache.contentStyle) : contentStyle);
     cache.contentStyle = contentStyle;
   };
 
