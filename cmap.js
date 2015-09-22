@@ -43,13 +43,10 @@
 
   var dom = {};
 
-  dom.el = function(selector, namespace) {
+  dom.el = function(selector) {
     if (selector[0] === '<') {
       selector = selector.match(/<(.+)>/)[1];
-      if (namespace)
-        return document.createElementNS(namespace, selector);
-      else
-        return document.createElement(selector);
+      return document.createElement(selector);
     }
     return document.querySelector(selector);
   };
@@ -86,8 +83,6 @@
   dom.animate = function(callback) {
     return window.requestAnimationFrame(callback);
   };
-
-  dom.NAMESPACE_SVG = 'http://www.w3.org/2000/svg';
 
   var Node = function(option) {
     this.content = prop(option.content || '');
@@ -293,13 +288,9 @@
     if (parentElement && !element) {
       element = dom.el('<div>');
       this.element(element);
-      pathContainerElement = dom.el('<svg>', dom.NAMESPACE_SVG);
+      dom.html(element, '<svg><path></path></svg><div></div>');
+      pathContainerElement = element.children[0];
       dom.css(pathContainerElement, this.pathContainerStyle());
-      pathElement = dom.el('<path>', dom.NAMESPACE_SVG);
-      dom.append(pathContainerElement, pathElement);
-      dom.append(element, pathContainerElement);
-      contentElement = dom.el('<div>');
-      dom.append(element, contentElement);
       this.redraw();
       dom.append(parentElement, element);
       return;
