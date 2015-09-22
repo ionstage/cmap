@@ -43,12 +43,21 @@
 
   var dom = {};
 
-  dom.el = function(selector) {
+  dom.el = function(selector, namespace) {
     if (selector[0] === '<') {
       selector = selector.match(/<(.+)>/)[1];
-      return document.createElement(selector);
+      if (namespace)
+        return document.createElementNS(namespace, selector);
+      else
+        return document.createElement(selector);
     }
     return document.querySelector(selector);
+  };
+
+  dom.attr = function(el, props) {
+    for (var prop in props) {
+      el.setAttribute(prop, props[prop]);
+    }
   };
 
   dom.css = function(el, props) {
@@ -197,6 +206,7 @@
     this.lineWidth = prop(option.lineWidth || 2);
     this.element = prop(null);
     this.parentElement = prop(null);
+    this.cache = prop({});
   };
 
   Link.prototype.text = function(text) {
@@ -213,9 +223,66 @@
     this.contentType(Link.CONTENT_TYPE_HTML);
   };
 
+  Link.prototype.pathContainerStyle = function() {
+    return {
+      overflow: 'visible',
+      position: 'absolute'
+    };
+  };
+
+  Link.prototype.pathAttributes = function() {
+    var d = ['M', this.sourceX(), this.sourceY(),
+             'L', this.x(), this.y(),
+             'L', this.targetX(), this.targetY()].join(' ');
+    return {
+      d: d,
+      fill: 'none',
+      stroke: this.lineColor(),
+      'stroke-linecap': 'round',
+      'stroke-width': this.lineWidth()
+    };
+  };
+
+  Link.prototype.contentStyle = function() {
+    var contentType = this.contentType();
+    var lineHeight = (contentType === Link.CONTENT_TYPE_TEXT) ? this.height() : 14;
+    var textAlign = (contentType === Link.CONTENT_TYPE_TEXT) ? 'center' : 'left';
+    var x = this.x() - this.width() / 2;
+    var y = this.y() - this.height() / 2;
+    var translate = 'translate(' + x + 'px, ' + y + 'px)';
+    var borderWidthOffset = this.borderWidth() * 2;
+    return {
+      backgroundColor: this.backgroundColor(),
+      border: this.borderWidth() + 'px solid ' + this.borderColor(),
+      borderRadius: '4px',
+      color: this.textColor(),
+      height: (this.height() - borderWidthOffset) + 'px',
+      lineHeight: (lineHeight - borderWidthOffset) + 'px',
+      MozTransform: translate,
+      msTransform: translate,
+      overflow: 'hidden',
+      position: 'absolute',
+      textAlign: textAlign,
+      textOverflow: 'ellipsis',
+      transform: translate,
+      webkitTransform: translate,
+      whiteSpace: 'nowrap',
+      width: (this.width() - borderWidthOffset) + 'px'
+    };
+  };
+
   Link.prototype.redraw = function() {
+    var content = this.content();
+    var contentType = this.contentType();
+    var pathAttributes = this.pathAttributes();
+    var contentStyle = this.contentStyle();
     var element = this.element();
     var parentElement = this.parentElement();
+    var cache = this.cache();
+
+    var pathContainerElement;
+    var pathElement;
+    var contentElement;
 
     if (!parentElement && !element)
       return;
@@ -224,6 +291,14 @@
     if (parentElement && !element) {
       element = dom.el('<div>');
       this.element(element);
+      pathContainerElement = dom.el('<svg>', 'http://www.w3.org/2000/svg');
+      dom.css(pathContainerElement, this.pathContainerStyle());
+      pathElement = dom.el('<path>', 'http://www.w3.org/2000/svg');
+      dom.append(pathContainerElement, pathElement);
+      dom.append(element, pathContainerElement);
+      contentElement = dom.el('<div>');
+      dom.append(element, contentElement);
+      this.redraw();
       dom.append(parentElement, element);
       return;
     }
@@ -235,6 +310,28 @@
       this.cache({});
       return;
     }
+
+    // update path element
+    pathElement = element.children[0].childNodes[0];
+
+    var diffPathAttributes = diffObj(pathAttributes, cache.pathAttributes || {});
+    dom.attr(pathElement, diffPathAttributes);
+    cache.pathAttributes = pathAttributes;
+
+    // update content element
+    contentElement = element.children[1];
+
+    if (content !== cache.content) {
+      if (contentType === Link.CONTENT_TYPE_TEXT)
+        dom.text(contentElement, content);
+      else if (contentType === Link.CONTENT_TYPE_HTML)
+        dom.html(contentElement, content);
+      cache.content = content;
+    }
+
+    var diffContentStyle = diffObj(contentStyle, cache.contentStyle || {});
+    dom.css(contentElement, diffContentStyle);
+    cache.contentStyle = contentStyle;
   };
 
   Link.CONTENT_TYPE_TEXT = 'text';
