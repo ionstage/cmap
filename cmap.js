@@ -87,6 +87,8 @@
     return window.requestAnimationFrame(callback);
   };
 
+  dom.NAMESPACE_SVG = 'http://www.w3.org/2000/svg';
+
   var Node = function(option) {
     this.content = prop(option.content || '');
     this.contentType = prop(option.contentType || Node.CONTENT_TYPE_TEXT);
@@ -291,9 +293,9 @@
     if (parentElement && !element) {
       element = dom.el('<div>');
       this.element(element);
-      pathContainerElement = dom.el('<svg>', 'http://www.w3.org/2000/svg');
+      pathContainerElement = dom.el('<svg>', dom.NAMESPACE_SVG);
       dom.css(pathContainerElement, this.pathContainerStyle());
-      pathElement = dom.el('<path>', 'http://www.w3.org/2000/svg');
+      pathElement = dom.el('<path>', dom.NAMESPACE_SVG);
       dom.append(pathContainerElement, pathElement);
       dom.append(element, pathContainerElement);
       contentElement = dom.el('<div>');
