@@ -326,10 +326,28 @@
   Link.CONTENT_TYPE_TEXT = 'text';
   Link.CONTENT_TYPE_HTML = 'html';
 
+  var ComponentList = function() {
+    this.data = [];
+  };
+
+  ComponentList.prototype.add = function(component) {
+    var data = this.data;
+    if (data.indexOf(component) === -1)
+      data.push(component);
+  };
+
+  ComponentList.prototype.remove = function(component) {
+    var data = this.data;
+    var index = data.indexOf(component);
+    if (index !== -1)
+      data.splice(index, 1);
+  };
+
   var Cmap = function(element) {
     if (!(this instanceof Cmap))
       return new Cmap(element);
 
+    this.componentList = prop(new ComponentList());
     this.element = prop(element);
 
     markDirty(this);
@@ -345,10 +363,12 @@
 
   Cmap.prototype.add = function(child) {
     child.parentElement(this.element());
+    this.componentList().add(child);
   };
 
   Cmap.prototype.remove = function(child) {
     child.parentElement(null);
+    this.componentList().remove(child);
   };
 
   Cmap.prototype.style = function() {
