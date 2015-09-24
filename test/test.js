@@ -61,23 +61,27 @@ describe('Cmap', function() {
   });
 
   it('#add', function() {
-    var cmap = Cmap();
+    var dummy = {};
+    var cmap = Cmap(dummy);
     var node = cmap.createNode();
     var link = cmap.createLink();
     cmap.add(node);
     cmap.add(link);
+    assert.equal(cmap.element(), dummy);
     assert.equal(cmap.element(), node.parentElement());
     assert.equal(cmap.element(), link.parentElement());
   });
 
   it('#remove', function() {
-    var cmap = Cmap();
+    var dummy = {};
+    var cmap = Cmap(dummy);
     var node = cmap.createNode();
     var link = cmap.createLink();
     cmap.add(node);
     cmap.add(link);
     cmap.remove(node);
     cmap.remove(link);
+    assert.equal(cmap.element(), dummy);
     assert.equal(node.parentElement(), null);
     assert.equal(link.parentElement(), null);
   });
