@@ -343,6 +343,10 @@
       data.splice(index, 1);
   };
 
+  ComponentList.prototype.each = function(callback) {
+    return this.data.forEach(callback);
+  };
+
   var Cmap = function(element) {
     if (!(this instanceof Cmap))
       return new Cmap(element);
@@ -386,11 +390,15 @@
   };
 
   Cmap.prototype.redraw = function() {
+    var componentList = this.componentList();
     var element = this.element();
 
     if (!element) {
       element = dom.el('<div>');
       this.element(element);
+      componentList.each(function(component) {
+        component.parentElement(element);
+      });
     }
 
     dom.css(element, this.style());
