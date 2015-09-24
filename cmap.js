@@ -352,7 +352,7 @@
       return new Cmap(element);
 
     this.componentList = prop(new ComponentList());
-    this.element = prop(element);
+    this.element = prop(element || null);
 
     markDirty(this);
   };
