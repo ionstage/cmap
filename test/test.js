@@ -60,16 +60,40 @@ describe('Cmap', function() {
     }
   });
 
+  it('#createConnector', function() {
+    var cmap = Cmap();
+    var attrs = {
+      x: 100,
+      y: 200,
+      r: 30,
+      color: 'black'
+    };
+    var connector = cmap.createConnector(attrs);
+    for (var key in attrs) {
+      assert.equal(connector[key](), attrs[key]);
+    }
+    connector = cmap.createConnector();
+    for (var key in attrs) {
+      connector[key](attrs[key]);
+    }
+    for (var key in attrs) {
+      assert.equal(connector[key](), attrs[key]);
+    }
+  });
+
   it('#add', function() {
     var dummy = {};
     var cmap = Cmap(dummy);
     var node = cmap.createNode();
     var link = cmap.createLink();
+    var connector = cmap.createConnector();
     cmap.add(node);
     cmap.add(link);
+    cmap.add(connector);
     assert.equal(cmap.element(), dummy);
     assert.equal(cmap.element(), node.parentElement());
     assert.equal(cmap.element(), link.parentElement());
+    assert.equal(cmap.element(), connector.parentElement());
   });
 
   it('#remove', function() {
@@ -77,12 +101,16 @@ describe('Cmap', function() {
     var cmap = Cmap(dummy);
     var node = cmap.createNode();
     var link = cmap.createLink();
+    var connector = cmap.createConnector();
     cmap.add(node);
     cmap.add(link);
+    cmap.add(connector);
     cmap.remove(node);
     cmap.remove(link);
+    cmap.remove(connector);
     assert.equal(cmap.element(), dummy);
     assert.equal(node.parentElement(), null);
     assert.equal(link.parentElement(), null);
+    assert.equal(connector.parentElement(), null);
   });
 });

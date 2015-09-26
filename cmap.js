@@ -326,6 +326,63 @@
   Link.CONTENT_TYPE_TEXT = 'text';
   Link.CONTENT_TYPE_HTML = 'html';
 
+  var Connector = function(option) {
+    this.x = prop(option.x || 0);
+    this.y = prop(option.y || 0);
+    this.r = prop(option.r || 16);
+    this.color = prop(option.color || Connector.COLOR_UNCONNECTED);
+    this.element = prop(null);
+    this.parentElement = prop(null);
+  };
+
+  Connector.prototype.style = function() {
+    var x = this.x() - this.r();
+    var y = this.y() - this.r();
+    var translate = 'translate(' + x + 'px, ' + y + 'px)';
+    return {
+      backgroundColor: this.color(),
+      borderRadius: this.r() + 'px',
+      height: this.r() * 2 + 'px',
+      MozTransform: translate,
+      msTransform: translate,
+      opacity: 0.6,
+      position: 'absolute',
+      transform: translate,
+      webkitTransform: translate,
+      width: this.r() * 2 + 'px'
+    };
+  };
+
+  Connector.prototype.redraw = function() {
+    var style = this.style();
+    var element = this.element();
+    var parentElement = this.parentElement();
+
+    if (!parentElement && !element)
+      return;
+
+    // add element
+    if (parentElement && !element) {
+      element = dom.el('<div>');
+      this.element(element);
+      this.redraw();
+      dom.append(parentElement, element);
+      return;
+    }
+
+    // remove element
+    if (!parentElement && element) {
+      dom.remove(element);
+      this.element(null);
+      return;
+    }
+
+    dom.css(element, style);
+  };
+
+  Connector.COLOR_CONNECTED = 'lightgreen';
+  Connector.COLOR_UNCONNECTED = 'pink';
+
   var ComponentList = function() {
     this.data = [];
   };
@@ -363,6 +420,10 @@
 
   Cmap.prototype.createLink = function(option) {
     return new Link(option || {});
+  };
+
+  Cmap.prototype.createConnector = function(option) {
+    return new Connector(option || {});
   };
 
   Cmap.prototype.add = function(child) {
