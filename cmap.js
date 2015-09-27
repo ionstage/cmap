@@ -1,7 +1,9 @@
 (function(global) {
   'use strict';
 
-  var inherits = function(ctor, superCtor) {
+  var helper = {};
+
+  helper.inherits = function(ctor, superCtor) {
     ctor.super_ = superCtor;
     ctor.prototype = Object.create(superCtor.prototype, {
       constructor: {
@@ -14,7 +16,7 @@
     return ctor;
   };
 
-  var diffObj = function(newObj, oldObj) {
+  helper.diffObj = function(newObj, oldObj) {
     var diff = {};
     for (var key in newObj) {
       if (newObj[key] !== oldObj[key])
@@ -98,7 +100,7 @@
     };
   })();
 
-  var Node = inherits(function(option) {
+  var Node = helper.inherits(function(option) {
     this.content = this.prop(option.content || '');
     this.contentType = this.prop(option.contentType || Node.CONTENT_TYPE_TEXT);
     this.x = this.prop(option.x || 0);
@@ -190,14 +192,14 @@
       cache.content = content;
     }
 
-    dom.css(element, cache.style ? diffObj(style, cache.style) : style);
+    dom.css(element, cache.style ? helper.diffObj(style, cache.style) : style);
     cache.style = style;
   };
 
   Node.CONTENT_TYPE_TEXT = 'text';
   Node.CONTENT_TYPE_HTML = 'html';
 
-  var Link = inherits(function(option) {
+  var Link = helper.inherits(function(option) {
     this.content = this.prop(option.content || '');
     this.contentType = this.prop(option.contentType || Link.CONTENT_TYPE_TEXT);
     this.x = this.prop(option.x || 100);
@@ -320,7 +322,7 @@
     // update path element
     pathElement = element.children[0].childNodes[0];
 
-    dom.attr(pathElement, cache.pathAttributes ? diffObj(pathAttributes, cache.pathAttributes) : pathAttributes);
+    dom.attr(pathElement, cache.pathAttributes ? helper.diffObj(pathAttributes, cache.pathAttributes) : pathAttributes);
     cache.pathAttributes = pathAttributes;
 
     // update content element
@@ -334,14 +336,14 @@
       cache.content = content;
     }
 
-    dom.css(contentElement, cache.contentStyle ? diffObj(contentStyle, cache.contentStyle) : contentStyle);
+    dom.css(contentElement, cache.contentStyle ? helper.diffObj(contentStyle, cache.contentStyle) : contentStyle);
     cache.contentStyle = contentStyle;
   };
 
   Link.CONTENT_TYPE_TEXT = 'text';
   Link.CONTENT_TYPE_HTML = 'html';
 
-  var Connector = inherits(function(option) {
+  var Connector = helper.inherits(function(option) {
     this.x = this.prop(option.x || 0);
     this.y = this.prop(option.y || 0);
     this.r = this.prop(option.r || 16);
@@ -419,7 +421,7 @@
     return this.data.forEach(callback);
   };
 
-  var Cmap = inherits(function(element) {
+  var Cmap = helper.inherits(function(element) {
     if (!(this instanceof Cmap))
       return new Cmap(element);
 
