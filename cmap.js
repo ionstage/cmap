@@ -1,36 +1,18 @@
 (function(global) {
   'use strict';
 
-  var prop = function(initialValue) {
-    var cache = initialValue;
-    return function(value) {
-      if (typeof value === 'undefined')
-        return cache;
-      cache = value;
-      markDirty(this);
-    };
+  var inherits = function(ctor, superCtor) {
+    ctor.super_ = superCtor;
+    ctor.prototype = Object.create(superCtor.prototype, {
+      constructor: {
+        value: ctor,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    return ctor;
   };
-
-  var markDirty = (function() {
-    var dirtyComponents = [];
-    var requestId = null;
-    var callback = function() {
-      dirtyComponents.forEach(function(component) {
-        component.redraw();
-      });
-      dirtyComponents = [];
-      requestId = null;
-    };
-    return function(component) {
-      if (typeof document === 'undefined')
-        return;
-      if (dirtyComponents.indexOf(component) === -1)
-        dirtyComponents.push(component);
-      if (requestId !== null)
-        return;
-      requestId = dom.animate(callback);
-    };
-  })();
 
   var diffObj = function(newObj, oldObj) {
     var diff = {};
@@ -83,21 +65,54 @@
     return window.requestAnimationFrame(callback);
   };
 
-  var Node = function(option) {
-    this.content = prop(option.content || '');
-    this.contentType = prop(option.contentType || Node.CONTENT_TYPE_TEXT);
-    this.x = prop(option.x || 0);
-    this.y = prop(option.y || 0);
-    this.width = prop(option.width || 75);
-    this.height = prop(option.height || 30);
-    this.backgroundColor = prop(option.backgroundColor || '#a7cbe6');
-    this.borderColor = prop(option.borderColor || '#333');
-    this.borderWidth = prop(option.borderWidth || 2);
-    this.textColor = prop(option.textColor || '#333');
-    this.element = prop(null);
-    this.parentElement = prop(null);
-    this.cache = prop({});
+  var Component = function() {};
+
+  Component.prototype.prop = function(initialValue) {
+    var cache = initialValue;
+    return function(value) {
+      if (typeof value === 'undefined')
+        return cache;
+      cache = value;
+      this.markDirty();
+    };
   };
+
+  Component.prototype.markDirty = (function() {
+    var dirtyComponents = [];
+    var requestId = null;
+    var callback = function() {
+      dirtyComponents.forEach(function(component) {
+        component.redraw();
+      });
+      dirtyComponents = [];
+      requestId = null;
+    };
+    return function() {
+      if (typeof document === 'undefined')
+        return;
+      if (dirtyComponents.indexOf(this) === -1)
+        dirtyComponents.push(this);
+      if (requestId !== null)
+        return;
+      requestId = dom.animate(callback);
+    };
+  })();
+
+  var Node = inherits(function(option) {
+    this.content = this.prop(option.content || '');
+    this.contentType = this.prop(option.contentType || Node.CONTENT_TYPE_TEXT);
+    this.x = this.prop(option.x || 0);
+    this.y = this.prop(option.y || 0);
+    this.width = this.prop(option.width || 75);
+    this.height = this.prop(option.height || 30);
+    this.backgroundColor = this.prop(option.backgroundColor || '#a7cbe6');
+    this.borderColor = this.prop(option.borderColor || '#333');
+    this.borderWidth = this.prop(option.borderWidth || 2);
+    this.textColor = this.prop(option.textColor || '#333');
+    this.element = this.prop(null);
+    this.parentElement = this.prop(null);
+    this.cache = this.prop({});
+  }, Component);
 
   Node.prototype.text = function(text) {
     if (typeof text === 'undefined')
@@ -182,27 +197,27 @@
   Node.CONTENT_TYPE_TEXT = 'text';
   Node.CONTENT_TYPE_HTML = 'html';
 
-  var Link = function(option) {
-    this.content = prop(option.content || '');
-    this.contentType = prop(option.contentType || Link.CONTENT_TYPE_TEXT);
-    this.x = prop(option.x || 100);
-    this.y = prop(option.y || 40);
-    this.width = prop(option.width || 50);
-    this.height = prop(option.height || 20);
-    this.backgroundColor = prop(option.backgroundColor || 'white');
-    this.borderColor = prop(option.borderColor || '#333');
-    this.borderWidth = prop(option.borderWidth || 2);
-    this.textColor = prop(option.textColor || '#333');
-    this.sourceX = prop(option.sourceX || option.x - 70 || 30);
-    this.sourceY = prop(option.sourceY || option.y || 40);
-    this.targetX = prop(option.targetX || option.x + 70 || 170);
-    this.targetY = prop(option.targetY || option.y || 40);
-    this.lineColor = prop(option.lineColor || '#333');
-    this.lineWidth = prop(option.lineWidth || 2);
-    this.element = prop(null);
-    this.parentElement = prop(null);
-    this.cache = prop({});
-  };
+  var Link = inherits(function(option) {
+    this.content = this.prop(option.content || '');
+    this.contentType = this.prop(option.contentType || Link.CONTENT_TYPE_TEXT);
+    this.x = this.prop(option.x || 100);
+    this.y = this.prop(option.y || 40);
+    this.width = this.prop(option.width || 50);
+    this.height = this.prop(option.height || 20);
+    this.backgroundColor = this.prop(option.backgroundColor || 'white');
+    this.borderColor = this.prop(option.borderColor || '#333');
+    this.borderWidth = this.prop(option.borderWidth || 2);
+    this.textColor = this.prop(option.textColor || '#333');
+    this.sourceX = this.prop(option.sourceX || option.x - 70 || 30);
+    this.sourceY = this.prop(option.sourceY || option.y || 40);
+    this.targetX = this.prop(option.targetX || option.x + 70 || 170);
+    this.targetY = this.prop(option.targetY || option.y || 40);
+    this.lineColor = this.prop(option.lineColor || '#333');
+    this.lineWidth = this.prop(option.lineWidth || 2);
+    this.element = this.prop(null);
+    this.parentElement = this.prop(null);
+    this.cache = this.prop({});
+  }, Component);
 
   Link.prototype.text = function(text) {
     if (typeof text === 'undefined')
@@ -326,14 +341,14 @@
   Link.CONTENT_TYPE_TEXT = 'text';
   Link.CONTENT_TYPE_HTML = 'html';
 
-  var Connector = function(option) {
-    this.x = prop(option.x || 0);
-    this.y = prop(option.y || 0);
-    this.r = prop(option.r || 16);
-    this.color = prop(option.color || Connector.COLOR_UNCONNECTED);
-    this.element = prop(null);
-    this.parentElement = prop(null);
-  };
+  var Connector = inherits(function(option) {
+    this.x = this.prop(option.x || 0);
+    this.y = this.prop(option.y || 0);
+    this.r = this.prop(option.r || 16);
+    this.color = this.prop(option.color || Connector.COLOR_UNCONNECTED);
+    this.element = this.prop(null);
+    this.parentElement = this.prop(null);
+  }, Component);
 
   Connector.prototype.style = function() {
     var x = this.x() - this.r();
@@ -404,15 +419,15 @@
     return this.data.forEach(callback);
   };
 
-  var Cmap = function(element) {
+  var Cmap = inherits(function(element) {
     if (!(this instanceof Cmap))
       return new Cmap(element);
 
-    this.componentList = prop(new ComponentList());
-    this.element = prop(element || null);
+    this.componentList = this.prop(new ComponentList());
+    this.element = this.prop(element || null);
 
-    markDirty(this);
-  };
+    this.markDirty();
+  }, Component);
 
   Cmap.prototype.createNode = function(option) {
     return new Node(option || {});
