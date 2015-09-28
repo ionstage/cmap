@@ -146,6 +146,7 @@
       MozTransform: translate,
       msTransform: translate,
       overflow: 'hidden',
+      pointerEvents: 'none',
       position: 'absolute',
       textAlign: textAlign,
       textOverflow: 'ellipsis',
@@ -306,6 +307,7 @@
     if (parentElement && !element) {
       element = dom.el('<div>');
       this.element(element);
+      dom.css(element, {pointerEvents: 'none'});
       dom.html(element, '<svg><path></path></svg><div></div>');
       pathContainerElement = element.children[0];
       dom.css(pathContainerElement, this.pathContainerStyle());
@@ -372,6 +374,7 @@
       MozTransform: translate,
       msTransform: translate,
       opacity: 0.6,
+      pointerEvents: 'none',
       position: 'absolute',
       transform: translate,
       webkitTransform: translate,
