@@ -409,32 +409,10 @@
   Connector.COLOR_CONNECTED = 'lightgreen';
   Connector.COLOR_UNCONNECTED = 'pink';
 
-  var ComponentList = function() {
-    this.data = [];
-  };
-
-  ComponentList.prototype.add = function(component) {
-    var data = this.data;
-    if (data.indexOf(component) === -1)
-      data.push(component);
-  };
-
-  ComponentList.prototype.remove = function(component) {
-    var data = this.data;
-    var index = data.indexOf(component);
-    if (index !== -1)
-      data.splice(index, 1);
-  };
-
-  ComponentList.prototype.each = function(callback) {
-    return this.data.forEach(callback);
-  };
-
   var Cmap = helper.inherits(function(element) {
     if (!(this instanceof Cmap))
       return new Cmap(element);
 
-    this.componentList = this.prop(new ComponentList());
     this.element = this.prop(element || null);
 
     this.markDirty();
@@ -454,12 +432,10 @@
 
   Cmap.prototype.add = function(child) {
     child.parentElement(this.element());
-    this.componentList().add(child);
   };
 
   Cmap.prototype.remove = function(child) {
     child.parentElement(null);
-    this.componentList().remove(child);
   };
 
   Cmap.prototype.style = function() {
@@ -477,15 +453,11 @@
   };
 
   Cmap.prototype.redraw = function() {
-    var componentList = this.componentList();
     var element = this.element();
 
     if (!element) {
       element = dom.el('<div>');
       this.element(element);
-      componentList.each(function(component) {
-        component.parentElement(element);
-      });
     }
 
     dom.css(element, this.style());
