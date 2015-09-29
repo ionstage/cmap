@@ -433,6 +433,28 @@
     return this.data.forEach(callback);
   };
 
+  var Relation = function() {};
+
+  Relation.prototype.prop = function(initialValue) {
+    var cache = initialValue;
+    return function(value) {
+      if (typeof value === 'undefined')
+        return cache;
+      cache = value;
+    };
+  };
+
+  var Connection = helper.inherits(function(option) {
+    this.type = this.prop(option.type || Connection.TYPE_UNDEFINED);
+    this.node = this.prop(option.node || null);
+    this.link = this.prop(option.link || null);
+    this.connector = this.prop(option.connector || null);
+  }, Relation);
+
+  Connection.TYPE_UNDEFINED = 'undefined';
+  Connection.TYPE_SOURCE = 'source';
+  Connection.TYPE_TARGET = 'target';
+
   var Cmap = helper.inherits(function(element) {
     if (!(this instanceof Cmap))
       return new Cmap(element);
