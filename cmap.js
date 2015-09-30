@@ -448,7 +448,6 @@
     this.type = this.prop(option.type || Connection.TYPE_UNDEFINED);
     this.node = this.prop(option.node || null);
     this.link = this.prop(option.link || null);
-    this.connector = this.prop(option.connector || null);
   }, Relation);
 
   Connection.TYPE_UNDEFINED = 'undefined';
