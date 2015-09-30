@@ -124,4 +124,14 @@ describe('Cmap', function() {
     assert.equal(nodeRelations[0].type(), 'source');
     assert.equal(nodeRelations[0], linkRelations[0]);
   });
+
+  it('disconnect', function() {
+    var cmap = Cmap();
+    var node = cmap.createNode();
+    var link = cmap.createLink();
+    cmap.connect('source', node, link);
+    cmap.disconnect('source', node, link);
+    assert.equal(node.relations().length, 0);
+    assert.equal(link.relations().length, 0);
+  });
 });

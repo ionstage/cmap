@@ -504,6 +504,24 @@
     link.relations().push(connection);
   };
 
+  Cmap.prototype.disconnect = function(type, node, link) {
+    if (!node || !link)
+      return;
+
+    // remove connection from node
+    var nodeRelations = node.relations().filter(function(relation) {
+      return relation.type() !== type || relation.link() !== link;
+    });
+
+    // remove connection from link
+    var linkRelations = link.relations().filter(function(relation) {
+      return relation.type() !== type || relation.node() !== node;
+    });
+
+    node.relations(nodeRelations);
+    link.relations(linkRelations);
+  };
+
   Cmap.prototype.style = function() {
     return {
       color: '#333',
