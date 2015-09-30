@@ -84,6 +84,11 @@
     var requestId = null;
     var callback = function() {
       dirtyComponents.forEach(function(component) {
+        component.relations().forEach(function(relation) {
+          relation.update(component);
+        });
+      });
+      dirtyComponents.forEach(function(component) {
         component.redraw();
       });
       dirtyComponents = [];
@@ -453,6 +458,10 @@
     this.link = this.prop(option.link || null);
   }, Relation);
 
+  Connection.prototype.update = function(changedComponent) {
+    // TODO: update connected components
+  };
+
   Connection.TYPE_UNDEFINED = 'undefined';
   Connection.TYPE_SOURCE = 'source';
   Connection.TYPE_TARGET = 'target';
@@ -502,6 +511,9 @@
 
     node.relations().push(connection);
     link.relations().push(connection);
+
+    // do not need to mark node dirty (stay unchanged)
+    link.markDirty();
   };
 
   Cmap.prototype.disconnect = function(type, node, link) {
@@ -520,6 +532,9 @@
 
     node.relations(nodeRelations);
     link.relations(linkRelations);
+
+    // do not need to mark node dirty (stay unchanged)
+    link.markDirty();
   };
 
   Cmap.prototype.style = function() {
