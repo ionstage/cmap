@@ -114,6 +114,7 @@
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
     this.cache = this.prop({});
+    this.relations = this.prop([]);
   }, Component);
 
   Node.prototype.text = function(text) {
@@ -223,6 +224,7 @@
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
     this.cache = this.prop({});
+    this.relations = this.prop([]);
   }, Component);
 
   Link.prototype.text = function(text) {
@@ -361,6 +363,7 @@
     this.color = this.prop(option.color || Connector.COLOR_UNCONNECTED);
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
+    this.relations = this.prop([]);
   }, Component);
 
   Connector.prototype.style = function() {
@@ -460,6 +463,7 @@
 
     this.componentList = this.prop(new ComponentList());
     this.element = this.prop(element || null);
+    this.relations = this.prop([]);
 
     this.markDirty();
   }, Component);
@@ -484,6 +488,20 @@
   Cmap.prototype.remove = function(child) {
     child.parentElement(null);
     this.componentList().remove(child);
+  };
+
+  Cmap.prototype.connect = function(type, node, link) {
+    if (!node || !link)
+      return;
+
+    var connection = new Connection({
+      type: type,
+      node: node,
+      link: link
+    });
+
+    node.relations().push(connection);
+    link.relations().push(connection);
   };
 
   Cmap.prototype.style = function() {

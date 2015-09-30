@@ -113,4 +113,15 @@ describe('Cmap', function() {
     assert.equal(link.parentElement(), null);
     assert.equal(connector.parentElement(), null);
   });
+
+  it('connect', function() {
+    var cmap = Cmap();
+    var node = cmap.createNode();
+    var link = cmap.createLink();
+    cmap.connect('source', node, link);
+    var nodeRelations = node.relations();
+    var linkRelations = link.relations();
+    assert.equal(nodeRelations[0].type(), 'source');
+    assert.equal(nodeRelations[0], linkRelations[0]);
+  });
 });
