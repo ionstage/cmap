@@ -79,6 +79,12 @@
     };
   };
 
+  Component.prototype.relations = function() {
+    return [];
+  };
+
+  Component.prototype.redraw = function() {};
+
   Component.prototype.markDirty = (function() {
     var dirtyComponents = [];
     var requestId = null;
@@ -368,7 +374,6 @@
     this.color = this.prop(option.color || Connector.COLOR_UNCONNECTED);
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
-    this.relations = this.prop([]);
   }, Component);
 
   Connector.prototype.style = function() {
@@ -452,6 +457,8 @@
     };
   };
 
+  Relation.prototype.update = function() {};
+
   var Connection = helper.inherits(function(option) {
     this.type = this.prop(option.type || Connection.TYPE_UNDEFINED);
     this.node = this.prop(option.node || null);
@@ -472,7 +479,6 @@
 
     this.componentList = this.prop(new ComponentList());
     this.element = this.prop(element || null);
-    this.relations = this.prop([]);
 
     this.markDirty();
   }, Component);
