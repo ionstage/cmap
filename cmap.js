@@ -74,6 +74,8 @@
     return function(value) {
       if (typeof value === 'undefined')
         return cache;
+      if (value === cache)
+        return;
       cache = value;
       this.markDirty();
     };
