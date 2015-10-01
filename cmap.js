@@ -467,8 +467,93 @@
     this.link = this.prop(option.link || null);
   }, Relation);
 
-  Connection.prototype.update = function(changedComponent) {
-    // TODO: update connected components
+  Connection.prototype.update = function() {
+    var type = this.type();
+    var link = this.link();
+    var point = this.point();
+    link[type + 'X'](point.x);
+    link[type + 'Y'](point.y);
+  };
+
+  Connection.prototype.point = function() {
+    var node = this.node();
+    var link = this.link();
+
+    var nx = node.x();
+    var ny = node.y();
+    var nwidth = node.width();
+    var nheight = node.height();
+    var lcx = link.cx();
+    var lcy = link.cy();
+
+    var ncx = nx + nwidth / 2;
+    var ncy = ny + nheight / 2;
+
+    var alpha = Math.atan2(lcy - ncy, lcx - ncx);
+    var beta = Math.PI / 2 - alpha;
+    var t = Math.atan2(nheight, nwidth);
+
+    var x, y;
+
+    // left edge
+    if (alpha < t - Math.PI || alpha > Math.PI - t) {
+      x = nx;
+      y = ncy - nwidth * Math.tan(alpha) / 2;
+    }
+    // top edge
+    else if (alpha < -t) {
+      x = ncx - nheight * Math.tan(beta) / 2;
+      y = ny;
+    }
+    // right edge
+    else if (alpha < t) {
+      x = nx + nwidth;
+      y = ncy + nwidth * Math.tan(alpha) / 2;
+    }
+    // bottom edge
+    else {
+      x = ncx + nheight * Math.tan(beta) / 2;
+      y = ny + nheight;
+    }
+
+    var x0, y0, l, ex, ey;
+    var r = 4;
+    var atCorner = false;
+
+    // top-left corner
+    if (x < nx + r && y < ny + r) {
+      x0 = nx + r;
+      y0 = ny + r;
+      atCorner = true;
+    }
+    // top-right corner
+    else if (x > nx + nwidth - r && y < ny + r) {
+      x0 = nx + nwidth - r;
+      y0 = ny + r;
+      atCorner = true;
+    }
+    // bottom-left corner
+    else if (x < nx + r && y > ny + nheight - r) {
+      x0 = nx + r;
+      y0 = ny + nheight - r;
+      atCorner = true;
+    }
+    // bottom-right corner
+    else if (x > nx + nwidth - r && y > ny + nheight - r) {
+      x0 = nx + nwidth - r;
+      y0 = ny + nheight - r;
+      atCorner = true;
+    }
+
+    if (atCorner) {
+      l = Math.sqrt((x0 - x) * (x0 - x) + (y0 - y) * (y0 - y));
+      ex = (x0 - x) / l;
+      ey = (y0 - y) / l;
+      x = x0 - r * ex;
+      y = y0 - r * ey;
+    }
+
+    return {x: x, y: y};
   };
 
   Connection.TYPE_UNDEFINED = 'undefined';
