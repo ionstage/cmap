@@ -32,8 +32,8 @@ describe('Cmap', function() {
     var cmap = Cmap();
     var attrs = {
       content: 'link',
-      x: 100,
-      y: 200,
+      cx: 100,
+      cy: 200,
       width: 120,
       height: 45,
       backgroundColor: 'black',

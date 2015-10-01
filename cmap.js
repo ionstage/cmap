@@ -218,8 +218,8 @@
   var Link = helper.inherits(function(option) {
     this.content = this.prop(option.content || '');
     this.contentType = this.prop(option.contentType || Link.CONTENT_TYPE_TEXT);
-    this.x = this.prop(option.x || 100);
-    this.y = this.prop(option.y || 40);
+    this.cx = this.prop(option.cx || 100);
+    this.cy = this.prop(option.cy || 40);
     this.width = this.prop(option.width || 50);
     this.height = this.prop(option.height || 20);
     this.backgroundColor = this.prop(option.backgroundColor || 'white');
@@ -261,7 +261,7 @@
 
   Link.prototype.pathAttributes = function() {
     var d = ['M', this.sourceX(), this.sourceY(),
-             'L', this.x(), this.y(),
+             'L', this.cx(), this.cy(),
              'L', this.targetX(), this.targetY()].join(' ');
     return {
       d: d,
@@ -276,8 +276,8 @@
     var contentType = this.contentType();
     var lineHeight = (contentType === Link.CONTENT_TYPE_TEXT) ? this.height() : 14;
     var textAlign = (contentType === Link.CONTENT_TYPE_TEXT) ? 'center' : 'left';
-    var x = this.x() - this.width() / 2;
-    var y = this.y() - this.height() / 2;
+    var x = this.cx() - this.width() / 2;
+    var y = this.cy() - this.height() / 2;
     var translate = 'translate(' + x + 'px, ' + y + 'px)';
     var borderWidthOffset = this.borderWidth() * 2;
     return {
