@@ -172,12 +172,8 @@
   };
 
   Node.prototype.redraw = function() {
-    var content = this.content();
-    var contentType = this.contentType();
-    var style = this.style();
     var element = this.element();
     var parentElement = this.parentElement();
-    var cache = this.cache();
 
     if (!parentElement && !element)
       return;
@@ -199,6 +195,10 @@
       return;
     }
 
+    var cache = this.cache();
+    var content = this.content();
+    var contentType = this.contentType();
+
     if (content !== cache.content) {
       if (contentType === Node.CONTENT_TYPE_TEXT)
         dom.text(element, content);
@@ -206,6 +206,8 @@
         dom.html(element, content);
       cache.content = content;
     }
+
+    var style = this.style();
 
     if (cache.style)
       style = helper.diffObj(style, cache.style);
@@ -303,17 +305,8 @@
   };
 
   Link.prototype.redraw = function() {
-    var content = this.content();
-    var contentType = this.contentType();
-    var pathAttributes = this.pathAttributes();
-    var contentStyle = this.contentStyle();
     var element = this.element();
     var parentElement = this.parentElement();
-    var cache = this.cache();
-
-    var pathContainerElement;
-    var pathElement;
-    var contentElement;
 
     if (!parentElement && !element)
       return;
@@ -324,7 +317,7 @@
       this.element(element);
       dom.css(element, {pointerEvents: 'none'});
       dom.html(element, '<svg><path></path></svg><div></div>');
-      pathContainerElement = element.children[0];
+      var pathContainerElement = element.children[0];
       dom.css(pathContainerElement, this.pathContainerStyle());
       this.redraw();
       dom.append(parentElement, element);
@@ -339,8 +332,11 @@
       return;
     }
 
+    var cache = this.cache();
+
     // update path element
-    pathElement = element.children[0].childNodes[0];
+    var pathAttributes = this.pathAttributes();
+    var pathElement = element.children[0].childNodes[0];
 
     if (cache.pathAttributes)
       pathAttributes = helper.diffObj(pathAttributes, cache.pathAttributes);
@@ -349,7 +345,10 @@
     cache.pathAttributes = pathAttributes;
 
     // update content element
-    contentElement = element.children[1];
+    var content = this.content();
+    var contentType = this.contentType();
+    var contentStyle = this.contentStyle();
+    var contentElement = element.children[1];
 
     if (content !== cache.content) {
       if (contentType === Link.CONTENT_TYPE_TEXT)
@@ -398,7 +397,6 @@
   };
 
   Connector.prototype.redraw = function() {
-    var style = this.style();
     var element = this.element();
     var parentElement = this.parentElement();
 
@@ -421,7 +419,7 @@
       return;
     }
 
-    dom.css(element, style);
+    dom.css(element, this.style());
   };
 
   Connector.COLOR_CONNECTED = 'lightgreen';
@@ -645,13 +643,12 @@
   };
 
   Cmap.prototype.redraw = function() {
-    var componentList = this.componentList();
     var element = this.element();
 
     if (!element) {
       element = dom.el('<div>');
       this.element(element);
-      componentList.each(function(component) {
+      this.componentList().each(function(component) {
         component.parentElement(element);
       });
     }
