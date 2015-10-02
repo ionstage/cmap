@@ -13,6 +13,7 @@
         configurable: true
       }
     });
+
     return ctor;
   };
 
@@ -22,6 +23,7 @@
       if (newObj[key] !== oldObj[key])
         diff[key] = newObj[key];
     }
+
     return diff;
   };
 
@@ -71,11 +73,14 @@
 
   Component.prototype.prop = function(initialValue) {
     var cache = initialValue;
+
     return function(value) {
       if (typeof value === 'undefined')
         return cache;
+
       if (value === cache)
         return;
+
       cache = value;
       this.markDirty();
     };
@@ -90,25 +95,32 @@
   Component.prototype.markDirty = (function() {
     var dirtyComponents = [];
     var requestId = null;
+
     var callback = function() {
       dirtyComponents.forEach(function(component) {
         component.relations().forEach(function(relation) {
           relation.update(component);
         });
       });
+
       dirtyComponents.forEach(function(component) {
         component.redraw();
       });
+
       dirtyComponents = [];
       requestId = null;
     };
+
     return function() {
       if (typeof document === 'undefined')
         return;
+
       if (dirtyComponents.indexOf(this) === -1)
         dirtyComponents.push(this);
+
       if (requestId !== null)
         return;
+
       requestId = dom.animate(callback);
     };
   })();
@@ -133,6 +145,7 @@
   Node.prototype.text = function(text) {
     if (typeof text === 'undefined')
       return this.content();
+
     this.content(text);
     this.contentType(Node.CONTENT_TYPE_TEXT);
   };
@@ -140,6 +153,7 @@
   Node.prototype.html = function(html) {
     if (typeof html === 'undefined')
       return this.content();
+
     this.content(html);
     this.contentType(Node.CONTENT_TYPE_HTML);
   };
@@ -150,6 +164,7 @@
     var textAlign = (contentType === Node.CONTENT_TYPE_TEXT) ? 'center' : 'left';
     var translate = 'translate(' + this.x() + 'px, ' + this.y() + 'px)';
     var borderWidthOffset = this.borderWidth() * 2;
+
     return {
       backgroundColor: this.backgroundColor(),
       border: this.borderWidth() + 'px solid ' + this.borderColor(),
@@ -182,8 +197,10 @@
     if (parentElement && !element) {
       element = dom.el('<div>');
       this.element(element);
+
       this.redraw();
       dom.append(parentElement, element);
+
       return;
     }
 
@@ -191,7 +208,9 @@
     if (!parentElement && element) {
       dom.remove(element);
       this.element(null);
+
       this.cache({});
+
       return;
     }
 
@@ -204,6 +223,7 @@
         dom.text(element, content);
       else if (contentType === Node.CONTENT_TYPE_HTML)
         dom.html(element, content);
+
       cache.content = content;
     }
 
@@ -246,6 +266,7 @@
   Link.prototype.text = function(text) {
     if (typeof text === 'undefined')
       return this.content();
+
     this.content(text);
     this.contentType(Link.CONTENT_TYPE_TEXT);
   };
@@ -253,6 +274,7 @@
   Link.prototype.html = function(html) {
     if (typeof html === 'undefined')
       return this.content();
+
     this.content(html);
     this.contentType(Link.CONTENT_TYPE_HTML);
   };
@@ -265,9 +287,12 @@
   };
 
   Link.prototype.pathAttributes = function() {
-    var d = ['M', this.sourceX(), this.sourceY(),
-             'L', this.cx(), this.cy(),
-             'L', this.targetX(), this.targetY()].join(' ');
+    var d = [
+      'M', this.sourceX(), this.sourceY(),
+      'L', this.cx(), this.cy(),
+      'L', this.targetX(), this.targetY()
+    ].join(' ');
+
     return {
       d: d,
       fill: 'none',
@@ -284,14 +309,17 @@
     var ty = this.targetY();
 
     var radians = Math.atan2(ty - cy, tx - cx);
+
     var p0 = {
       x: 15 * Math.cos(radians - 26 * Math.PI / 180),
       y: 15 * Math.sin(radians - 26 * Math.PI / 180)
     };
+
     var p1 = {
       x: 15 * Math.cos(radians + 26 * Math.PI / 180),
       y: 15 * Math.sin(radians + 26 * Math.PI / 180)
     };
+
     var p2 = {
       x: 7 * Math.cos(radians),
       y: 7 * Math.sin(radians)
@@ -323,6 +351,7 @@
     var y = this.cy() - this.height() / 2;
     var translate = 'translate(' + x + 'px, ' + y + 'px)';
     var borderWidthOffset = this.borderWidth() * 2;
+
     return {
       backgroundColor: this.backgroundColor(),
       border: this.borderWidth() + 'px solid ' + this.borderColor(),
@@ -354,12 +383,16 @@
     if (parentElement && !element) {
       element = dom.el('<div>');
       this.element(element);
+
       dom.css(element, {pointerEvents: 'none'});
       dom.html(element, '<svg><path></path><path></path></svg><div></div>');
+
       var pathContainerElement = element.children[0];
       dom.css(pathContainerElement, this.pathContainerStyle());
+
       this.redraw();
       dom.append(parentElement, element);
+
       return;
     }
 
@@ -367,7 +400,9 @@
     if (!parentElement && element) {
       dom.remove(element);
       this.element(null);
+
       this.cache({});
+
       return;
     }
 
@@ -404,6 +439,7 @@
         dom.text(contentElement, content);
       else if (contentType === Link.CONTENT_TYPE_HTML)
         dom.html(contentElement, content);
+
       cache.content = content;
     }
 
@@ -430,6 +466,7 @@
     var x = this.x() - this.r();
     var y = this.y() - this.r();
     var translate = 'translate(' + x + 'px, ' + y + 'px)';
+
     return {
       backgroundColor: this.color(),
       borderRadius: this.r() + 'px',
@@ -456,8 +493,10 @@
     if (parentElement && !element) {
       element = dom.el('<div>');
       this.element(element);
+
       this.redraw();
       dom.append(parentElement, element);
+
       return;
     }
 
@@ -465,6 +504,7 @@
     if (!parentElement && element) {
       dom.remove(element);
       this.element(null);
+
       return;
     }
 
@@ -499,9 +539,11 @@
 
   Relation.prototype.prop = function(initialValue) {
     var cache = initialValue;
+
     return function(value) {
       if (typeof value === 'undefined')
         return cache;
+
       cache = value;
     };
   };
@@ -518,6 +560,7 @@
     var type = this.type();
     var link = this.link();
     var point = this.point();
+
     link[type + 'X'](point.x);
     link[type + 'Y'](point.y);
   };
@@ -600,7 +643,10 @@
       y = y0 - r * ey;
     }
 
-    return {x: x, y: y};
+    return {
+      x: x,
+      y: y
+    };
   };
 
   Connection.TYPE_UNDEFINED = 'undefined';
@@ -697,6 +743,7 @@
     if (!element) {
       element = dom.el('<div>');
       this.element(element);
+
       this.componentList().each(function(component) {
         component.parentElement(element);
       });
