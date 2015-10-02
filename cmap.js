@@ -286,7 +286,7 @@
     };
   };
 
-  Link.prototype.pathAttributes = function() {
+  Link.prototype.lineAttributes = function() {
     var d = [
       'M', this.sourceX(), this.sourceY(),
       'L', this.cx(), this.cy(),
@@ -408,15 +408,15 @@
 
     var cache = this.cache();
 
-    // update path element
-    var pathAttributes = this.pathAttributes();
-    var pathElement = element.children[0].childNodes[0];
+    // update line element
+    var lineAttributes = this.lineAttributes();
+    var lineElement = element.children[0].childNodes[0];
 
-    if (cache.pathAttributes)
-      pathAttributes = helper.diffObj(pathAttributes, cache.pathAttributes);
+    if (cache.lineAttributes)
+      lineAttributes = helper.diffObj(lineAttributes, cache.lineAttributes);
 
-    dom.attr(pathElement, pathAttributes);
-    cache.pathAttributes = pathAttributes;
+    dom.attr(lineElement, lineAttributes);
+    cache.lineAttributes = lineAttributes;
 
     // update arrow element
     var arrowAttributes = this.arrowAttributes();
