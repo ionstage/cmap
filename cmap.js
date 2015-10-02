@@ -236,6 +236,7 @@
     this.targetY = this.prop(option.targetY || option.y || 40);
     this.lineColor = this.prop(option.lineColor || '#333');
     this.lineWidth = this.prop(option.lineWidth || 2);
+    this.hasArrow = this.prop(!!option.hasArrow);
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
     this.cache = this.prop({});
@@ -273,6 +274,44 @@
       stroke: this.lineColor(),
       'stroke-linecap': 'round',
       'stroke-width': this.lineWidth()
+    };
+  };
+
+  Link.prototype.arrowAttributes = function() {
+    var cx = this.cx();
+    var cy = this.cy();
+    var tx = this.targetX();
+    var ty = this.targetY();
+
+    var radians = Math.atan2(ty - cy, tx - cx);
+    var p0 = {
+      x: 15 * Math.cos(radians - 26 * Math.PI / 180),
+      y: 15 * Math.sin(radians - 26 * Math.PI / 180)
+    };
+    var p1 = {
+      x: 15 * Math.cos(radians + 26 * Math.PI / 180),
+      y: 15 * Math.sin(radians + 26 * Math.PI / 180)
+    };
+    var p2 = {
+      x: 7 * Math.cos(radians),
+      y: 7 * Math.sin(radians)
+    };
+
+    var d = [
+      'M', tx - p0.x, ty - p0.y,
+      'L', tx, ty,
+      'L', tx - p1.x, ty - p1.y,
+      'Q', tx - p2.x, ty - p2.y, tx - p0.x, ty - p0.y,
+      'Z'
+    ].join(' ');
+
+    return {
+      d: d,
+      fill: this.lineColor(),
+      stroke: this.lineColor(),
+      'stroke-linejoin': 'round',
+      'stroke-width': this.lineWidth(),
+      visibility: this.hasArrow() ? 'visible' : 'hidden'
     };
   };
 
@@ -316,7 +355,7 @@
       element = dom.el('<div>');
       this.element(element);
       dom.css(element, {pointerEvents: 'none'});
-      dom.html(element, '<svg><path></path></svg><div></div>');
+      dom.html(element, '<svg><path></path><path></path></svg><div></div>');
       var pathContainerElement = element.children[0];
       dom.css(pathContainerElement, this.pathContainerStyle());
       this.redraw();
@@ -343,6 +382,16 @@
 
     dom.attr(pathElement, pathAttributes);
     cache.pathAttributes = pathAttributes;
+
+    // update arrow element
+    var arrowAttributes = this.arrowAttributes();
+    var arrowElement = element.children[0].childNodes[1];
+
+    if (cache.arrowAttributes)
+      arrowAttributes = helper.diffObj(arrowAttributes, cache.arrowAttributes);
+
+    dom.attr(arrowElement, arrowAttributes);
+    cache.arrowAttributes = arrowAttributes;
 
     // update content element
     var content = this.content();

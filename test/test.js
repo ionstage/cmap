@@ -45,7 +45,8 @@ describe('Cmap', function() {
       targetX: 150,
       targetY: 300,
       lineColor: 'white',
-      lineWidth: 4
+      lineWidth: 4,
+      hasArrow: true
     };
     var link = cmap.createLink(attrs);
     for (var key in attrs) {
