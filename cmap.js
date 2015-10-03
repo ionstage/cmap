@@ -250,10 +250,10 @@
     this.borderColor = this.prop(option.borderColor || '#333');
     this.borderWidth = this.prop(option.borderWidth || 2);
     this.textColor = this.prop(option.textColor || '#333');
-    this.sourceX = this.prop(option.sourceX || option.x - 70 || 30);
-    this.sourceY = this.prop(option.sourceY || option.y || 40);
-    this.targetX = this.prop(option.targetX || option.x + 70 || 170);
-    this.targetY = this.prop(option.targetY || option.y || 40);
+    this.sourceX = this.prop(option.sourceX || this.cx() - 70);
+    this.sourceY = this.prop(option.sourceY || this.cy());
+    this.targetX = this.prop(option.targetX || this.cx() + 70);
+    this.targetY = this.prop(option.targetY || this.cy());
     this.lineColor = this.prop(option.lineColor || '#333');
     this.lineWidth = this.prop(option.lineWidth || 2);
     this.hasArrow = this.prop(!!option.hasArrow);
