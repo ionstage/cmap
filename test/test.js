@@ -4,7 +4,7 @@ var Cmap = require('../cmap.js');
 describe('Cmap', function() {
   it('#createNode', function() {
     var cmap = Cmap();
-    var attrs = {
+    var props = {
       content: 'node',
       x: 100,
       y: 200,
@@ -15,22 +15,22 @@ describe('Cmap', function() {
       borderWidth: 4,
       textColor: 'black'
     };
-    var node = cmap.createNode(attrs);
-    for (var key in attrs) {
-      assert.equal(node[key](), attrs[key]);
+    var node = cmap.createNode(props);
+    for (var key in props) {
+      assert.equal(node[key](), props[key]);
     }
     node = cmap.createNode();
-    for (var key in attrs) {
-      node[key](attrs[key]);
+    for (var key in props) {
+      node[key](props[key]);
     }
-    for (var key in attrs) {
-      assert.equal(node[key](), attrs[key]);
+    for (var key in props) {
+      assert.equal(node[key](), props[key]);
     }
   });
 
   it('#createLink', function() {
     var cmap = Cmap();
-    var attrs = {
+    var props = {
       content: 'link',
       cx: 100,
       cy: 200,
@@ -48,37 +48,37 @@ describe('Cmap', function() {
       lineWidth: 4,
       hasArrow: true
     };
-    var link = cmap.createLink(attrs);
-    for (var key in attrs) {
-      assert.equal(link[key](), attrs[key]);
+    var link = cmap.createLink(props);
+    for (var key in props) {
+      assert.equal(link[key](), props[key]);
     }
     link = cmap.createLink();
-    for (var key in attrs) {
-      link[key](attrs[key]);
+    for (var key in props) {
+      link[key](props[key]);
     }
-    for (var key in attrs) {
-      assert.equal(link[key](), attrs[key]);
+    for (var key in props) {
+      assert.equal(link[key](), props[key]);
     }
   });
 
   it('#createConnector', function() {
     var cmap = Cmap();
-    var attrs = {
+    var props = {
       x: 100,
       y: 200,
       r: 30,
       color: 'black'
     };
-    var connector = cmap.createConnector(attrs);
-    for (var key in attrs) {
-      assert.equal(connector[key](), attrs[key]);
+    var connector = cmap.createConnector(props);
+    for (var key in props) {
+      assert.equal(connector[key](), props[key]);
     }
     connector = cmap.createConnector();
-    for (var key in attrs) {
-      connector[key](attrs[key]);
+    for (var key in props) {
+      connector[key](props[key]);
     }
-    for (var key in attrs) {
-      assert.equal(connector[key](), attrs[key]);
+    for (var key in props) {
+      assert.equal(connector[key](), props[key]);
     }
   });
 

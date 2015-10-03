@@ -129,17 +129,17 @@
     };
   })();
 
-  var Node = helper.inherits(function(option) {
-    this.content = this.prop(option.content || '');
-    this.contentType = this.prop(option.contentType || Node.CONTENT_TYPE_TEXT);
-    this.x = this.prop(helper.toNumber(option.x, 0));
-    this.y = this.prop(helper.toNumber(option.y, 0));
-    this.width = this.prop(helper.toNumber(option.width, 75));
-    this.height = this.prop(helper.toNumber(option.height, 30));
-    this.backgroundColor = this.prop(option.backgroundColor || '#a7cbe6');
-    this.borderColor = this.prop(option.borderColor || '#333');
-    this.borderWidth = this.prop(helper.toNumber(option.borderWidth, 2));
-    this.textColor = this.prop(option.textColor || '#333');
+  var Node = helper.inherits(function(props) {
+    this.content = this.prop(props.content || '');
+    this.contentType = this.prop(props.contentType || Node.CONTENT_TYPE_TEXT);
+    this.x = this.prop(helper.toNumber(props.x, 0));
+    this.y = this.prop(helper.toNumber(props.y, 0));
+    this.width = this.prop(helper.toNumber(props.width, 75));
+    this.height = this.prop(helper.toNumber(props.height, 30));
+    this.backgroundColor = this.prop(props.backgroundColor || '#a7cbe6');
+    this.borderColor = this.prop(props.borderColor || '#333');
+    this.borderWidth = this.prop(helper.toNumber(props.borderWidth, 2));
+    this.textColor = this.prop(props.textColor || '#333');
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
     this.cache = this.prop({});
@@ -243,24 +243,24 @@
   Node.CONTENT_TYPE_TEXT = 'text';
   Node.CONTENT_TYPE_HTML = 'html';
 
-  var Link = helper.inherits(function(option) {
-    this.content = this.prop(option.content || '');
-    this.contentType = this.prop(option.contentType || Link.CONTENT_TYPE_TEXT);
-    this.cx = this.prop(helper.toNumber(option.cx, 100));
-    this.cy = this.prop(helper.toNumber(option.cy, 40));
-    this.width = this.prop(helper.toNumber(option.width, 50));
-    this.height = this.prop(helper.toNumber(option.height, 20));
-    this.backgroundColor = this.prop(option.backgroundColor || 'white');
-    this.borderColor = this.prop(option.borderColor || '#333');
-    this.borderWidth = this.prop(helper.toNumber(option.borderWidth, 2));
-    this.textColor = this.prop(option.textColor || '#333');
-    this.sourceX = this.prop(option.sourceX || this.cx() - 70);
-    this.sourceY = this.prop(option.sourceY || this.cy());
-    this.targetX = this.prop(option.targetX || this.cx() + 70);
-    this.targetY = this.prop(option.targetY || this.cy());
-    this.lineColor = this.prop(option.lineColor || '#333');
-    this.lineWidth = this.prop(helper.toNumber(option.lineWidth, 2));
-    this.hasArrow = this.prop(!!option.hasArrow);
+  var Link = helper.inherits(function(props) {
+    this.content = this.prop(props.content || '');
+    this.contentType = this.prop(props.contentType || Link.CONTENT_TYPE_TEXT);
+    this.cx = this.prop(helper.toNumber(props.cx, 100));
+    this.cy = this.prop(helper.toNumber(props.cy, 40));
+    this.width = this.prop(helper.toNumber(props.width, 50));
+    this.height = this.prop(helper.toNumber(props.height, 20));
+    this.backgroundColor = this.prop(props.backgroundColor || 'white');
+    this.borderColor = this.prop(props.borderColor || '#333');
+    this.borderWidth = this.prop(helper.toNumber(props.borderWidth, 2));
+    this.textColor = this.prop(props.textColor || '#333');
+    this.sourceX = this.prop(props.sourceX || this.cx() - 70);
+    this.sourceY = this.prop(props.sourceY || this.cy());
+    this.targetX = this.prop(props.targetX || this.cx() + 70);
+    this.targetY = this.prop(props.targetY || this.cy());
+    this.lineColor = this.prop(props.lineColor || '#333');
+    this.lineWidth = this.prop(helper.toNumber(props.lineWidth, 2));
+    this.hasArrow = this.prop(!!props.hasArrow);
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
     this.cache = this.prop({});
@@ -457,11 +457,11 @@
   Link.CONTENT_TYPE_TEXT = 'text';
   Link.CONTENT_TYPE_HTML = 'html';
 
-  var Connector = helper.inherits(function(option) {
-    this.x = this.prop(helper.toNumber(option.x, 0));
-    this.y = this.prop(helper.toNumber(option.y, 0));
-    this.r = this.prop(helper.toNumber(option.r, 16));
-    this.color = this.prop(option.color || Connector.COLOR_UNCONNECTED);
+  var Connector = helper.inherits(function(props) {
+    this.x = this.prop(helper.toNumber(props.x, 0));
+    this.y = this.prop(helper.toNumber(props.y, 0));
+    this.r = this.prop(helper.toNumber(props.r, 16));
+    this.color = this.prop(props.color || Connector.COLOR_UNCONNECTED);
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
   }, Component);
@@ -554,10 +554,10 @@
 
   Relation.prototype.update = function() {};
 
-  var Connection = helper.inherits(function(option) {
-    this.type = this.prop(option.type || Connection.TYPE_UNDEFINED);
-    this.node = this.prop(option.node || null);
-    this.link = this.prop(option.link || null);
+  var Connection = helper.inherits(function(props) {
+    this.type = this.prop(props.type || Connection.TYPE_UNDEFINED);
+    this.node = this.prop(props.node || null);
+    this.link = this.prop(props.link || null);
   }, Relation);
 
   Connection.prototype.update = function() {
@@ -667,16 +667,16 @@
     this.markDirty();
   }, Component);
 
-  Cmap.prototype.createNode = function(option) {
-    return new Node(option || {});
+  Cmap.prototype.createNode = function(props) {
+    return new Node(props || {});
   };
 
-  Cmap.prototype.createLink = function(option) {
-    return new Link(option || {});
+  Cmap.prototype.createLink = function(props) {
+    return new Link(props || {});
   };
 
-  Cmap.prototype.createConnector = function(option) {
-    return new Connector(option || {});
+  Cmap.prototype.createConnector = function(props) {
+    return new Connector(props || {});
   };
 
   Cmap.prototype.add = function(child) {
