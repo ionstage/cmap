@@ -3,6 +3,10 @@
 
   var helper = {};
 
+  helper.toNumber = function(value, defaultValue) {
+    return (typeof value === 'number') ? value : defaultValue;
+  };
+
   helper.inherits = function(ctor, superCtor) {
     ctor.super_ = superCtor;
     ctor.prototype = Object.create(superCtor.prototype, {
@@ -128,13 +132,13 @@
   var Node = helper.inherits(function(option) {
     this.content = this.prop(option.content || '');
     this.contentType = this.prop(option.contentType || Node.CONTENT_TYPE_TEXT);
-    this.x = this.prop(option.x || 0);
-    this.y = this.prop(option.y || 0);
-    this.width = this.prop(option.width || 75);
-    this.height = this.prop(option.height || 30);
+    this.x = this.prop(helper.toNumber(option.x, 0));
+    this.y = this.prop(helper.toNumber(option.y, 0));
+    this.width = this.prop(helper.toNumber(option.width, 75));
+    this.height = this.prop(helper.toNumber(option.height, 30));
     this.backgroundColor = this.prop(option.backgroundColor || '#a7cbe6');
     this.borderColor = this.prop(option.borderColor || '#333');
-    this.borderWidth = this.prop(option.borderWidth || 2);
+    this.borderWidth = this.prop(helper.toNumber(option.borderWidth, 2));
     this.textColor = this.prop(option.textColor || '#333');
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
@@ -242,20 +246,20 @@
   var Link = helper.inherits(function(option) {
     this.content = this.prop(option.content || '');
     this.contentType = this.prop(option.contentType || Link.CONTENT_TYPE_TEXT);
-    this.cx = this.prop(option.cx || 100);
-    this.cy = this.prop(option.cy || 40);
-    this.width = this.prop(option.width || 50);
-    this.height = this.prop(option.height || 20);
+    this.cx = this.prop(helper.toNumber(option.cx, 100));
+    this.cy = this.prop(helper.toNumber(option.cy, 40));
+    this.width = this.prop(helper.toNumber(option.width, 50));
+    this.height = this.prop(helper.toNumber(option.height, 20));
     this.backgroundColor = this.prop(option.backgroundColor || 'white');
     this.borderColor = this.prop(option.borderColor || '#333');
-    this.borderWidth = this.prop(option.borderWidth || 2);
+    this.borderWidth = this.prop(helper.toNumber(option.borderWidth, 2));
     this.textColor = this.prop(option.textColor || '#333');
     this.sourceX = this.prop(option.sourceX || this.cx() - 70);
     this.sourceY = this.prop(option.sourceY || this.cy());
     this.targetX = this.prop(option.targetX || this.cx() + 70);
     this.targetY = this.prop(option.targetY || this.cy());
     this.lineColor = this.prop(option.lineColor || '#333');
-    this.lineWidth = this.prop(option.lineWidth || 2);
+    this.lineWidth = this.prop(helper.toNumber(option.lineWidth, 2));
     this.hasArrow = this.prop(!!option.hasArrow);
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
@@ -454,9 +458,9 @@
   Link.CONTENT_TYPE_HTML = 'html';
 
   var Connector = helper.inherits(function(option) {
-    this.x = this.prop(option.x || 0);
-    this.y = this.prop(option.y || 0);
-    this.r = this.prop(option.r || 16);
+    this.x = this.prop(helper.toNumber(option.x, 0));
+    this.y = this.prop(helper.toNumber(option.y, 0));
+    this.r = this.prop(helper.toNumber(option.r, 16));
     this.color = this.prop(option.color || Connector.COLOR_UNCONNECTED);
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
