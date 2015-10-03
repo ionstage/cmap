@@ -657,6 +657,12 @@
   Connection.TYPE_SOURCE = 'source';
   Connection.TYPE_TARGET = 'target';
 
+  var Triple = helper.inherits(function(props) {
+    this.sourceNode = this.prop(props.sourceNode || null);
+    this.link = this.prop(props.link || null);
+    this.targetNode = this.prop(props.targetNode || null);
+  }, Relation);
+
   var Cmap = helper.inherits(function(element) {
     if (!(this instanceof Cmap))
       return new Cmap(element);
@@ -693,14 +699,28 @@
     if (!node || !link)
       return;
 
-    var connection = new Connection({
-      type: type,
-      node: node,
-      link: link
-    });
+    var linkRelations = link.relations();
 
-    node.relations().push(connection);
-    link.relations().push(connection);
+    var triple = linkRelations.filter(function(relation) {
+      return relation instanceof Triple;
+    })[0];
+
+    if (triple && triple[type + 'Node']())
+      return;
+
+    if (triple) {
+      triple[type + 'Node'](node);
+    } else {
+      // add triple to link
+      var tripleProps = {};
+      tripleProps.link = link;
+      tripleProps[type + 'Node'] = node;
+      triple = new Triple(tripleProps);
+      linkRelations.push(triple);
+    }
+
+    // add triple to node
+    node.relations().push(triple);
 
     // do not need to mark node dirty (stay unchanged)
     link.markDirty();
@@ -710,18 +730,24 @@
     if (!node || !link)
       return;
 
-    // remove connection from node
-    var nodeRelations = node.relations().filter(function(relation) {
-      return relation.type() !== type || relation.link() !== link;
-    });
+    var linkRelations = link.relations();
 
-    // remove connection from link
-    var linkRelations = link.relations().filter(function(relation) {
-      return relation.type() !== type || relation.node() !== node;
-    });
+    var triple = linkRelations.filter(function(relation) {
+      return relation instanceof Triple;
+    })[0];
 
-    node.relations(nodeRelations);
-    link.relations(linkRelations);
+    if (!triple)
+      return;
+
+    triple[type + 'Node'](null);
+
+    // remove triple from node
+    var nodeRelations = node.relations();
+    nodeRelations.splice(nodeRelations.indexOf(triple), 1);
+
+    // remove triple from link
+    if (!triple.sourceNode() && !triple.targetNode())
+      linkRelations.splice(linkRelations.indexOf(triple), 1);
 
     // do not need to mark node dirty (stay unchanged)
     link.markDirty();

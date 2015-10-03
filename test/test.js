@@ -117,13 +117,21 @@ describe('Cmap', function() {
 
   it('connect', function() {
     var cmap = Cmap();
-    var node = cmap.createNode();
+    var sourceNode = cmap.createNode();
     var link = cmap.createLink();
-    cmap.connect('source', node, link);
-    var nodeRelations = node.relations();
+    var targetNode = cmap.createNode();
+    var sourceNodeRelations = sourceNode.relations();
     var linkRelations = link.relations();
-    assert.equal(nodeRelations[0].type(), 'source');
-    assert.equal(nodeRelations[0], linkRelations[0]);
+    var targetNodeRelations = targetNode.relations();
+    cmap.connect('source', sourceNode, link);
+    var triple = sourceNodeRelations[0];
+    assert.equal(triple, linkRelations[0]);
+    assert.equal(triple.sourceNode(), sourceNode);
+    assert.equal(triple.link(), link);
+    assert.equal(triple.targetNode(), null);
+    cmap.connect('target', targetNode, link);
+    assert.equal(triple, targetNodeRelations[0]);
+    assert.equal(triple.targetNode(), targetNode);
   });
 
   it('disconnect', function() {
