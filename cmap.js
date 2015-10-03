@@ -41,15 +41,15 @@
   };
 
   dom.attr = function(el, props) {
-    for (var prop in props) {
-      el.setAttribute(prop, props[prop]);
+    for (var key in props) {
+      el.setAttribute(key, props[key]);
     }
   };
 
   dom.css = function(el, props) {
     var style = el.style;
-    for (var prop in props) {
-      style[prop] = props[prop];
+    for (var key in props) {
+      style[key] = props[key];
     }
   };
 
@@ -679,14 +679,14 @@
     return new Connector(props || {});
   };
 
-  Cmap.prototype.add = function(child) {
-    child.parentElement(this.element());
-    this.componentList().add(child);
+  Cmap.prototype.add = function(component) {
+    component.parentElement(this.element());
+    this.componentList().add(component);
   };
 
-  Cmap.prototype.remove = function(child) {
-    child.parentElement(null);
-    this.componentList().remove(child);
+  Cmap.prototype.remove = function(component) {
+    component.parentElement(null);
+    this.componentList().remove(component);
   };
 
   Cmap.prototype.connect = function(type, node, link) {
