@@ -572,18 +572,20 @@
 
     if (link === changedComponent) {
       if (sourceNode) {
+        // connect link to source node
         var lx = targetNode ? link.cx() : link.targetX();
         var ly = targetNode ? link.cy() : link.targetY();
-        var sp = this.connectedPoint(sourceNode, lx, ly);
-        link.sourceX(sp.x);
-        link.sourceY(sp.y);
+        var p = this.connectedPoint(sourceNode, lx, ly);
+        link.sourceX(p.x);
+        link.sourceY(p.y);
       }
       if (targetNode) {
+        // connect link to target node
         var lx = sourceNode ? link.cx() : link.sourceX();
         var ly = sourceNode ? link.cy() : link.sourceY();
-        var tp = this.connectedPoint(targetNode, lx, ly);
-        link.targetX(tp.x);
-        link.targetY(tp.y);
+        var p = this.connectedPoint(targetNode, lx, ly);
+        link.targetX(p.x);
+        link.targetY(p.y);
       }
       if (!sourceNode || !targetNode) {
         // link content moves to midpoint
