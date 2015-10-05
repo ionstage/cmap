@@ -560,14 +560,14 @@
   Relation.prototype.update = function() {};
 
   var Triple = helper.inherits(function(props) {
-    this.sourceNode = this.prop(props.sourceNode || null);
     this.link = this.prop(props.link || null);
+    this.sourceNode = this.prop(props.sourceNode || null);
     this.targetNode = this.prop(props.targetNode || null);
   }, Relation);
 
   Triple.prototype.update = function(changedComponent) {
-    var sourceNode = this.sourceNode();
     var link = this.link();
+    var sourceNode = this.sourceNode();
     var targetNode = this.targetNode();
 
     if (changedComponent === link)
@@ -610,95 +610,130 @@
     if (targetNode)
       this.rotateLink(link, sourceNode, targetNode, sourceNode);
     else
-      this.shiftLink(link, sourceNode, targetNode);
+      this.shiftLink(link, sourceNode, targetNode, sourceNode);
   };
 
   Triple.prototype.updateTargetNode = function(link, sourceNode, targetNode) {
     if (sourceNode)
       this.rotateLink(link, sourceNode, targetNode, targetNode);
     else
-      this.shiftLink(link, sourceNode, targetNode);
+      this.shiftLink(link, sourceNode, targetNode, targetNode);
   };
 
   Triple.prototype.rotateLink = function(link, sourceNode, targetNode, changedNode) {
     var ncx = changedNode.cx();
     var ncy = changedNode.cy();
-    var sncx = sourceNode.cx();
-    var sncy = sourceNode.cy();
-    var tncx = targetNode.cx();
-    var tncy = targetNode.cy();
+    var lsx = link.sourceX();
+    var lsy = link.sourceY();
     var lcx = link.cx();
     var lcy = link.cy();
-    var xs = sourceNode === changedNode ? link.sourceX() : sncx;
-    var ys = sourceNode === changedNode ? link.sourceY() : sncy;
-    var xt = targetNode === changedNode ? link.targetX() : tncx;
-    var yt = targetNode === changedNode ? link.targetY() : tncy;
-    if (sourceNode === changedNode) {
-      var lx = lcx + ncx - xs;
-      var ly = lcy + ncy - ys;
-      var p = this.connectedPoint(changedNode, lx, ly);
-      xs = xs + ncx - p.x;
-      ys = ys + ncy - p.y;
-    } else {
-      var lx = lcx + ncx - xt;
-      var ly = lcy + ncy - yt;
-      var p = this.connectedPoint(changedNode, lx, ly);
-      xt = xt + ncx - p.x;
-      yt = yt + ncy - p.y;
+    var ltx = link.targetX();
+    var lty = link.targetY();
+
+    var p, sncx, sncy, tncx, tncy;
+
+    if (changedNode === sourceNode) {
+      // connected point of source node
+      p = this.connectedPoint(changedNode, lcx + (ncx - lsx), lcy + (ncy - lsy));
+
+      // source node position (before change)
+      sncx = lsx + (ncx - p.x);
+      sncy = lsy + (ncy - p.y);
+
+      tncx = targetNode.cx();
+      tncy = targetNode.cy();
+    } else if (changedNode === targetNode) {
+      // connected point of target node
+      p = this.connectedPoint(changedNode, lcx + (ncx - ltx), lcy + (ncy - lty));
+
+      // target node position (before change)
+      tncx = ltx + (ncx - p.x);
+      tncy = lty + (ncy - p.y);
+
+      sncx = sourceNode.cx();
+      sncy = sourceNode.cy();
     }
-    var x_ts = xt - xs;
-    var y_ts = yt - ys;
-    var x_cs = link.cx() - xs;
-    var y_cs = link.cy() - ys;
-    var ts0 = Math.atan2(y_ts, x_ts);
-    var cs0 = Math.atan2(y_cs, x_cs);
-    var r_cs = cs0 - ts0;
-    var d_ts0 = Math.sqrt(x_ts * x_ts + y_ts * y_ts);
-    var d_cs0 = Math.sqrt(x_cs * x_cs + y_cs * y_cs);
-    xs = sourceNode.cx();
-    ys = sourceNode.cy();
-    xt = targetNode.cx();
-    yt = targetNode.cy();
-    x_ts = xt - xs;
-    y_ts = yt - ys;
-    var ts1 = Math.atan2(y_ts, x_ts);
-    var cs1 = ts1 + r_cs;
-    var d_ts1 = Math.sqrt(x_ts * x_ts + y_ts * y_ts);
-    var d_rate = (d_ts0 !== 0) ? d_ts1 / d_ts0 : 1.0;
-    var d_cs = d_cs0 * d_rate;
-    var cx = xs + d_cs * Math.cos(cs1);
-    var cy = ys + d_cs * Math.sin(cs1);
-    link.cx(cx);
-    link.cy(cy);
-    var sp = this.connectedPoint(sourceNode, cx, cy);
+
+    var ts_dx = tncx - sncx;
+    var ts_dy = tncy - sncy;
+    var cs_dx = lcx - sncx;
+    var cs_dy = lcy - sncy;
+
+    var ts_rad0 = Math.atan2(ts_dy, ts_dx);
+    var cs_rad0 = Math.atan2(cs_dy, cs_dx);
+
+    var ts_d0 = Math.sqrt(ts_dx * ts_dx + ts_dy * ts_dy);
+    var cs_d0 = Math.sqrt(cs_dx * cs_dx + cs_dy * cs_dy);
+
+    var ts_cs_rad = ts_rad0 - cs_rad0;
+
+    // changed node position
+    if (changedNode === sourceNode) {
+      sncx = sourceNode.cx();
+      sncy = sourceNode.cy();
+    } else if (changedNode === targetNode) {
+      tncx = targetNode.cx();
+      tncy = targetNode.cy();
+    }
+
+    ts_dx = tncx - sncx;
+    ts_dy = tncy - sncy;
+
+    var ts_rad1 = Math.atan2(ts_dy, ts_dx);
+    var cs_rad1 = ts_rad1 - ts_cs_rad;
+
+    var ts_d1 = Math.sqrt(ts_dx * ts_dx + ts_dy * ts_dy);
+    var d_rate = (ts_d0 !== 0) ? ts_d1 / ts_d0 : 1;
+    var cs_d1 = cs_d0 * d_rate;
+
+    lcx = sncx + cs_d1 * Math.cos(cs_rad1);
+    lcy = sncy + cs_d1 * Math.sin(cs_rad1);
+
+    var sp = this.connectedPoint(sourceNode, lcx, lcy);
+    var tp = this.connectedPoint(targetNode, lcx, lcy);
+
     link.sourceX(sp.x);
     link.sourceY(sp.y);
-    var tp = this.connectedPoint(targetNode, cx, cy);
+    link.cx(lcx);
+    link.cy(lcy);
     link.targetX(tp.x);
     link.targetY(tp.y);
   };
 
-  Triple.prototype.shiftLink = function(link, sourceNode, targetNode) {
-    var node = sourceNode || targetNode;
-    var ncx = node.cx();
-    var ncy = node.cy();
+  Triple.prototype.shiftLink = function(link, sourceNode, targetNode, changedNode) {
+    var ncx = changedNode.cx();
+    var ncy = changedNode.cy();
     var lsx = link.sourceX();
     var lsy = link.sourceY();
+    var lcx = link.cx();
+    var lcy = link.cy();
     var ltx = link.targetX();
     var lty = link.targetY();
-    var ldx = sourceNode ? lsx - ncx : ltx - ncx;
-    var ldy = sourceNode ? lsy - ncy : lty - ncy;
-    var lx = sourceNode ? ltx - ldx : lsx - ldx;
-    var ly = sourceNode ? lty - ldy : lsy - ldy;
-    var p = this.connectedPoint(node, lx, ly);
-    var dx = sourceNode ? p.x - lsx : p.x - ltx;
-    var dy = sourceNode ? p.y - lsy : p.y - lty;
-    link.sourceX(sourceNode ? p.x : lsx + dx);
-    link.sourceY(sourceNode ? p.y : lsy + dy);
-    link.cx(link.cx() + dx);
-    link.cy(link.cy() + dy);
-    link.targetX(sourceNode ? ltx + dx : p.x);
-    link.targetY(sourceNode ? lty + dy : p.y);
+
+    var p, dx, dy;
+
+    if (changedNode === sourceNode) {
+      // connected point of source node
+      p = this.connectedPoint(changedNode, ltx + (ncx - lsx), lty + (ncy - lsy));
+
+      // difference between current and changed source point
+      dx = p.x - lsx;
+      dy = p.y - lsy;
+    } else if (changedNode === targetNode) {
+      // connected point of target node
+      p = this.connectedPoint(changedNode, lsx + (ncx - ltx), lsy + (ncy - lty));
+
+      // difference between current and changed target point
+      dx = p.x - ltx;
+      dy = p.y - lty;
+    }
+
+    link.sourceX(lsx + dx);
+    link.sourceY(lsy + dy);
+    link.cx(lcx + dx);
+    link.cy(lcy + dy);
+    link.targetX(ltx + dx);
+    link.targetY(lty + dy);
   };
 
   Triple.prototype.connectedPoint = function(node, lx, ly) {
