@@ -115,7 +115,7 @@ describe('Cmap', function() {
     assert.equal(connector.parentElement(), null);
   });
 
-  it('connect', function() {
+  it('#connect', function() {
     var cmap = Cmap();
     var sourceNode = cmap.createNode();
     var link = cmap.createLink();
@@ -134,7 +134,7 @@ describe('Cmap', function() {
     assert.equal(triple.targetNode(), targetNode);
   });
 
-  it('disconnect', function() {
+  it('#disconnect', function() {
     var cmap = Cmap();
     var node = cmap.createNode();
     var link = cmap.createLink();
