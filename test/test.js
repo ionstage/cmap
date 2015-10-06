@@ -3,7 +3,7 @@ var Cmap = require('../cmap.js');
 
 describe('Cmap', function() {
   it('#createNode', function() {
-    var cmap = Cmap();
+    var cmap = new Cmap();
     var props = {
       content: 'node',
       x: 100,
@@ -29,7 +29,7 @@ describe('Cmap', function() {
   });
 
   it('#createLink', function() {
-    var cmap = Cmap();
+    var cmap = new Cmap();
     var props = {
       content: 'link',
       cx: 100,
@@ -62,7 +62,7 @@ describe('Cmap', function() {
   });
 
   it('#createConnector', function() {
-    var cmap = Cmap();
+    var cmap = new Cmap();
     var props = {
       x: 100,
       y: 200,
@@ -84,7 +84,7 @@ describe('Cmap', function() {
 
   it('#add', function() {
     var dummy = {};
-    var cmap = Cmap(dummy);
+    var cmap = new Cmap(dummy);
     var node = cmap.createNode();
     var link = cmap.createLink();
     var connector = cmap.createConnector();
@@ -99,7 +99,7 @@ describe('Cmap', function() {
 
   it('#remove', function() {
     var dummy = {};
-    var cmap = Cmap(dummy);
+    var cmap = new Cmap(dummy);
     var node = cmap.createNode();
     var link = cmap.createLink();
     var connector = cmap.createConnector();
@@ -116,7 +116,7 @@ describe('Cmap', function() {
   });
 
   it('#remove - connection', function() {
-    var cmap = Cmap();
+    var cmap = new Cmap();
     var sourceNode = cmap.createNode();
     var link = cmap.createLink();
     var targetNode = cmap.createNode();
@@ -130,7 +130,7 @@ describe('Cmap', function() {
   });
 
   it('#connect', function() {
-    var cmap = Cmap();
+    var cmap = new Cmap();
     var sourceNode = cmap.createNode();
     var link = cmap.createLink();
     var targetNode = cmap.createNode();
@@ -149,7 +149,7 @@ describe('Cmap', function() {
   });
 
   it('#disconnect', function() {
-    var cmap = Cmap();
+    var cmap = new Cmap();
     var node = cmap.createNode();
     var link = cmap.createLink();
     cmap.connect(Cmap.CONNECTION_TYPE_SOURCE, node, link);

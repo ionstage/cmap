@@ -816,9 +816,6 @@
   };
 
   var Cmap = helper.inherits(function(element) {
-    if (!(this instanceof Cmap))
-      return new Cmap(element);
-
     this.componentList = this.prop(new ComponentList());
     this.element = this.prop(element || null);
 
