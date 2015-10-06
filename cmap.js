@@ -844,6 +844,7 @@
 
   Cmap.prototype.remove = function(component) {
     component.parentElement(null);
+    this.disconnect(component);
     this.componentList().remove(component);
   };
 
@@ -879,6 +880,32 @@
   };
 
   Cmap.prototype.disconnect = function(type, node, link) {
+    if (type instanceof Component) {
+      var component = type;
+      var relations = component.relations().concat();
+
+      // disconnect all connections of component
+      relations.forEach(function(relation) {
+        if (!(relation instanceof Triple))
+          return;
+
+        var link = relation.link();
+        var sourceNode = relation.sourceNode();
+        var targetNode = relation.targetNode();
+
+        if (component === link) {
+          this.disconnect('source', sourceNode, link);
+          this.disconnect('target', targetNode, link);
+        } else if (component === sourceNode) {
+          this.disconnect('source', sourceNode, link);
+        } else if (component === targetNode) {
+          this.disconnect('target', targetNode, link);
+        }
+      }.bind(this));
+
+      return;
+    }
+
     if (!node || !link)
       return;
 

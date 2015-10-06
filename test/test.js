@@ -115,6 +115,20 @@ describe('Cmap', function() {
     assert.equal(connector.parentElement(), null);
   });
 
+  it('#remove - connection', function() {
+    var cmap = Cmap();
+    var sourceNode = cmap.createNode();
+    var link = cmap.createLink();
+    var targetNode = cmap.createNode();
+    cmap.connect('source', sourceNode, link);
+    cmap.connect('target', targetNode, link);
+    cmap.remove(sourceNode);
+    var triple = link.relations()[0];
+    assert.equal(triple.sourceNode(), null);
+    cmap.remove(link);
+    assert.equal(targetNode.relations().length, 0);
+  });
+
   it('#connect', function() {
     var cmap = Cmap();
     var sourceNode = cmap.createNode();
