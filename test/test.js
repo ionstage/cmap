@@ -21,10 +21,9 @@ describe('Cmap', function() {
     }
     node = cmap.createNode();
     for (var key in props) {
-      node[key](props[key]);
-    }
-    for (var key in props) {
-      assert.equal(node[key](), props[key]);
+      var value = props[key];
+      node[key](value);
+      assert.equal(node[key](), value);
     }
   });
 
@@ -54,10 +53,9 @@ describe('Cmap', function() {
     }
     link = cmap.createLink();
     for (var key in props) {
-      link[key](props[key]);
-    }
-    for (var key in props) {
-      assert.equal(link[key](), props[key]);
+      var value = props[key];
+      link[key](value);
+      assert.equal(link[key](), value);
     }
   });
 
@@ -75,10 +73,9 @@ describe('Cmap', function() {
     }
     connector = cmap.createConnector();
     for (var key in props) {
-      connector[key](props[key]);
-    }
-    for (var key in props) {
-      assert.equal(connector[key](), props[key]);
+      var value = props[key];
+      connector[key](value);
+      assert.equal(connector[key](), value);
     }
   });
 
@@ -117,8 +114,8 @@ describe('Cmap', function() {
 
   it('#remove - connection', function() {
     var cmap = new Cmap();
-    var sourceNode = cmap.createNode();
     var link = cmap.createLink();
+    var sourceNode = cmap.createNode();
     var targetNode = cmap.createNode();
     cmap.connect(Cmap.CONNECTION_TYPE_SOURCE, sourceNode, link);
     cmap.connect(Cmap.CONNECTION_TYPE_TARGET, targetNode, link);
@@ -131,11 +128,11 @@ describe('Cmap', function() {
 
   it('#connect', function() {
     var cmap = new Cmap();
-    var sourceNode = cmap.createNode();
     var link = cmap.createLink();
+    var sourceNode = cmap.createNode();
     var targetNode = cmap.createNode();
-    var sourceNodeRelations = sourceNode.relations();
     var linkRelations = link.relations();
+    var sourceNodeRelations = sourceNode.relations();
     var targetNodeRelations = targetNode.relations();
     cmap.connect(Cmap.CONNECTION_TYPE_SOURCE, sourceNode, link);
     var triple = sourceNodeRelations[0];
