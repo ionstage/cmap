@@ -894,12 +894,12 @@
         var targetNode = relation.targetNode();
 
         if (component === link) {
-          this.disconnect('source', sourceNode, link);
-          this.disconnect('target', targetNode, link);
+          this.disconnect(Cmap.CONNECTION_TYPE_SOURCE, sourceNode, link);
+          this.disconnect(Cmap.CONNECTION_TYPE_TARGET, targetNode, link);
         } else if (component === sourceNode) {
-          this.disconnect('source', sourceNode, link);
+          this.disconnect(Cmap.CONNECTION_TYPE_SOURCE, sourceNode, link);
         } else if (component === targetNode) {
-          this.disconnect('target', targetNode, link);
+          this.disconnect(Cmap.CONNECTION_TYPE_TARGET, targetNode, link);
         }
       }.bind(this));
 
@@ -960,6 +960,9 @@
 
     dom.css(element, this.style());
   };
+
+  Cmap.CONNECTION_TYPE_SOURCE = 'source';
+  Cmap.CONNECTION_TYPE_TARGET = 'target';
 
   if (typeof module !== 'undefined' && module.exports)
     module.exports = Cmap;

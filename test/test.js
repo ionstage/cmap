@@ -120,8 +120,8 @@ describe('Cmap', function() {
     var sourceNode = cmap.createNode();
     var link = cmap.createLink();
     var targetNode = cmap.createNode();
-    cmap.connect('source', sourceNode, link);
-    cmap.connect('target', targetNode, link);
+    cmap.connect(Cmap.CONNECTION_TYPE_SOURCE, sourceNode, link);
+    cmap.connect(Cmap.CONNECTION_TYPE_TARGET, targetNode, link);
     cmap.remove(sourceNode);
     var triple = link.relations()[0];
     assert.equal(triple.sourceNode(), null);
@@ -137,13 +137,13 @@ describe('Cmap', function() {
     var sourceNodeRelations = sourceNode.relations();
     var linkRelations = link.relations();
     var targetNodeRelations = targetNode.relations();
-    cmap.connect('source', sourceNode, link);
+    cmap.connect(Cmap.CONNECTION_TYPE_SOURCE, sourceNode, link);
     var triple = sourceNodeRelations[0];
     assert.equal(triple, linkRelations[0]);
     assert.equal(triple.sourceNode(), sourceNode);
     assert.equal(triple.link(), link);
     assert.equal(triple.targetNode(), null);
-    cmap.connect('target', targetNode, link);
+    cmap.connect(Cmap.CONNECTION_TYPE_TARGET, targetNode, link);
     assert.equal(triple, targetNodeRelations[0]);
     assert.equal(triple.targetNode(), targetNode);
   });
@@ -152,8 +152,8 @@ describe('Cmap', function() {
     var cmap = Cmap();
     var node = cmap.createNode();
     var link = cmap.createLink();
-    cmap.connect('source', node, link);
-    cmap.disconnect('source', node, link);
+    cmap.connect(Cmap.CONNECTION_TYPE_SOURCE, node, link);
+    cmap.disconnect(Cmap.CONNECTION_TYPE_SOURCE, node, link);
     assert.equal(node.relations().length, 0);
     assert.equal(link.relations().length, 0);
   });
