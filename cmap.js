@@ -23,6 +23,10 @@
 
   helper.diffObj = function(newObj, oldObj) {
     var diff = {};
+
+    if (!oldObj)
+      oldObj = {};
+
     for (var key in newObj) {
       if (newObj[key] !== oldObj[key])
         diff[key] = newObj[key];
@@ -240,10 +244,7 @@
 
     var style = this.style();
 
-    if (cache.style)
-      style = helper.diffObj(style, cache.style);
-
-    dom.css(element, style);
+    dom.css(element, helper.diffObj(style, cache.style));
     cache.style = style;
   };
 
@@ -422,20 +423,14 @@
     var lineAttributes = this.lineAttributes();
     var lineElement = element.children[0].childNodes[0];
 
-    if (cache.lineAttributes)
-      lineAttributes = helper.diffObj(lineAttributes, cache.lineAttributes);
-
-    dom.attr(lineElement, lineAttributes);
+    dom.attr(lineElement, helper.diffObj(lineAttributes, cache.lineAttributes));
     cache.lineAttributes = lineAttributes;
 
     // update arrow element
     var arrowAttributes = this.arrowAttributes();
     var arrowElement = element.children[0].childNodes[1];
 
-    if (cache.arrowAttributes)
-      arrowAttributes = helper.diffObj(arrowAttributes, cache.arrowAttributes);
-
-    dom.attr(arrowElement, arrowAttributes);
+    dom.attr(arrowElement, helper.diffObj(arrowAttributes, cache.arrowAttributes));
     cache.arrowAttributes = arrowAttributes;
 
     // update content element
@@ -453,10 +448,7 @@
       cache.content = content;
     }
 
-    if (cache.contentStyle)
-      contentStyle = helper.diffObj(contentStyle, cache.contentStyle);
-
-    dom.css(contentElement, contentStyle);
+    dom.css(contentElement, helper.diffObj(contentStyle, cache.contentStyle));
     cache.contentStyle = contentStyle;
   };
 
