@@ -807,6 +807,24 @@
     };
   };
 
+  var LinkConnectorRelation = helper.inherits(function(props) {
+    this.type = this.prop(props.type || LinkConnectorRelation.TYPE_SOURCE);
+    this.link = this.prop(props.link || null);
+    this.connector = this.prop(props.connector || null);
+  }, Relation);
+
+  LinkConnectorRelation.prototype.isConnected = function(isConnected) {
+    var connector = this.connector();
+
+    if (!connector)
+      return;
+
+    connector.color(isConnected ? Connector.COLOR_CONNECTED : Connector.COLOR_UNCONNECTED);
+  };
+
+  LinkConnectorRelation.TYPE_SOURCE = 'source';
+  LinkConnectorRelation.TYPE_TARGET = 'target';
+
   var Cmap = helper.inherits(function(element) {
     this.componentList = this.prop(new ComponentList());
     this.element = this.prop(element || null);
