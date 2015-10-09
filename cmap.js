@@ -1026,6 +1026,27 @@
     linkRelations.push(linkTargetConnectorRelation);
   };
 
+  Cmap.prototype.hideConnectors = function(link) {
+    if (!link)
+      return;
+
+    var linkRelations = link.relations();
+
+    // remove connector components
+    linkRelations.forEach(function(relation) {
+      if (!(relation instanceof LinkConnectorRelation))
+        return;
+
+      this.remove(relation.connector());
+    }.bind(this));
+
+    // remove link-connector relations from link
+    for (var i = linkRelations.length - 1; i >= 0; i--) {
+      if (linkRelations[i] instanceof LinkConnectorRelation)
+        linkRelations.splice(i, 1);
+    }
+  };
+
   Cmap.prototype.style = function() {
     return {
       color: '#333',

@@ -139,4 +139,13 @@ describe('Cmap', function() {
     cmap.showConnectors(link);
     assert.equal(linkRelations.length, 2);
   });
+
+  it('#hideConnectors', function() {
+    var cmap = new Cmap();
+    var link = cmap.createLink();
+    var linkRelations = link.relations();
+    cmap.showConnectors(link);
+    cmap.hideConnectors(link);
+    assert.equal(linkRelations.length, 0);
+  })
 });
