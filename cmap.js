@@ -822,6 +822,15 @@
     connector.color(isConnected ? Connector.COLOR_CONNECTED : Connector.COLOR_UNCONNECTED);
   };
 
+  LinkConnectorRelation.prototype.update = function() {
+    var type = this.type();
+    var link = this.link();
+    var connector = this.connector();
+
+    connector.x(link[type + 'X']());
+    connector.y(link[type + 'Y']());
+  };
+
   LinkConnectorRelation.TYPE_SOURCE = 'source';
   LinkConnectorRelation.TYPE_TARGET = 'target';
 
