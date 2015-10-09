@@ -896,11 +896,10 @@
 
       var relationType = relation.type();
 
-      if (type === Cmap.CONNECTION_TYPE_SOURCE &&
-          relationType === LinkConnectorRelation.TYPE_SOURCE) {
-        relation.isConnected(true);
-      } else if (type === Cmap.CONNECTION_TYPE_TARGET &&
-                 relationType === LinkConnectorRelation.TYPE_TARGET) {
+      if ((type === Cmap.CONNECTION_TYPE_SOURCE &&
+            relationType === LinkConnectorRelation.TYPE_SOURCE) ||
+          (type === Cmap.CONNECTION_TYPE_TARGET &&
+            relationType === LinkConnectorRelation.TYPE_TARGET)) {
         relation.isConnected(true);
       }
     });
@@ -965,11 +964,10 @@
 
       var relationType = relation.type();
 
-      if (type === Cmap.CONNECTION_TYPE_SOURCE &&
-          relationType === LinkConnectorRelation.TYPE_SOURCE) {
-        relation.isConnected(false);
-      } else if (type === Cmap.CONNECTION_TYPE_TARGET &&
-                 relationType === LinkConnectorRelation.TYPE_TARGET) {
+      if ((type === Cmap.CONNECTION_TYPE_SOURCE &&
+            relationType === LinkConnectorRelation.TYPE_SOURCE) ||
+          (type === Cmap.CONNECTION_TYPE_TARGET &&
+            relationType === LinkConnectorRelation.TYPE_TARGET)) {
         relation.isConnected(false);
       }
     });
