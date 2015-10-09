@@ -458,28 +458,28 @@
   var Connector = helper.inherits(function(props) {
     this.x = this.prop(helper.toNumber(props.x, 0));
     this.y = this.prop(helper.toNumber(props.y, 0));
-    this.r = this.prop(helper.toNumber(18));
     this.color = this.prop(Connector.COLOR_UNCONNECTED);
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
   }, Component);
 
   Connector.prototype.style = function() {
-    var x = this.x() - this.r();
-    var y = this.y() - this.r();
+    var r = 18;
+    var x = this.x() - r;
+    var y = this.y() - r;
     var translate = 'translate(' + x + 'px, ' + y + 'px)';
 
     return {
       backgroundColor: this.color(),
-      borderRadius: this.r() + 'px',
-      height: this.r() * 2 + 'px',
+      borderRadius: '50%',
+      height: r * 2 + 'px',
       msTransform: translate,
       opacity: 0.6,
       pointerEvents: 'none',
       position: 'absolute',
       transform: translate,
       webkitTransform: translate,
-      width: this.r() * 2 + 'px'
+      width: r * 2 + 'px'
     };
   };
 
