@@ -878,6 +878,22 @@
     // add triple to node
     node.relations().push(triple);
 
+    // update connectors of link
+    linkRelations.forEach(function(relation) {
+      if (!(relation instanceof LinkConnectorRelation))
+        return;
+
+      var relationType = relation.type();
+
+      if (type === Cmap.CONNECTION_TYPE_SOURCE &&
+          relationType === LinkConnectorRelation.TYPE_SOURCE) {
+        relation.isConnected(true);
+      } else if (type === Cmap.CONNECTION_TYPE_TARGET &&
+                 relationType === LinkConnectorRelation.TYPE_TARGET) {
+        relation.isConnected(true);
+      }
+    });
+
     // do not need to mark node dirty (stay unchanged)
     link.markDirty();
   };
@@ -931,6 +947,22 @@
     if (!triple.sourceNode() && !triple.targetNode())
       linkRelations.splice(linkRelations.indexOf(triple), 1);
 
+    // update connectors of link
+    linkRelations.forEach(function(relation) {
+      if (!(relation instanceof LinkConnectorRelation))
+        return;
+
+      var relationType = relation.type();
+
+      if (type === Cmap.CONNECTION_TYPE_SOURCE &&
+          relationType === LinkConnectorRelation.TYPE_SOURCE) {
+        relation.isConnected(false);
+      } else if (type === Cmap.CONNECTION_TYPE_TARGET &&
+                 relationType === LinkConnectorRelation.TYPE_TARGET) {
+        relation.isConnected(false);
+      }
+    });
+
     // do not need to mark node dirty (stay unchanged)
     link.markDirty();
   };
@@ -958,20 +990,40 @@
       y: link.targetY()
     });
 
-    this.add(sourceConnector);
-    this.add(targetConnector);
-
-    linkRelations.push(new LinkConnectorRelation({
+    var linkSourceConnectorRelation = new LinkConnectorRelation({
       type: LinkConnectorRelation.TYPE_SOURCE,
       link: link,
       connector: sourceConnector
-    }));
+    });
 
-    linkRelations.push(new LinkConnectorRelation({
+    var linkTargetConnectorRelation = new LinkConnectorRelation({
       type: LinkConnectorRelation.TYPE_TARGET,
       link: link,
       connector: targetConnector
-    }));
+    });
+
+    var isSourceConnected = linkRelations.some(function(relation) {
+      if (!(relation instanceof Triple))
+        return;
+
+      return !!relation.sourceNode();
+    });
+
+    var isTargetConnected = linkRelations.some(function(relation) {
+      if (!(relation instanceof Triple))
+        return;
+
+      return !!relation.targetNode();
+    });
+
+    this.add(sourceConnector);
+    this.add(targetConnector);
+
+    linkSourceConnectorRelation.isConnected(isSourceConnected);
+    linkTargetConnectorRelation.isConnected(isTargetConnected);
+
+    linkRelations.push(linkSourceConnectorRelation);
+    linkRelations.push(linkTargetConnectorRelation);
   };
 
   Cmap.prototype.style = function() {
