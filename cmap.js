@@ -876,12 +876,14 @@
     if (triple) {
       triple[type + 'Node'](node);
     } else {
-      // add triple to link
       var tripleProps = {};
       tripleProps.link = link;
       tripleProps[type + 'Node'] = node;
       triple = new Triple(tripleProps);
-      linkRelations.push(triple);
+
+      // add triple to the beginning of link relations to be ahead of link-connector relation
+      // connector position won't be updated before triple update
+      linkRelations.unshift(triple);
     }
 
     // add triple to node
