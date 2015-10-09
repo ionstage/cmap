@@ -840,10 +840,6 @@
     return new Link(props || {});
   };
 
-  Cmap.prototype.createConnector = function(props) {
-    return new Connector(props || {});
-  };
-
   Cmap.prototype.add = function(component) {
     component.parentElement(this.element());
     this.componentList().add(component);
