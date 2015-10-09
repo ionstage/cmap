@@ -458,8 +458,8 @@
   var Connector = helper.inherits(function(props) {
     this.x = this.prop(helper.toNumber(props.x, 0));
     this.y = this.prop(helper.toNumber(props.y, 0));
-    this.r = this.prop(helper.toNumber(props.r, 16));
-    this.color = this.prop(props.color || Connector.COLOR_UNCONNECTED);
+    this.r = this.prop(helper.toNumber(18));
+    this.color = this.prop(Connector.COLOR_UNCONNECTED);
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
   }, Component);
