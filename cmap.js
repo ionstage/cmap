@@ -939,6 +939,45 @@
     link.markDirty();
   };
 
+  Cmap.prototype.showConnectors = function(link) {
+    if (!link)
+      return;
+
+    var linkRelations = link.relations();
+
+    var hasLinkConnectorRelation = linkRelations.some(function(relation) {
+      return relation instanceof LinkConnectorRelation;
+    });
+
+    if (hasLinkConnectorRelation)
+      return;
+
+    var sourceConnector = new Connector({
+      x: link.sourceX(),
+      y: link.sourceY()
+    });
+
+    var targetConnector = new Connector({
+      x: link.targetX(),
+      y: link.targetY()
+    });
+
+    this.add(sourceConnector);
+    this.add(targetConnector);
+
+    linkRelations.push(new LinkConnectorRelation({
+      type: LinkConnectorRelation.TYPE_SOURCE,
+      link: link,
+      connector: sourceConnector
+    }));
+
+    linkRelations.push(new LinkConnectorRelation({
+      type: LinkConnectorRelation.TYPE_TARGET,
+      link: link,
+      connector: targetConnector
+    }));
+  };
+
   Cmap.prototype.style = function() {
     return {
       color: '#333',
