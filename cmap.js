@@ -1013,10 +1013,7 @@
       });
 
       var isSourceConnected = linkRelations.some(function(relation) {
-        if (!(relation instanceof Triple))
-          return;
-
-        return !!relation.sourceNode();
+        return relation instanceof Triple && !!relation.sourceNode();
       });
 
       this.add(sourceConnector);
@@ -1037,10 +1034,7 @@
       });
 
       var isTargetConnected = linkRelations.some(function(relation) {
-        if (!(relation instanceof Triple))
-          return;
-
-        return !!relation.targetNode();
+        return relation instanceof Triple && !!relation.targetNode();
       });
 
       this.add(targetConnector);
