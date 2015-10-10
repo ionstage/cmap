@@ -836,6 +836,7 @@
 
   var Cmap = helper.inherits(function(element) {
     this.componentList = this.prop(new ComponentList());
+    this.disabledLinkConnectorRelations = this.prop([]);
     this.element = this.prop(element || null);
 
     this.markDirty();
@@ -989,50 +990,63 @@
     if (hasLinkConnectorRelation)
       return;
 
-    var sourceConnector = new Connector({
-      x: link.sourceX(),
-      y: link.sourceY()
+    var disabledLinkConnectorRelations = this.disabledLinkConnectorRelations();
+
+    var sourceConnectorDisabled = disabledLinkConnectorRelations.some(function(relation) {
+      return relation.type() === LinkConnectorRelation.TYPE_SOURCE && relation.link() === link;
     });
 
-    var targetConnector = new Connector({
-      x: link.targetX(),
-      y: link.targetY()
+    var targetConnectorDisabled = disabledLinkConnectorRelations.some(function(relation) {
+      return relation.type() === LinkConnectorRelation.TYPE_TARGET && relation.link() === link;
     });
 
-    var linkSourceConnectorRelation = new LinkConnectorRelation({
-      type: LinkConnectorRelation.TYPE_SOURCE,
-      link: link,
-      connector: sourceConnector
-    });
+    if (!sourceConnectorDisabled) {
+      var sourceConnector = new Connector({
+        x: link.sourceX(),
+        y: link.sourceY()
+      });
 
-    var linkTargetConnectorRelation = new LinkConnectorRelation({
-      type: LinkConnectorRelation.TYPE_TARGET,
-      link: link,
-      connector: targetConnector
-    });
+      var linkSourceConnectorRelation = new LinkConnectorRelation({
+        type: LinkConnectorRelation.TYPE_SOURCE,
+        link: link,
+        connector: sourceConnector
+      });
 
-    var isSourceConnected = linkRelations.some(function(relation) {
-      if (!(relation instanceof Triple))
-        return;
+      var isSourceConnected = linkRelations.some(function(relation) {
+        if (!(relation instanceof Triple))
+          return;
 
-      return !!relation.sourceNode();
-    });
+        return !!relation.sourceNode();
+      });
 
-    var isTargetConnected = linkRelations.some(function(relation) {
-      if (!(relation instanceof Triple))
-        return;
+      this.add(sourceConnector);
+      linkSourceConnectorRelation.isConnected(isSourceConnected);
+      linkRelations.push(linkSourceConnectorRelation);
+    }
 
-      return !!relation.targetNode();
-    });
+    if (!targetConnectorDisabled) {
+      var targetConnector = new Connector({
+        x: link.targetX(),
+        y: link.targetY()
+      });
 
-    this.add(sourceConnector);
-    this.add(targetConnector);
+      var linkTargetConnectorRelation = new LinkConnectorRelation({
+        type: LinkConnectorRelation.TYPE_TARGET,
+        link: link,
+        connector: targetConnector
+      });
 
-    linkSourceConnectorRelation.isConnected(isSourceConnected);
-    linkTargetConnectorRelation.isConnected(isTargetConnected);
+      var isTargetConnected = linkRelations.some(function(relation) {
+        if (!(relation instanceof Triple))
+          return;
 
-    linkRelations.push(linkSourceConnectorRelation);
-    linkRelations.push(linkTargetConnectorRelation);
+        return !!relation.targetNode();
+      });
+
+      this.add(targetConnector);
+      linkTargetConnectorRelation.isConnected(isTargetConnected);
+      linkRelations.push(linkTargetConnectorRelation);
+    }
   };
 
   Cmap.prototype.hideConnectors = function(link) {
@@ -1054,6 +1068,59 @@
       if (linkRelations[i] instanceof LinkConnectorRelation)
         linkRelations.splice(i, 1);
     }
+  };
+
+  Cmap.prototype.enableConnector = function(type, link) {
+    if (!link)
+      return;
+
+    // remove showing connectors for setting its availability
+    this.hideConnectors(link);
+
+    var linkConnectorRelationType;
+
+    if (type === Cmap.CONNECTION_TYPE_SOURCE)
+      linkConnectorRelationType = LinkConnectorRelation.TYPE_SOURCE;
+    else if (type === Cmap.CONNECTION_TYPE_TARGET)
+      linkConnectorRelationType = LinkConnectorRelation.TYPE_TARGET;
+
+    var disabledLinkConnectorRelations = this.disabledLinkConnectorRelations();
+
+    for (var i = disabledLinkConnectorRelations.length - 1; i >= 0; i--) {
+      var relation = disabledLinkConnectorRelations[i];
+
+      if (relation.type() === linkConnectorRelationType && relation.link() === link)
+        disabledLinkConnectorRelations.splice(i, 1);
+    }
+  };
+
+  Cmap.prototype.disableConnector = function(type, link) {
+    if (!link)
+      return;
+
+    // remove showing connectors for setting its availability
+    this.hideConnectors(link);
+
+    var linkConnectorRelationType;
+
+    if (type === Cmap.CONNECTION_TYPE_SOURCE)
+      linkConnectorRelationType = LinkConnectorRelation.TYPE_SOURCE;
+    else if (type === Cmap.CONNECTION_TYPE_TARGET)
+      linkConnectorRelationType = LinkConnectorRelation.TYPE_TARGET;
+
+    var disabledLinkConnectorRelations = this.disabledLinkConnectorRelations();
+
+    var hasLinkConnectorRelation = disabledLinkConnectorRelations.some(function(relation) {
+      return relation.type() === linkConnectorRelationType && relation.link() === link;
+    });
+
+    if (hasLinkConnectorRelation)
+      return;
+
+    disabledLinkConnectorRelations.push(new LinkConnectorRelation({
+      type: linkConnectorRelationType,
+      link: link
+    }));
   };
 
   Cmap.prototype.style = function() {

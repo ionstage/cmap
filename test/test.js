@@ -148,4 +148,23 @@ describe('Cmap', function() {
     cmap.hideConnectors(link);
     assert.equal(linkRelations.length, 0);
   });
+
+  it('#enableConnector', function() {
+    var cmap = new Cmap();
+    var link = cmap.createLink();
+    cmap.disableConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
+    cmap.enableConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
+    assert.equal(cmap.disabledLinkConnectorRelations().length, 0);
+  });
+
+  it('#disableConnector', function() {
+    var cmap = new Cmap();
+    var link = cmap.createLink();
+    var linkRelations = link.relations();
+    cmap.disableConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
+    var linkConnectorRelation = cmap.disabledLinkConnectorRelations()[0];
+    assert.equal(linkConnectorRelation.link(), link);
+    cmap.showConnectors(link);
+    assert.equal(linkRelations.length, 1);
+  });
 });
