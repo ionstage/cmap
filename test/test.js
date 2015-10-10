@@ -147,5 +147,5 @@ describe('Cmap', function() {
     cmap.showConnectors(link);
     cmap.hideConnectors(link);
     assert.equal(linkRelations.length, 0);
-  })
+  });
 });
