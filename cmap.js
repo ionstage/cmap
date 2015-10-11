@@ -144,6 +144,7 @@
     this.borderColor = this.prop(props.borderColor || '#333');
     this.borderWidth = this.prop(helper.toNumber(props.borderWidth, 2));
     this.textColor = this.prop(props.textColor || '#333');
+    this.zIndex = this.prop(helper.toNumber(props.zIndex, 'auto'));
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
     this.cache = this.prop({});
@@ -197,7 +198,8 @@
       transform: translate,
       webkitTransform: translate,
       whiteSpace: 'nowrap',
-      width: (this.width() - borderWidthOffset) + 'px'
+      width: (this.width() - borderWidthOffset) + 'px',
+      zIndex: this.zIndex()
     };
   };
 
@@ -269,6 +271,7 @@
     this.lineColor = this.prop(props.lineColor || '#333');
     this.lineWidth = this.prop(helper.toNumber(props.lineWidth, 2));
     this.hasArrow = this.prop(!!props.hasArrow);
+    this.zIndex = this.prop(helper.toNumber(props.zIndex, 'auto'));
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
     this.cache = this.prop({});
@@ -289,6 +292,13 @@
 
     this.content(html);
     this.contentType(Link.CONTENT_TYPE_HTML);
+  };
+
+  Link.prototype.style = function() {
+    return {
+      pointerEvents: 'none',
+      zIndex: this.zIndex()
+    };
   };
 
   Link.prototype.pathContainerStyle = function() {
@@ -395,7 +405,6 @@
       element = dom.el('<div>');
       this.element(element);
 
-      dom.css(element, {pointerEvents: 'none'});
       dom.html(element, '<svg><path></path><path></path></svg><div></div>');
 
       var pathContainerElement = element.children[0];
@@ -450,6 +459,11 @@
 
     dom.css(contentElement, helper.diffObj(contentStyle, cache.contentStyle));
     cache.contentStyle = contentStyle;
+
+    var style = this.style();
+
+    dom.css(element, helper.diffObj(style, cache.style));
+    cache.style = style;
   };
 
   Link.CONTENT_TYPE_TEXT = 'text';
@@ -459,6 +473,7 @@
     this.x = this.prop(helper.toNumber(props.x, 0));
     this.y = this.prop(helper.toNumber(props.y, 0));
     this.color = this.prop(Connector.COLOR_UNCONNECTED);
+    this.zIndex = this.prop(helper.toNumber(props.zIndex, 'auto'));
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
   }, Component);
@@ -479,7 +494,8 @@
       position: 'absolute',
       transform: translate,
       webkitTransform: translate,
-      width: r * 2 + 'px'
+      width: r * 2 + 'px',
+      zIndex: this.zIndex()
     };
   };
 

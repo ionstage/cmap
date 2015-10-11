@@ -13,7 +13,8 @@ describe('Cmap', function() {
       backgroundColor: 'white',
       borderColor: 'black',
       borderWidth: 4,
-      textColor: 'black'
+      textColor: 'black',
+      zIndex: 0
     };
     var node = cmap.createNode(props);
     for (var key in props) {
@@ -45,7 +46,8 @@ describe('Cmap', function() {
       targetY: 300,
       lineColor: 'white',
       lineWidth: 4,
-      hasArrow: true
+      hasArrow: true,
+      zIndex: 0
     };
     var link = cmap.createLink(props);
     for (var key in props) {
