@@ -515,27 +515,6 @@
   Connector.COLOR_CONNECTED = 'lightgreen';
   Connector.COLOR_UNCONNECTED = 'pink';
 
-  var ComponentList = function() {
-    this.data = [];
-  };
-
-  ComponentList.prototype.add = function(component) {
-    var data = this.data;
-    if (data.indexOf(component) === -1)
-      data.push(component);
-  };
-
-  ComponentList.prototype.remove = function(component) {
-    var data = this.data;
-    var index = data.indexOf(component);
-    if (index !== -1)
-      data.splice(index, 1);
-  };
-
-  ComponentList.prototype.each = function(callback) {
-    return this.data.forEach(callback);
-  };
-
   var Relation = function() {};
 
   Relation.prototype.prop = function(initialValue) {
@@ -733,9 +712,8 @@
     var ny = node.y();
     var nwidth = node.width();
     var nheight = node.height();
-
-    var ncx = nx + nwidth / 2;
-    var ncy = ny + nheight / 2;
+    var ncx = node.cx();
+    var ncy = node.cy();
 
     var alpha = Math.atan2(ly - ncy, lx - ncx);
     var beta = Math.PI / 2 - alpha;
@@ -808,18 +786,14 @@
   };
 
   var LinkConnectorRelation = helper.inherits(function(props) {
-    this.type = this.prop(props.type || LinkConnectorRelation.TYPE_SOURCE);
+    this.type = this.prop(props.type || Cmap.CONNECTION_TYPE_SOURCE);
     this.link = this.prop(props.link || null);
     this.connector = this.prop(props.connector || null);
   }, Relation);
 
   LinkConnectorRelation.prototype.isConnected = function(isConnected) {
-    var connector = this.connector();
-
-    if (!connector)
-      return;
-
-    connector.color(isConnected ? Connector.COLOR_CONNECTED : Connector.COLOR_UNCONNECTED);
+    var color = isConnected ? Connector.COLOR_CONNECTED : Connector.COLOR_UNCONNECTED;
+    this.connector().color(color);
   };
 
   LinkConnectorRelation.prototype.update = function() {
@@ -831,12 +805,61 @@
     connector.y(link[type + 'Y']());
   };
 
-  LinkConnectorRelation.TYPE_SOURCE = 'source';
-  LinkConnectorRelation.TYPE_TARGET = 'target';
+  var ComponentList = function() {
+    this.data = [];
+  };
+
+  ComponentList.prototype.add = function(component) {
+    var data = this.data;
+    if (data.indexOf(component) === -1)
+      data.push(component);
+  };
+
+  ComponentList.prototype.remove = function(component) {
+    var data = this.data;
+    var index = data.indexOf(component);
+    if (index !== -1)
+      data.splice(index, 1);
+  };
+
+  ComponentList.prototype.each = function(callback) {
+    return this.data.forEach(callback);
+  };
+
+  var DisabledConnectorList = function() {
+    this.data = [];
+  };
+
+  DisabledConnectorList.prototype.add = function(type, link) {
+    if (this.contains(type, link))
+      return;
+
+    this.data.push({
+      type: type,
+      link: link
+    });
+  };
+
+  DisabledConnectorList.prototype.remove = function(type, link) {
+    var data = this.data;
+
+    for (var i = data.length - 1; i >= 0; i--) {
+      var item = data[i];
+
+      if (item.type === type && item.link === link)
+        data.splice(i, 1);
+    }
+  };
+
+  DisabledConnectorList.prototype.contains = function(type, link) {
+    return this.data.some(function(item) {
+      return item.type === type && item.link === link;
+    });
+  };
 
   var Cmap = helper.inherits(function(element) {
     this.componentList = this.prop(new ComponentList());
-    this.disabledLinkConnectorRelations = this.prop([]);
+    this.disabledConnectorList = this.prop(new DisabledConnectorList());
     this.element = this.prop(element || null);
 
     this.markDirty();
@@ -871,15 +894,17 @@
       return relation instanceof Triple;
     })[0];
 
-    if (triple && triple[type + 'Node']())
+    var nodeKey = type + 'Node';
+
+    if (triple && triple[nodeKey]())
       return;
 
     if (triple) {
-      triple[type + 'Node'](node);
+      triple[nodeKey](node);
     } else {
       var tripleProps = {};
       tripleProps.link = link;
-      tripleProps[type + 'Node'] = node;
+      tripleProps[nodeKey] = node;
       triple = new Triple(tripleProps);
 
       // add triple to the beginning of link relations to be ahead of link-connector relation
@@ -895,14 +920,8 @@
       if (!(relation instanceof LinkConnectorRelation))
         return;
 
-      var relationType = relation.type();
-
-      if ((type === Cmap.CONNECTION_TYPE_SOURCE &&
-            relationType === LinkConnectorRelation.TYPE_SOURCE) ||
-          (type === Cmap.CONNECTION_TYPE_TARGET &&
-            relationType === LinkConnectorRelation.TYPE_TARGET)) {
+      if (relation.type() === type)
         relation.isConnected(true);
-      }
     });
 
     // do not need to mark node dirty (stay unchanged)
@@ -923,14 +942,11 @@
         var sourceNode = relation.sourceNode();
         var targetNode = relation.targetNode();
 
-        if (component === link) {
+        if (component === link || component === sourceNode)
           this.disconnect(Cmap.CONNECTION_TYPE_SOURCE, sourceNode, link);
+
+        if (component === link || component === targetNode)
           this.disconnect(Cmap.CONNECTION_TYPE_TARGET, targetNode, link);
-        } else if (component === sourceNode) {
-          this.disconnect(Cmap.CONNECTION_TYPE_SOURCE, sourceNode, link);
-        } else if (component === targetNode) {
-          this.disconnect(Cmap.CONNECTION_TYPE_TARGET, targetNode, link);
-        }
       }.bind(this));
 
       return;
@@ -963,14 +979,8 @@
       if (!(relation instanceof LinkConnectorRelation))
         return;
 
-      var relationType = relation.type();
-
-      if ((type === Cmap.CONNECTION_TYPE_SOURCE &&
-            relationType === LinkConnectorRelation.TYPE_SOURCE) ||
-          (type === Cmap.CONNECTION_TYPE_TARGET &&
-            relationType === LinkConnectorRelation.TYPE_TARGET)) {
+      if (relation.type() === type)
         relation.isConnected(false);
-      }
     });
 
     // do not need to mark node dirty (stay unchanged)
@@ -981,66 +991,46 @@
     if (!link)
       return;
 
-    var linkRelations = link.relations();
-
-    var hasLinkConnectorRelation = linkRelations.some(function(relation) {
+    var hasLinkConnectorRelation = link.relations().some(function(relation) {
       return relation instanceof LinkConnectorRelation;
     });
 
     if (hasLinkConnectorRelation)
       return;
 
-    var disabledLinkConnectorRelations = this.disabledLinkConnectorRelations();
+    var disabledConnectorList = this.disabledConnectorList();
 
-    var sourceConnectorDisabled = disabledLinkConnectorRelations.some(function(relation) {
-      return relation.type() === LinkConnectorRelation.TYPE_SOURCE && relation.link() === link;
+    var sourceConnectorDisabled = disabledConnectorList.contains(Cmap.CONNECTION_TYPE_SOURCE, link);
+    var targetConnectorDisabled = disabledConnectorList.contains(Cmap.CONNECTION_TYPE_TARGET, link);
+
+    if (!sourceConnectorDisabled)
+      this.addConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
+
+    if (!targetConnectorDisabled)
+      this.addConnector(Cmap.CONNECTION_TYPE_TARGET, link);
+  };
+
+  Cmap.prototype.addConnector = function(type, link) {
+    var connector = new Connector({
+      x: link[type + 'X'](),
+      y: link[type + 'Y']()
     });
 
-    var targetConnectorDisabled = disabledLinkConnectorRelations.some(function(relation) {
-      return relation.type() === LinkConnectorRelation.TYPE_TARGET && relation.link() === link;
+    var linkConnectorRelation = new LinkConnectorRelation({
+      type: type,
+      link: link,
+      connector: connector
     });
 
-    if (!sourceConnectorDisabled) {
-      var sourceConnector = new Connector({
-        x: link.sourceX(),
-        y: link.sourceY()
-      });
+    var linkRelations = link.relations();
 
-      var linkSourceConnectorRelation = new LinkConnectorRelation({
-        type: LinkConnectorRelation.TYPE_SOURCE,
-        link: link,
-        connector: sourceConnector
-      });
+    var isConnected = linkRelations.some(function(relation) {
+      return relation instanceof Triple && !!relation[type + 'Node']();
+    });
 
-      var isSourceConnected = linkRelations.some(function(relation) {
-        return relation instanceof Triple && !!relation.sourceNode();
-      });
-
-      this.add(sourceConnector);
-      linkSourceConnectorRelation.isConnected(isSourceConnected);
-      linkRelations.push(linkSourceConnectorRelation);
-    }
-
-    if (!targetConnectorDisabled) {
-      var targetConnector = new Connector({
-        x: link.targetX(),
-        y: link.targetY()
-      });
-
-      var linkTargetConnectorRelation = new LinkConnectorRelation({
-        type: LinkConnectorRelation.TYPE_TARGET,
-        link: link,
-        connector: targetConnector
-      });
-
-      var isTargetConnected = linkRelations.some(function(relation) {
-        return relation instanceof Triple && !!relation.targetNode();
-      });
-
-      this.add(targetConnector);
-      linkTargetConnectorRelation.isConnected(isTargetConnected);
-      linkRelations.push(linkTargetConnectorRelation);
-    }
+    this.add(connector);
+    linkConnectorRelation.isConnected(isConnected);
+    linkRelations.push(linkConnectorRelation);
   };
 
   Cmap.prototype.hideConnectors = function(link) {
@@ -1049,18 +1039,17 @@
 
     var linkRelations = link.relations();
 
-    // remove connector components
-    linkRelations.forEach(function(relation) {
-      if (!(relation instanceof LinkConnectorRelation))
-        return;
-
-      this.remove(relation.connector());
-    }.bind(this));
-
-    // remove link-connector relations from link
     for (var i = linkRelations.length - 1; i >= 0; i--) {
-      if (linkRelations[i] instanceof LinkConnectorRelation)
-        linkRelations.splice(i, 1);
+      var relation = linkRelations[i];
+
+      if (!(relation instanceof LinkConnectorRelation))
+        continue;
+
+      // remove connector components
+      this.remove(relation.connector());
+
+      // remove link-connector relations from link
+      linkRelations.splice(i, 1);
     }
   };
 
@@ -1071,21 +1060,7 @@
     // remove showing connectors for setting its availability
     this.hideConnectors(link);
 
-    var linkConnectorRelationType;
-
-    if (type === Cmap.CONNECTION_TYPE_SOURCE)
-      linkConnectorRelationType = LinkConnectorRelation.TYPE_SOURCE;
-    else if (type === Cmap.CONNECTION_TYPE_TARGET)
-      linkConnectorRelationType = LinkConnectorRelation.TYPE_TARGET;
-
-    var disabledLinkConnectorRelations = this.disabledLinkConnectorRelations();
-
-    for (var i = disabledLinkConnectorRelations.length - 1; i >= 0; i--) {
-      var relation = disabledLinkConnectorRelations[i];
-
-      if (relation.type() === linkConnectorRelationType && relation.link() === link)
-        disabledLinkConnectorRelations.splice(i, 1);
-    }
+    this.disabledConnectorList().remove(type, link);
   };
 
   Cmap.prototype.disableConnector = function(type, link) {
@@ -1095,26 +1070,7 @@
     // remove showing connectors for setting its availability
     this.hideConnectors(link);
 
-    var linkConnectorRelationType;
-
-    if (type === Cmap.CONNECTION_TYPE_SOURCE)
-      linkConnectorRelationType = LinkConnectorRelation.TYPE_SOURCE;
-    else if (type === Cmap.CONNECTION_TYPE_TARGET)
-      linkConnectorRelationType = LinkConnectorRelation.TYPE_TARGET;
-
-    var disabledLinkConnectorRelations = this.disabledLinkConnectorRelations();
-
-    var hasLinkConnectorRelation = disabledLinkConnectorRelations.some(function(relation) {
-      return relation.type() === linkConnectorRelationType && relation.link() === link;
-    });
-
-    if (hasLinkConnectorRelation)
-      return;
-
-    disabledLinkConnectorRelations.push(new LinkConnectorRelation({
-      type: linkConnectorRelationType,
-      link: link
-    }));
+    this.disabledConnectorList().add(type, link);
   };
 
   Cmap.prototype.style = function() {

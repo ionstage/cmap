@@ -152,18 +152,19 @@ describe('Cmap', function() {
   it('#enableConnector', function() {
     var cmap = new Cmap();
     var link = cmap.createLink();
+    var disabledConnectorList = cmap.disabledConnectorList();
     cmap.disableConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
     cmap.enableConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
-    assert.equal(cmap.disabledLinkConnectorRelations().length, 0);
+    assert(!disabledConnectorList.contains(Cmap.CONNECTION_TYPE_SOURCE, link));
   });
 
   it('#disableConnector', function() {
     var cmap = new Cmap();
     var link = cmap.createLink();
     var linkRelations = link.relations();
+    var disabledConnectorList = cmap.disabledConnectorList();
     cmap.disableConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
-    var linkConnectorRelation = cmap.disabledLinkConnectorRelations()[0];
-    assert.equal(linkConnectorRelation.link(), link);
+    assert(disabledConnectorList.contains(Cmap.CONNECTION_TYPE_SOURCE, link));
     cmap.showConnectors(link);
     assert.equal(linkRelations.length, 1);
   });
