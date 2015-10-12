@@ -476,6 +476,7 @@
     this.zIndex = this.prop(helper.toNumber(props.zIndex, 'auto'));
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
+    this.relations = this.prop([]);
   }, Component);
 
   Connector.prototype.style = function() {
@@ -1047,6 +1048,7 @@
     this.add(connector);
     linkConnectorRelation.isConnected(isConnected);
     linkRelations.push(linkConnectorRelation);
+    connector.relations().push(linkConnectorRelation);
   };
 
   Cmap.prototype.hideConnectors = function(link) {
