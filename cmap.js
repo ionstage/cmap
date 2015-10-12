@@ -843,6 +843,10 @@
     return this.data.forEach(callback);
   };
 
+  ComponentList.prototype.filter = function(callback) {
+    return this.data.filter(callback);
+  };
+
   var DisabledConnectorList = function() {
     this.data = [];
   };
@@ -893,12 +897,33 @@
   Cmap.prototype.add = function(component) {
     component.parentElement(this.element());
     this.componentList().add(component);
+    this.updateZIndex();
   };
 
   Cmap.prototype.remove = function(component) {
     component.parentElement(null);
     this.disconnect(component);
     this.componentList().remove(component);
+    this.updateZIndex();
+  };
+
+  Cmap.prototype.updateZIndex = function() {
+    this.componentList().filter(function(component) {
+      return component instanceof Node || component instanceof Link;
+    }).forEach(function(component, index) {
+      var zIndex = index * 10;
+      component.zIndex(zIndex);
+
+      if (!(component instanceof Link))
+        return;
+
+      // update z-index of connector
+      component.relations().filter(function(relation) {
+        return relation instanceof LinkConnectorRelation;
+      }).forEach(function(relation, index) {
+        relation.connector().zIndex(zIndex + index + 1);
+      });
+    });
   };
 
   Cmap.prototype.connect = function(type, node, link) {
@@ -1045,10 +1070,11 @@
       return relation instanceof Triple && !!relation[type + 'Node']();
     });
 
-    this.add(connector);
     linkConnectorRelation.isConnected(isConnected);
     linkRelations.push(linkConnectorRelation);
     connector.relations().push(linkConnectorRelation);
+
+    this.add(connector);
   };
 
   Cmap.prototype.hideConnectors = function(link) {
