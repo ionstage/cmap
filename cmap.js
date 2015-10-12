@@ -847,6 +847,16 @@
     return this.data.filter(callback);
   };
 
+  ComponentList.prototype.toFront = function(component) {
+    var data = this.data;
+    var index = data.indexOf(component);
+    if (index === -1)
+      return;
+
+    data.splice(index, 1);
+    data.push(component);
+  };
+
   var DisabledConnectorList = function() {
     this.data = [];
   };
@@ -904,6 +914,11 @@
     component.parentElement(null);
     this.disconnect(component);
     this.componentList().remove(component);
+    this.updateZIndex();
+  };
+
+  Cmap.prototype.toFront = function(component) {
+    this.componentList().toFront(component);
     this.updateZIndex();
   };
 
