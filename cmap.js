@@ -104,12 +104,21 @@
     var dirtyComponents = [];
     var requestId = null;
 
-    var callback = function() {
-      dirtyComponents.forEach(function(component) {
+    var updateRelations = function(index) {
+      for (var i = index, len = dirtyComponents.length; i < len; i++) {
+        var component = dirtyComponents[i];
         component.relations().forEach(function(relation) {
           relation.update(component);
         });
-      });
+      }
+
+      // may be inserted other dirty components by updating relations
+      if (dirtyComponents.length > len)
+        updateRelations(len);
+    };
+
+    var callback = function() {
+      updateRelations(0);
 
       dirtyComponents.forEach(function(component) {
         component.redraw();
