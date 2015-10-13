@@ -185,7 +185,7 @@
     return {
       backgroundColor: this.backgroundColor(),
       border: this.borderWidth() + 'px solid ' + this.borderColor(),
-      borderRadius: '4px',
+      borderRadius: Node.BORDER_RADIUS_LENGTH + 'px',
       color: this.textColor(),
       height: (this.height() - borderWidthOffset) + 'px',
       lineHeight: (lineHeight - borderWidthOffset) + 'px',
@@ -250,6 +250,7 @@
     cache.style = style;
   };
 
+  Node.BORDER_RADIUS_LENGTH = 4;
   Node.CONTENT_TYPE_TEXT = 'text';
   Node.CONTENT_TYPE_HTML = 'html';
 
@@ -760,7 +761,7 @@
     }
 
     var x0, y0, l, ex, ey;
-    var r = 4;
+    var r = Node.BORDER_RADIUS_LENGTH;
     var atCorner = false;
 
     // top-left corner
