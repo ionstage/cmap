@@ -232,10 +232,12 @@
     }
 
     var cache = this.cache();
+
     var content = this.content();
-    var contentType = this.contentType();
 
     if (content !== cache.content) {
+      var contentType = this.contentType();
+
       if (contentType === Node.CONTENT_TYPE_TEXT)
         dom.text(element, content);
       else if (contentType === Node.CONTENT_TYPE_HTML)
@@ -445,11 +447,12 @@
 
     // update content element
     var content = this.content();
-    var contentType = this.contentType();
     var contentStyle = this.contentStyle();
     var contentElement = element.children[1];
 
     if (content !== cache.content) {
+      var contentType = this.contentType();
+
       if (contentType === Link.CONTENT_TYPE_TEXT)
         dom.text(contentElement, content);
       else if (contentType === Link.CONTENT_TYPE_HTML)
