@@ -1036,10 +1036,12 @@
       return relation instanceof Triple;
     })[0];
 
-    if (!triple)
+    var nodeKey = type + 'Node';
+
+    if (!triple || triple[nodeKey]() !== node)
       return;
 
-    triple[type + 'Node'](null);
+    triple[nodeKey](null);
 
     // remove triple from node
     var nodeRelations = node.relations();
