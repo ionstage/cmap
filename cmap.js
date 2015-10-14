@@ -4,7 +4,7 @@
   var helper = {};
 
   helper.toNumber = function(value, defaultValue) {
-    return (typeof value === 'number') ? value : defaultValue;
+    return !isNaN(value) ? +value : defaultValue;
   };
 
   helper.inherits = function(ctor, superCtor) {
@@ -24,11 +24,8 @@
   helper.diffObj = function(newObj, oldObj) {
     var diff = {};
 
-    if (!oldObj)
-      oldObj = {};
-
     for (var key in newObj) {
-      if (newObj[key] !== oldObj[key])
+      if (!oldObj || newObj[key] !== oldObj[key])
         diff[key] = newObj[key];
     }
 
