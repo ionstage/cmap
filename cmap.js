@@ -561,7 +561,7 @@
   Relation.prototype.update = function() {};
 
   var Triple = helper.inherits(function(props) {
-    this.link = this.prop(props.link || null);
+    this.link = this.prop(props.link);
     this.sourceNode = this.prop(props.sourceNode || null);
     this.targetNode = this.prop(props.targetNode || null);
   }, Relation);
@@ -816,9 +816,9 @@
   };
 
   var LinkConnectorRelation = helper.inherits(function(props) {
-    this.type = this.prop(props.type || Cmap.CONNECTION_TYPE_SOURCE);
-    this.link = this.prop(props.link || null);
-    this.connector = this.prop(props.connector || null);
+    this.type = this.prop(props.type);
+    this.link = this.prop(props.link);
+    this.connector = this.prop(props.connector);
   }, Relation);
 
   LinkConnectorRelation.prototype.isConnected = function(isConnected) {
@@ -841,6 +841,7 @@
 
   ComponentList.prototype.add = function(component) {
     var data = this.data;
+
     if (data.indexOf(component) === -1)
       data.push(component);
   };
@@ -848,6 +849,7 @@
   ComponentList.prototype.remove = function(component) {
     var data = this.data;
     var index = data.indexOf(component);
+
     if (index !== -1)
       data.splice(index, 1);
   };
@@ -863,6 +865,7 @@
   ComponentList.prototype.toFront = function(component) {
     var data = this.data;
     var index = data.indexOf(component);
+
     if (index === -1)
       return;
 
@@ -890,8 +893,10 @@
     for (var i = data.length - 1; i >= 0; i--) {
       var item = data[i];
 
-      if (item.type === type && item.link === link)
+      if (item.type === type && item.link === link) {
         data.splice(i, 1);
+        break;
+      }
     }
   };
 
