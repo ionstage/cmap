@@ -972,7 +972,7 @@
     var nodeKey = type + 'Node';
 
     if (triple && triple[nodeKey]())
-      return;
+      throw new Error('Already connected');
 
     if (triple) {
       triple[nodeKey](node);
@@ -1039,7 +1039,7 @@
     var nodeKey = type + 'Node';
 
     if (!triple || triple[nodeKey]() !== node)
-      return;
+      throw new Error('Not connected');
 
     triple[nodeKey](null);
 
