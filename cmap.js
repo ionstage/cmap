@@ -923,12 +923,18 @@
   };
 
   Cmap.prototype.add = function(component) {
+    if (!component)
+      throw new TypeError('Not enough arguments');
+
     component.parentElement(this.element());
     this.componentList().add(component);
     this.updateZIndex();
   };
 
   Cmap.prototype.remove = function(component) {
+    if (!component)
+      throw new TypeError('Not enough arguments');
+
     component.parentElement(null);
     this.disconnect(component);
     this.componentList().remove(component);
@@ -936,6 +942,9 @@
   };
 
   Cmap.prototype.toFront = function(component) {
+    if (!component)
+      throw new TypeError('Not enough arguments');
+
     this.componentList().toFront(component);
     this.updateZIndex();
   };
@@ -961,7 +970,7 @@
 
   Cmap.prototype.connect = function(type, node, link) {
     if (!node || !link)
-      return;
+      throw new TypeError('Not enough arguments');
 
     var linkRelations = link.relations();
 
@@ -1017,10 +1026,10 @@
         var sourceNode = relation.sourceNode();
         var targetNode = relation.targetNode();
 
-        if (component === link || component === sourceNode)
+        if (sourceNode && (component === link || component === sourceNode))
           this.disconnect(Cmap.CONNECTION_TYPE_SOURCE, sourceNode, link);
 
-        if (component === link || component === targetNode)
+        if (targetNode && (component === link || component === targetNode))
           this.disconnect(Cmap.CONNECTION_TYPE_TARGET, targetNode, link);
       }.bind(this));
 
@@ -1028,7 +1037,7 @@
     }
 
     if (!node || !link)
-      return;
+      throw new TypeError('Not enough arguments');
 
     var linkRelations = link.relations();
 
@@ -1066,7 +1075,7 @@
 
   Cmap.prototype.showConnectors = function(link) {
     if (!link)
-      return;
+      throw new TypeError('Not enough arguments');
 
     var hasLinkConnectorRelation = link.relations().some(function(relation) {
       return relation instanceof LinkConnectorRelation;
@@ -1114,7 +1123,7 @@
 
   Cmap.prototype.hideConnectors = function(link) {
     if (!link)
-      return;
+      throw new TypeError('Not enough arguments');
 
     var linkRelations = link.relations();
 
@@ -1134,7 +1143,7 @@
 
   Cmap.prototype.enableConnector = function(type, link) {
     if (!link)
-      return;
+      throw new TypeError('Not enough arguments');
 
     // remove showing connectors for setting its availability
     this.hideConnectors(link);
@@ -1144,7 +1153,7 @@
 
   Cmap.prototype.disableConnector = function(type, link) {
     if (!link)
-      return;
+      throw new TypeError('Not enough arguments');
 
     // remove showing connectors for setting its availability
     this.hideConnectors(link);
