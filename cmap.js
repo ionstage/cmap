@@ -1193,6 +1193,24 @@
   Cmap.CONNECTION_TYPE_SOURCE = 'source';
   Cmap.CONNECTION_TYPE_TARGET = 'target';
 
+  var CmapModule = function(element) {
+    if (!(this instanceof CmapModule))
+      return new CmapModule(element);
+
+    return CmapModule.wrapper(this);
+  };
+
+  CmapModule.wrapper = function(instance) {
+    var wrapper = {};
+    var proto = CmapModule.prototype;
+
+    for (var key in proto) {
+      wrapper[key] = proto[key].bind(instance);
+    }
+
+    return wrapper;
+  };
+
   if (typeof module !== 'undefined' && module.exports)
     module.exports = Cmap;
   else
