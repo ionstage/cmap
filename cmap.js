@@ -1077,11 +1077,7 @@
     if (!link)
       throw new TypeError('Not enough arguments');
 
-    var hasLinkConnectorRelation = link.relations().some(function(relation) {
-      return relation instanceof LinkConnectorRelation && relation.type() === type;
-    });
-
-    if (hasLinkConnectorRelation)
+    if (this.connectorVisible(type, link))
       return;
 
     var disabledConnectorList = this.disabledConnectorList();
@@ -1089,6 +1085,12 @@
 
     if (!connectorDisabled)
       this.addConnector(type, link);
+  };
+
+  Cmap.prototype.connectorVisible = function(type, link) {
+    return link.relations().some(function(relation) {
+      return relation instanceof LinkConnectorRelation && relation.type() === type;
+    });
   };
 
   Cmap.prototype.addConnector = function(type, link) {
