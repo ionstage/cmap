@@ -130,25 +130,27 @@ describe('Cmap', function() {
     assert.equal(link.relations().length, 0);
   });
 
-  it('#showConnectors', function() {
+  it('#showConnector', function() {
     var cmap = new Cmap();
     var link = cmap.createLink();
     var linkRelations = link.relations();
-    cmap.showConnectors(link);
+    cmap.showConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
+    cmap.showConnector(Cmap.CONNECTION_TYPE_TARGET, link);
     assert.equal(linkRelations.length, 2);
     assert.equal(linkRelations[0].link(), link);
     assert.equal(linkRelations[1].link(), link);
-    cmap.showConnectors(link);
+    cmap.showConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
     assert.equal(linkRelations.length, 2);
   });
 
-  it('#hideConnectors', function() {
+  it('#hideConnector', function() {
     var cmap = new Cmap();
     var link = cmap.createLink();
     var linkRelations = link.relations();
-    cmap.showConnectors(link);
-    cmap.hideConnectors(link);
-    assert.equal(linkRelations.length, 0);
+    cmap.showConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
+    cmap.showConnector(Cmap.CONNECTION_TYPE_TARGET, link);
+    cmap.hideConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
+    assert.equal(linkRelations.length, 1);
   });
 
   it('#enableConnector', function() {
@@ -167,7 +169,7 @@ describe('Cmap', function() {
     var disabledConnectorList = cmap.disabledConnectorList();
     cmap.disableConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
     assert(disabledConnectorList.contains(Cmap.CONNECTION_TYPE_SOURCE, link));
-    cmap.showConnectors(link);
-    assert.equal(linkRelations.length, 1);
+    cmap.showConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
+    assert.equal(linkRelations.length, 0);
   });
 });

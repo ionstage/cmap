@@ -1073,27 +1073,22 @@
     link.markDirty();
   };
 
-  Cmap.prototype.showConnectors = function(link) {
+  Cmap.prototype.showConnector = function(type, link) {
     if (!link)
       throw new TypeError('Not enough arguments');
 
     var hasLinkConnectorRelation = link.relations().some(function(relation) {
-      return relation instanceof LinkConnectorRelation;
+      return relation instanceof LinkConnectorRelation && relation.type() === type;
     });
 
     if (hasLinkConnectorRelation)
       return;
 
     var disabledConnectorList = this.disabledConnectorList();
+    var connectorDisabled = disabledConnectorList.contains(type, link);
 
-    var sourceConnectorDisabled = disabledConnectorList.contains(Cmap.CONNECTION_TYPE_SOURCE, link);
-    var targetConnectorDisabled = disabledConnectorList.contains(Cmap.CONNECTION_TYPE_TARGET, link);
-
-    if (!sourceConnectorDisabled)
-      this.addConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
-
-    if (!targetConnectorDisabled)
-      this.addConnector(Cmap.CONNECTION_TYPE_TARGET, link);
+    if (!connectorDisabled)
+      this.addConnector(type, link);
   };
 
   Cmap.prototype.addConnector = function(type, link) {
@@ -1121,7 +1116,7 @@
     this.add(connector);
   };
 
-  Cmap.prototype.hideConnectors = function(link) {
+  Cmap.prototype.hideConnector = function(type, link) {
     if (!link)
       throw new TypeError('Not enough arguments');
 
@@ -1130,15 +1125,27 @@
     for (var i = linkRelations.length - 1; i >= 0; i--) {
       var relation = linkRelations[i];
 
-      if (!(relation instanceof LinkConnectorRelation))
+      if (!(relation instanceof LinkConnectorRelation) || relation.type() !== type)
         continue;
 
-      // remove connector components
+      // remove connector component
       this.remove(relation.connector());
 
-      // remove link-connector relations from link
+      // remove link-connector relation from link
       linkRelations.splice(i, 1);
+
+      break;
     }
+  };
+
+  Cmap.prototype.showConnectors = function(link) {
+    this.showConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
+    this.showConnector(Cmap.CONNECTION_TYPE_TARGET, link);
+  };
+
+  Cmap.prototype.hideConnectors = function(link) {
+    this.hideConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
+    this.hideConnector(Cmap.CONNECTION_TYPE_TARGET, link);
   };
 
   Cmap.prototype.enableConnector = function(type, link) {
