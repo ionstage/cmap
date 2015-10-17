@@ -1154,9 +1154,6 @@
     if (!link)
       throw new TypeError('Not enough arguments');
 
-    // remove showing connectors for setting its availability
-    this.hideConnectors(link);
-
     this.disabledConnectorList().remove(type, link);
   };
 
@@ -1164,8 +1161,8 @@
     if (!link)
       throw new TypeError('Not enough arguments');
 
-    // remove showing connectors for setting its availability
-    this.hideConnectors(link);
+    // remove showing connector
+    this.hideConnector(type, link);
 
     this.disabledConnectorList().add(type, link);
   };
