@@ -1020,7 +1020,7 @@
   Cmap.prototype.disconnect = function(type, node, link) {
     if (type instanceof Component) {
       var component = type;
-      var relations = component.relations().concat();
+      var relations = component.relations().slice();
 
       // disconnect all connections of component
       relations.forEach(function(relation) {
