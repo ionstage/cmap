@@ -41,6 +41,10 @@
     }
   };
 
+  dom.body = function() {
+    return document.body;
+  };
+
   dom.attr = function(el, props) {
     for (var key in props) {
       el.setAttribute(key, props[key]);
@@ -903,13 +907,14 @@
     });
   };
 
-  var Cmap = helper.inherits(function(element) {
+  var Cmap = helper.inherits(function(rootElement) {
     if (!(this instanceof Cmap))
-      return new Cmap(element);
+      return new Cmap(rootElement);
 
     this.componentList = this.prop(new ComponentList());
     this.disabledConnectorList = this.prop(new DisabledConnectorList());
-    this.element = this.prop(element || null);
+    this.element = this.prop(null);
+    this.rootElement = this.prop(rootElement || null);
 
     this.markDirty();
   }, Component);
@@ -1173,27 +1178,34 @@
       cursor: 'default',
       fontFamily: 'sans-serif',
       fontSize: '14px',
+      height: '100%',
       MozUserSelect: 'none',
       msUserSelect: 'none',
+      overflow: 'auto',
       position: 'relative',
       userSelect: 'none',
-      webkitUserSelect: 'none'
+      webkitUserSelect: 'none',
+      width: '100%'
     };
   };
 
   Cmap.prototype.redraw = function() {
-    var element = this.element();
+    var rootElement = this.rootElement();
 
-    if (!element) {
-      element = dom.el('<div>');
-      this.element(element);
-
-      this.componentList().each(function(component) {
-        component.parentElement(element);
-      });
+    if (!rootElement) {
+      rootElement = dom.body();
+      this.rootElement(rootElement);
     }
 
+    var element = dom.el('<div>');
+    this.element(element);
+
+    this.componentList().each(function(component) {
+      component.parentElement(element);
+    });
+
     dom.css(element, this.style());
+    dom.append(rootElement, element);
   };
 
   Cmap.CONNECTION_TYPE_SOURCE = 'source';
