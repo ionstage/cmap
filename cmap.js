@@ -1311,6 +1311,8 @@
 
     event.preventDefault();
 
+    this.toFront(component);
+
     if (component instanceof Node) {
       context.x = component.x();
       context.y = component.y();
