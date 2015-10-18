@@ -658,9 +658,15 @@
     this.link = this.prop(props.link);
     this.sourceNode = this.prop(props.sourceNode || null);
     this.targetNode = this.prop(props.targetNode || null);
+    this.skipNextUpdate = this.prop(false);
   }, Relation);
 
   Triple.prototype.update = function(changedComponent) {
+    if (this.skipNextUpdate()) {
+      this.skipNextUpdate(false);
+      return;
+    }
+
     var link = this.link();
     var sourceNode = this.sourceNode();
     var targetNode = this.targetNode();
@@ -829,6 +835,44 @@
     link.cy(lcy + dy);
     link.targetX(ltx + dx);
     link.targetY(lty + dy);
+  };
+
+  Triple.prototype.updateLinkAngle = function(radians) {
+    var link = this.link();
+    var sourceNode = this.sourceNode();
+    var targetNode = this.targetNode();
+
+    var ldx = link.targetX() - link.sourceX();
+    var ldy = link.targetY() - link.sourceY();
+    var len = Math.sqrt(ldx * ldx + ldy * ldy);
+
+    var connectedNode = sourceNode || targetNode;
+    var cx = connectedNode.cx();
+    var cy = connectedNode.cy();
+    var lx = cx + len * Math.cos(radians);
+    var ly = cy + len * Math.sin(radians);
+    var p = this.connectedPoint(connectedNode, lx, ly);
+
+    var lsx, lsy, ltx, lty;
+
+    if (connectedNode === sourceNode) {
+      lsx = p.x;
+      lsy = p.y;
+      ltx = lx + p.x - cx;
+      lty = ly + p.y - cy;
+    } else if (connectedNode === targetNode) {
+      lsx = lx + p.x - cx;
+      lsy = ly + p.y - cy;
+      ltx = p.x;
+      lty = p.y;
+    }
+
+    link.sourceX(lsx);
+    link.sourceY(lsy);
+    link.cx((lsx + ltx) / 2);
+    link.cy((lsy + lty) / 2);
+    link.targetX(ltx);
+    link.targetY(lty);
   };
 
   Triple.prototype.connectedPoint = function(node, lx, ly) {
@@ -1316,6 +1360,16 @@
     if (component instanceof Node) {
       context.x = component.x();
       context.y = component.y();
+    } else if (component instanceof Link) {
+      context.cx = component.cx();
+      context.cy = component.cy();
+      context.sourceX = component.sourceX();
+      context.sourceY = component.sourceY();
+      context.targetX = component.targetX();
+      context.targetY = component.targetY();
+      context.triple = component.relations().filter(function(relation) {
+        return relation instanceof Triple;
+      })[0];
     }
   };
 
@@ -1329,6 +1383,36 @@
     if (component instanceof Node) {
       component.x(context.x + dx);
       component.y(context.y + dy);
+    } else if (component instanceof Link) {
+      var cx = context.cx + dx;
+      var cy = context.cy + dy;
+      var triple = context.triple;
+      var connectedNode = null;
+
+      if (triple) {
+        var sourceNode = triple.sourceNode();
+        var targetNode = triple.targetNode();
+
+        if (sourceNode && !targetNode)
+          connectedNode = sourceNode;
+        else if (!sourceNode && targetNode)
+          connectedNode = targetNode;
+      }
+
+      if (connectedNode) {
+        // only one node connected
+        var x = cx - connectedNode.cx();
+        var y = cy - connectedNode.cy();
+        triple.updateLinkAngle(Math.atan2(y, x));
+        triple.skipNextUpdate(true);
+      } else {
+        component.cx(cx);
+        component.cy(cy);
+        component.sourceX(context.sourceX + dx);
+        component.sourceY(context.sourceY + dy);
+        component.targetX(context.targetX + dx);
+        component.targetY(context.targetY + dy);
+      }
     }
   };
 
