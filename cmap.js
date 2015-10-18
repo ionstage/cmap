@@ -78,6 +78,92 @@
     return window.requestAnimationFrame(callback);
   };
 
+  dom.supportsTouch = function() {
+    return 'createTouch' in document;
+  };
+
+  // define event types for mouse/touch events
+  (function() {
+    if (typeof document === 'undefined')
+      return;
+
+    var supportsTouch = dom.supportsTouch();
+
+    dom.EVENT_TYPE_START = supportsTouch ? 'touchstart' : 'mousedown';
+    dom.EVENT_TYPE_MOVE = supportsTouch ? 'touchmove' : 'mousemove';
+    dom.EVENT_TYPE_END = supportsTouch ? 'touchend' : 'mouseup';
+  })();
+
+  var Draggable = function(props) {
+    this.el = props.el;
+    this.onstart = props.onstart;
+    this.onmove = props.onmove;
+    this.onend = props.onend;
+    this.start = Draggable.start.bind(this);
+    this.move = Draggable.move.bind(this);
+    this.end = Draggable.end.bind(this);
+    this.lock = false;
+    this.startingPoint = null;
+
+    this.el.addEventListener(dom.EVENT_TYPE_START, this.start);
+  };
+
+  Draggable.start = function(event) {
+    if (this.lock)
+      return;
+
+    this.lock = true;
+    this.startingPoint = Draggable.getPoint(event);
+
+    var rect = this.el.getBoundingClientRect();
+    var x = this.startingPoint.x - rect.left + this.el.scrollLeft;
+    var y = this.startingPoint.y - rect.top + this.el.scrollTop;
+
+    if (typeof this.onstart === 'function')
+      this.onstart(x, y, event);
+
+    document.addEventListener(dom.EVENT_TYPE_MOVE, this.move);
+    document.addEventListener(dom.EVENT_TYPE_END, this.end);
+  };
+
+  Draggable.move = function(event) {
+    var d = Draggable.getPoint(event, this.startingPoint);
+
+    if (typeof this.onmove === 'function')
+      this.onmove(d.x, d.y, event);
+  };
+
+  Draggable.end = function(event) {
+    document.removeEventListener(dom.EVENT_TYPE_MOVE, this.move);
+    document.removeEventListener(dom.EVENT_TYPE_END, this.end);
+
+    var d = Draggable.getPoint(event, this.startingPoint);
+
+    if (typeof this.onend === 'function')
+      this.onend(d.x, d.y, event);
+
+    this.lock = false;
+  };
+
+  Draggable.getPoint = function(event, offset) {
+    if (dom.supportsTouch())
+      event = event.changedTouches[0];
+
+    return {
+      x: event.pageX - (offset ? offset.x : 0),
+      y: event.pageY - (offset ? offset.y : 0)
+    };
+  };
+
+  dom.draggable = function(el, onstart, onmove, onend) {
+    var draggable = new Draggable({
+      el: el,
+      onstart: onstart,
+      onmove: onmove,
+      onend: onend
+    });
+  };
+
   var Component = function() {};
 
   Component.prototype.prop = function(initialValue) {
