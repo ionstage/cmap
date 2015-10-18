@@ -399,6 +399,7 @@
   Link.prototype.style = function() {
     return {
       pointerEvents: 'none',
+      position: 'absolute',
       zIndex: this.zIndex()
     };
   };
