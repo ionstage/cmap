@@ -580,7 +580,7 @@
   }, Component);
 
   Connector.prototype.style = function() {
-    var r = 18;
+    var r = Connector.RADIUS_LENGTH;
     var x = this.x() - r;
     var y = this.y() - r;
     var translate = 'translate(' + x + 'px, ' + y + 'px)';
@@ -629,6 +629,7 @@
     dom.css(element, this.style());
   };
 
+  Connector.RADIUS_LENGTH = 18;
   Connector.COLOR_CONNECTED = 'lightgreen';
   Connector.COLOR_UNCONNECTED = 'pink';
 
@@ -958,6 +959,40 @@
 
     data.splice(index, 1);
     data.push(component);
+  };
+
+  ComponentList.prototype.componentFromPoint = function(x, y) {
+    var data = this.data;
+
+    for (var i = data.length - 1; i >= 0; i--) {
+      var component = data[i];
+      if (component instanceof Node) {
+        var c_x = component.x();
+        var c_y = component.y();
+        var c_width = component.width();
+        var c_height = component.height();
+
+        if (c_x <= x && x <= c_x + c_width && c_y <= y && y <= c_y + c_height)
+          return component;
+      } else if (component instanceof Link) {
+        var c_width = component.width();
+        var c_height = component.height();
+        var c_x = component.cx() - c_width / 2;
+        var c_y = component.cy() - c_height / 2;
+
+        if (c_x <= x && x <= c_x + c_width && c_y <= y && y <= c_y + c_height)
+          return component;
+      } else if (component instanceof Connector) {
+        var dx = x - component.x();
+        var dy = y - component.y();
+        var r = Connector.RADIUS_LENGTH;
+
+        if (dx * dx + dy * dy <= r * r)
+          return component;
+      }
+    }
+
+    return null;
   };
 
   var DisabledConnectorList = function() {
