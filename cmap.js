@@ -363,10 +363,10 @@
     this.borderColor = this.prop(props.borderColor || '#333');
     this.borderWidth = this.prop(helper.toNumber(props.borderWidth, 2));
     this.textColor = this.prop(props.textColor || '#333');
-    this.sourceX = this.prop(props.sourceX || this.cx() - 70);
-    this.sourceY = this.prop(props.sourceY || this.cy());
-    this.targetX = this.prop(props.targetX || this.cx() + 70);
-    this.targetY = this.prop(props.targetY || this.cy());
+    this.sourceX = this.prop(helper.toNumber(props.sourceX, this.cx() - 70));
+    this.sourceY = this.prop(helper.toNumber(props.sourceY, this.cy()));
+    this.targetX = this.prop(helper.toNumber(props.targetX, this.cx() + 70));
+    this.targetY = this.prop(helper.toNumber(props.targetY, this.cy()));
     this.lineColor = this.prop(props.lineColor || '#333');
     this.lineWidth = this.prop(helper.toNumber(props.lineWidth, 2));
     this.hasArrow = this.prop(!!props.hasArrow);
