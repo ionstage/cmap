@@ -1042,6 +1042,7 @@
     this.disabledConnectorList = this.prop(new DisabledConnectorList());
     this.element = this.prop(null);
     this.rootElement = this.prop(rootElement || null);
+    this.dragContext = this.prop({});
 
     this.markDirty();
   }, Component);
@@ -1299,6 +1300,36 @@
     this.disabledConnectorList().add(type, link);
   };
 
+  Cmap.prototype.onstart = function(x, y, event) {
+    var context = this.dragContext();
+    var component = this.componentList().componentFromPoint(x, y);
+
+    context.component = component;
+
+    if (!component)
+      return;
+
+    event.preventDefault();
+
+    if (component instanceof Node) {
+      context.x = component.x();
+      context.y = component.y();
+    }
+  };
+
+  Cmap.prototype.onmove = function(dx, dy, event) {
+    var context = this.dragContext();
+    var component = context.component;
+
+    if (!component)
+      return;
+
+    if (component instanceof Node) {
+      component.x(context.x + dx);
+      component.y(context.y + dy);
+    }
+  };
+
   Cmap.prototype.style = function() {
     return {
       color: '#333',
@@ -1325,6 +1356,7 @@
     }
 
     var element = dom.el('<div>');
+    dom.draggable(element, this.onstart.bind(this), this.onmove.bind(this));
     this.element(element);
 
     this.componentList().each(function(component) {
