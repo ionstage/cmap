@@ -271,6 +271,10 @@
     this.contentType(Node.CONTENT_TYPE_HTML);
   };
 
+  Node.prototype.borderRadius = function() {
+    return 4;
+  };
+
   Node.prototype.style = function() {
     var contentType = this.contentType();
     var lineHeight = (contentType === Node.CONTENT_TYPE_TEXT) ? this.height() : 14;
@@ -281,7 +285,7 @@
     return {
       backgroundColor: this.backgroundColor(),
       border: this.borderWidth() + 'px solid ' + this.borderColor(),
-      borderRadius: Node.BORDER_RADIUS_LENGTH + 'px',
+      borderRadius: this.borderRadius() + 'px',
       color: this.textColor(),
       height: (this.height() - borderWidthOffset) + 'px',
       lineHeight: (lineHeight - borderWidthOffset) + 'px',
@@ -348,7 +352,6 @@
     cache.style = style;
   };
 
-  Node.BORDER_RADIUS_LENGTH = 4;
   Node.CONTENT_TYPE_TEXT = 'text';
   Node.CONTENT_TYPE_HTML = 'html';
 
@@ -579,8 +582,12 @@
     this.relations = this.prop([]);
   }, Component);
 
+  Connector.prototype.r = function() {
+    return 18;
+  };
+
   Connector.prototype.style = function() {
-    var r = Connector.RADIUS_LENGTH;
+    var r = this.r();
     var x = this.x() - r;
     var y = this.y() - r;
     var translate = 'translate(' + x + 'px, ' + y + 'px)';
@@ -629,7 +636,6 @@
     dom.css(element, this.style());
   };
 
-  Connector.RADIUS_LENGTH = 18;
   Connector.COLOR_CONNECTED = 'lightgreen';
   Connector.COLOR_UNCONNECTED = 'pink';
 
@@ -861,7 +867,7 @@
     }
 
     var x0, y0, l, ex, ey;
-    var r = Node.BORDER_RADIUS_LENGTH;
+    var r = node.borderRadius();
     var atCorner = false;
 
     // top-left corner
@@ -985,7 +991,7 @@
       } else if (component instanceof Connector) {
         var dx = x - component.x();
         var dy = y - component.y();
-        var r = Connector.RADIUS_LENGTH;
+        var r = component.r();
 
         if (dx * dx + dy * dy <= r * r)
           return component;
