@@ -1328,6 +1328,13 @@
     this.hideConnector(Cmap.CONNECTION_TYPE_TARGET, link);
   };
 
+  Cmap.prototype.hideAllConnectors = function() {
+    this.componentList().each(function(component) {
+      if (component instanceof Link)
+        this.hideConnectors(component);
+    }.bind(this));
+  };
+
   Cmap.prototype.enableConnector = function(type, link) {
     if (!link)
       throw new TypeError('Not enough arguments');
