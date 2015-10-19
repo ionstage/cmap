@@ -115,9 +115,10 @@
     this.lock = true;
     this.startingPoint = Draggable.getPoint(event);
 
+    var p = Draggable.getClientPoint(event);
     var rect = this.el.getBoundingClientRect();
-    var x = this.startingPoint.x - rect.left + this.el.scrollLeft;
-    var y = this.startingPoint.y - rect.top + this.el.scrollTop;
+    var x = p.x - rect.left + this.el.scrollLeft;
+    var y = p.y - rect.top + this.el.scrollTop;
 
     if (typeof this.onstart === 'function')
       this.onstart(x, y, event);
@@ -152,6 +153,16 @@
     return {
       x: event.pageX - (offset ? offset.x : 0),
       y: event.pageY - (offset ? offset.y : 0)
+    };
+  };
+
+  Draggable.getClientPoint = function(event) {
+    if (dom.supportsTouch())
+      event = event.changedTouches[0];
+
+    return {
+      x: event.clientX,
+      y: event.clientY
     };
   };
 
