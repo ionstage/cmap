@@ -606,7 +606,9 @@
 
     return {
       backgroundColor: this.color(),
+      border: '2px solid lightgray',
       borderRadius: '50%',
+      boxSizing: 'border-box',
       height: r * 2 + 'px',
       msTransform: translate,
       opacity: 0.6,
