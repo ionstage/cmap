@@ -1358,6 +1358,9 @@
 
     context.component = component;
 
+    if (!(component instanceof Connector))
+      this.hideAllConnectors();
+
     if (!component)
       return;
 
@@ -1378,6 +1381,8 @@
       context.triple = component.relations().filter(function(relation) {
         return relation instanceof Triple;
       })[0];
+
+      this.showConnectors(component);
     }
   };
 
