@@ -1412,6 +1412,16 @@
       })[0];
 
       this.showConnectors(component);
+    } else if (component instanceof Connector) {
+      context.x = component.x();
+      context.y = component.y();
+
+      var linkConnectorRelation = component.relations().filter(function(relation) {
+        return relation instanceof LinkConnectorRelation;
+      })[0];
+
+      context.type = linkConnectorRelation.type();
+      context.link = linkConnectorRelation.link();
     }
   };
 
@@ -1454,6 +1464,22 @@
         component.sourceY(context.sourceY + dy);
         component.targetX(context.targetX + dx);
         component.targetY(context.targetY + dy);
+      }
+    } else if (component instanceof Connector) {
+      var type = context.type;
+      var link = context.link;
+
+      link[type + 'X'](context.x + dx);
+      link[type + 'Y'](context.y + dy);
+
+      var hasTriple = !!link.relations().filter(function(relation) {
+        return relation instanceof Triple;
+      })[0];
+
+      if (!hasTriple) {
+        // link content moves to midpoint
+        link.cx((link.sourceX() + link.targetX()) / 2);
+        link.cy((link.sourceY() + link.targetY()) / 2);
       }
     }
   };
