@@ -34,6 +34,10 @@
 
   var dom = {};
 
+  dom.disabled = function() {
+    return (typeof document === 'undefined');
+  };
+
   dom.el = function(selector) {
     if (selector.charAt(0) === '<') {
       selector = selector.match(/<(.+)>/)[1];
@@ -58,6 +62,14 @@
     }
   };
 
+  dom.text = function(el, s) {
+    el.textContent = s;
+  };
+
+  dom.html = function(el, s) {
+    el.innerHTML = s;
+  };
+
   dom.append = function(parent, el) {
     parent.appendChild(el);
   };
@@ -66,12 +78,8 @@
     el.parentNode.removeChild(el);
   };
 
-  dom.text = function(el, s) {
-    el.textContent = s;
-  };
-
-  dom.html = function(el, s) {
-    el.innerHTML = s;
+  dom.child = function(el, index) {
+    return el.childNodes[index];
   };
 
   dom.animate = function(callback) {
@@ -82,9 +90,22 @@
     return 'createTouch' in document;
   };
 
+  dom.cancel = function(event) {
+    event.preventDefault();
+  };
+
+  dom.draggable = function(el, onstart, onmove, onend) {
+    new Draggable({
+      el: el,
+      onstart: onstart,
+      onmove: onmove,
+      onend: onend
+    });
+  };
+
   // define event types for mouse/touch events
   (function() {
-    if (typeof document === 'undefined')
+    if (dom.disabled())
       return;
 
     var supportsTouch = dom.supportsTouch();
@@ -166,15 +187,6 @@
     };
   };
 
-  dom.draggable = function(el, onstart, onmove, onend) {
-    var draggable = new Draggable({
-      el: el,
-      onstart: onstart,
-      onmove: onmove,
-      onend: onend
-    });
-  };
-
   var Component = function() {};
 
   Component.prototype.prop = function(initialValue) {
@@ -227,7 +239,7 @@
     };
 
     return function() {
-      if (typeof document === 'undefined')
+      if (dom.disabled())
         return;
 
       if (dirtyComponents.indexOf(this) === -1)
@@ -514,6 +526,8 @@
     if (!parentElement && !element)
       return;
 
+    var pathContainerElement;
+
     // add element
     if (parentElement && !element) {
       element = dom.el('<div>');
@@ -521,7 +535,7 @@
 
       dom.html(element, '<svg><path></path><path></path></svg><div></div>');
 
-      var pathContainerElement = element.children[0];
+      pathContainerElement = dom.child(element, 0);
       dom.css(pathContainerElement, this.pathContainerStyle());
 
       this.redraw();
@@ -540,18 +554,20 @@
       return;
     }
 
+    pathContainerElement = dom.child(element, 0);
+
     var cache = this.cache();
 
     // update line element
     var lineAttributes = this.lineAttributes();
-    var lineElement = element.children[0].childNodes[0];
+    var lineElement = dom.child(pathContainerElement, 0);
 
     dom.attr(lineElement, helper.diffObj(lineAttributes, cache.lineAttributes));
     cache.lineAttributes = lineAttributes;
 
     // update arrow element
     var arrowAttributes = this.arrowAttributes();
-    var arrowElement = element.children[0].childNodes[1];
+    var arrowElement = dom.child(pathContainerElement, 1);
 
     dom.attr(arrowElement, helper.diffObj(arrowAttributes, cache.arrowAttributes));
     cache.arrowAttributes = arrowAttributes;
@@ -559,7 +575,7 @@
     // update content element
     var content = this.content();
     var contentStyle = this.contentStyle();
-    var contentElement = element.children[1];
+    var contentElement = dom.child(element, 1);
 
     if (content !== cache.content) {
       var contentType = this.contentType();
@@ -1377,7 +1393,7 @@
     if (!component)
       return;
 
-    event.preventDefault();
+    dom.cancel(event);
 
     this.toFront(component);
 
