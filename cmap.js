@@ -1075,6 +1075,25 @@
     return null;
   };
 
+  ComponentList.prototype.nodeFromPoint = function(x, y) {
+    var data = this.data;
+
+    for (var i = data.length - 1; i >= 0; i--) {
+      var component = data[i];
+      if (component instanceof Node) {
+        var c_x = component.x();
+        var c_y = component.y();
+        var c_width = component.width();
+        var c_height = component.height();
+
+        if (c_x <= x && x <= c_x + c_width && c_y <= y && y <= c_y + c_height)
+          return component;
+      }
+    }
+
+    return null;
+  };
+
   var DisabledConnectorList = function() {
     this.data = [];
   };
@@ -1413,8 +1432,8 @@
 
       this.showConnectors(component);
     } else if (component instanceof Connector) {
-      context.x = component.x();
-      context.y = component.y();
+      context.x = x;
+      context.y = y;
 
       var linkConnectorRelation = component.relations().filter(function(relation) {
         return relation instanceof LinkConnectorRelation;
@@ -1466,20 +1485,59 @@
         component.targetY(context.targetY + dy);
       }
     } else if (component instanceof Connector) {
+      var x = context.x + dx;
+      var y = context.y + dy;
       var type = context.type;
       var link = context.link;
 
-      link[type + 'X'](context.x + dx);
-      link[type + 'Y'](context.y + dy);
-
-      var hasTriple = !!link.relations().filter(function(relation) {
+      var triple = link.relations().filter(function(relation) {
         return relation instanceof Triple;
       })[0];
 
-      if (!hasTriple) {
-        // link content moves to midpoint
-        link.cx((link.sourceX() + link.targetX()) / 2);
-        link.cy((link.sourceY() + link.targetY()) / 2);
+      var connectedNode = triple ? triple[type + 'Node']() : null;
+      var node = this.componentList().nodeFromPoint(x, y);
+
+      if (connectedNode && connectedNode === node) {
+        // already connected (do nothing)
+        return;
+      }
+
+      var anotherType;
+      if (type === Cmap.CONNECTION_TYPE_SOURCE)
+        anotherType = Cmap.CONNECTION_TYPE_TARGET;
+      else if (type === Cmap.CONNECTION_TYPE_TARGET)
+        anotherType = Cmap.CONNECTION_TYPE_SOURCE;
+
+      var anotherSideNode = triple ? triple[anotherType + 'Node']() : null;
+
+      if (connectedNode && connectedNode !== node) {
+        this.disconnect(type, connectedNode, link);
+        connectedNode = null;
+      }
+
+      var needsConnect = !connectedNode && node && anotherSideNode !== node;
+
+      if (needsConnect) {
+        if (anotherSideNode) {
+          var p = triple.connectedPoint(node, anotherSideNode.cx(), anotherSideNode.cy());
+
+          link[type + 'X'](p.x);
+          link[type + 'Y'](p.y);
+
+          triple.update(link);
+          triple.skipNextUpdate(true);
+        }
+
+        this.connect(type, node, link);
+      } else {
+        link[type + 'X'](x);
+        link[type + 'Y'](y);
+
+        if (!anotherSideNode) {
+          // link content moves to midpoint
+          link.cx((link.sourceX() + link.targetX()) / 2);
+          link.cy((link.sourceY() + link.targetY()) / 2);
+        }
       }
     }
   };
