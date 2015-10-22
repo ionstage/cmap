@@ -62,6 +62,18 @@
     }
   };
 
+  dom.rect = function(el) {
+    return el.getBoundingClientRect();
+  };
+
+  dom.scrollLeft = function(el) {
+    return el.scrollLeft;
+  };
+
+  dom.scrollTop = function(el) {
+    return el.scrollTop;
+  };
+
   dom.text = function(el, s) {
     el.textContent = s;
   };
@@ -88,6 +100,34 @@
 
   dom.supportsTouch = function() {
     return 'createTouch' in document;
+  };
+
+  dom.on = function(el, type, listener) {
+    el.addEventListener(type, listener);
+  };
+
+  dom.off = function(el, type, listener) {
+    el.removeEventListener(type, listener);
+  };
+
+  dom.pagePoint = function(event, offset) {
+    if (dom.supportsTouch())
+      event = event.changedTouches[0];
+
+    return {
+      x: event.pageX - (offset ? offset.x : 0),
+      y: event.pageY - (offset ? offset.y : 0)
+    };
+  };
+
+  dom.clientPoint = function(event, offset) {
+    if (dom.supportsTouch())
+      event = event.changedTouches[0];
+
+    return {
+      x: event.clientX - (offset ? offset.x : 0),
+      y: event.clientY - (offset ? offset.y : 0)
+    };
   };
 
   dom.cancel = function(event) {
@@ -126,7 +166,7 @@
     this.lock = false;
     this.startingPoint = null;
 
-    this.el.addEventListener(dom.EVENT_TYPE_START, this.start);
+    dom.on(this.el, dom.EVENT_TYPE_START, this.start);
   };
 
   Draggable.start = function(event) {
@@ -134,57 +174,39 @@
       return;
 
     this.lock = true;
-    this.startingPoint = Draggable.getPoint(event);
+    this.startingPoint = dom.pagePoint(event);
 
-    var p = Draggable.getClientPoint(event);
-    var rect = this.el.getBoundingClientRect();
-    var x = p.x - rect.left + this.el.scrollLeft;
-    var y = p.y - rect.top + this.el.scrollTop;
+    var el = this.el;
+    var rect = dom.rect(el);
+    var p = dom.clientPoint(event, {
+      x: rect.left - dom.scrollLeft(el),
+      y: rect.top - dom.scrollTop(el)
+    });
 
     if (typeof this.onstart === 'function')
-      this.onstart(x, y, event);
+      this.onstart(p.x, p.y, event);
 
-    document.addEventListener(dom.EVENT_TYPE_MOVE, this.move);
-    document.addEventListener(dom.EVENT_TYPE_END, this.end);
+    dom.on(document, dom.EVENT_TYPE_MOVE, this.move);
+    dom.on(document, dom.EVENT_TYPE_END, this.end);
   };
 
   Draggable.move = function(event) {
-    var d = Draggable.getPoint(event, this.startingPoint);
+    var d = dom.pagePoint(event, this.startingPoint);
 
     if (typeof this.onmove === 'function')
       this.onmove(d.x, d.y, event);
   };
 
   Draggable.end = function(event) {
-    document.removeEventListener(dom.EVENT_TYPE_MOVE, this.move);
-    document.removeEventListener(dom.EVENT_TYPE_END, this.end);
+    dom.off(document, dom.EVENT_TYPE_MOVE, this.move);
+    dom.off(document, dom.EVENT_TYPE_END, this.end);
 
-    var d = Draggable.getPoint(event, this.startingPoint);
+    var d = dom.pagePoint(event, this.startingPoint);
 
     if (typeof this.onend === 'function')
       this.onend(d.x, d.y, event);
 
     this.lock = false;
-  };
-
-  Draggable.getPoint = function(event, offset) {
-    if (dom.supportsTouch())
-      event = event.changedTouches[0];
-
-    return {
-      x: event.pageX - (offset ? offset.x : 0),
-      y: event.pageY - (offset ? offset.y : 0)
-    };
-  };
-
-  Draggable.getClientPoint = function(event) {
-    if (dom.supportsTouch())
-      event = event.changedTouches[0];
-
-    return {
-      x: event.clientX,
-      y: event.clientY
-    };
   };
 
   var Component = function() {};
@@ -1046,6 +1068,7 @@
 
     for (var i = data.length - 1; i >= 0; i--) {
       var component = data[i];
+
       if (component instanceof Node) {
         var c_x = component.x();
         var c_y = component.y();
@@ -1080,15 +1103,17 @@
 
     for (var i = data.length - 1; i >= 0; i--) {
       var component = data[i];
-      if (component instanceof Node) {
-        var c_x = component.x();
-        var c_y = component.y();
-        var c_width = component.width();
-        var c_height = component.height();
 
-        if (c_x <= x && x <= c_x + c_width && c_y <= y && y <= c_y + c_height)
-          return component;
-      }
+      if (!(component instanceof Node))
+        continue;
+
+      var c_x = component.x();
+      var c_y = component.y();
+      var c_width = component.width();
+      var c_height = component.height();
+
+      if (c_x <= x && x <= c_x + c_width && c_y <= y && y <= c_y + c_height)
+        return component;
     }
 
     return null;
