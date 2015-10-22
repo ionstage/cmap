@@ -711,6 +711,7 @@
     this.sourceNode = this.prop(props.sourceNode || null);
     this.targetNode = this.prop(props.targetNode || null);
     this.skipNextUpdate = this.prop(false);
+    this.nodesIntersect = this.prop(false);
   }, Relation);
 
   Triple.prototype.update = function(changedComponent) {
@@ -774,14 +775,49 @@
   };
 
   Triple.prototype.rotateLink = function(link, sourceNode, targetNode, changedNode) {
-    var ncx = changedNode.cx();
-    var ncy = changedNode.cy();
+    var scx = sourceNode.cx();
+    var scy = sourceNode.cy();
+    var tcx = targetNode.cx();
+    var tcy = targetNode.cy();
+
+    var nodesIntersect = this.intersect(sourceNode, targetNode);
+    var isDetached = !nodesIntersect && this.nodesIntersect();
+
+    this.nodesIntersect(nodesIntersect);
+
+    if (nodesIntersect) {
+      link.sourceX(scx);
+      link.sourceY(scy);
+      link.cx((scx + tcx) / 2);
+      link.cy((scy + tcy) / 2);
+      link.targetX(tcx);
+      link.targetY(tcy);
+
+      return;
+    }
+
+    if (isDetached) {
+      var sp = this.connectedPoint(sourceNode, tcx, tcy);
+      var tp = this.connectedPoint(targetNode, scx, scy);
+
+      link.sourceX(sp.x);
+      link.sourceY(sp.y);
+      link.cx((sp.x + tp.x) / 2);
+      link.cy((sp.y + tp.y) / 2);
+      link.targetX(tp.x);
+      link.targetY(tp.y);
+
+      return;
+    }
+
     var lsx = link.sourceX();
     var lsy = link.sourceY();
     var lcx = link.cx();
     var lcy = link.cy();
     var ltx = link.targetX();
     var lty = link.targetY();
+    var ncx = changedNode.cx();
+    var ncy = changedNode.cy();
 
     var p, sncx, sncy, tncx, tncy;
 
@@ -1003,6 +1039,19 @@
       x: x,
       y: y
     };
+  };
+
+  Triple.prototype.intersect = function(sourceNode, targetNode) {
+    var sx0 = sourceNode.x();
+    var sy0 = sourceNode.y();
+    var sx1 = sx0 + sourceNode.width();
+    var sy1 = sy0 + sourceNode.height();
+    var tx0 = targetNode.x();
+    var ty0 = targetNode.y();
+    var tx1 = tx0 + targetNode.width();
+    var ty1 = ty0 + targetNode.height();
+
+    return sx0 <= tx1 && tx0 <= sx1 && sy0 <= ty1 && ty0 <= sy1;
   };
 
   var LinkConnectorRelation = helper.inherits(function(props) {
