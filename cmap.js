@@ -796,7 +796,10 @@
       return;
     }
 
-    if (isDetached) {
+    var lcx = link.cx();
+    var lcy = link.cy();
+
+    if (isDetached || this.contains(changedNode, lcx, lcy)) {
       var sp = this.connectedPoint(sourceNode, tcx, tcy);
       var tp = this.connectedPoint(targetNode, scx, scy);
 
@@ -812,8 +815,6 @@
 
     var lsx = link.sourceX();
     var lsy = link.sourceY();
-    var lcx = link.cx();
-    var lcy = link.cy();
     var ltx = link.targetX();
     var lty = link.targetY();
     var ncx = changedNode.cx();
@@ -1052,6 +1053,15 @@
     var ty1 = ty0 + targetNode.height();
 
     return sx0 <= tx1 && tx0 <= sx1 && sy0 <= ty1 && ty0 <= sy1;
+  };
+
+  Triple.prototype.contains = function(node, x, y) {
+    var nx = node.x();
+    var ny = node.y();
+    var nwidth = node.width();
+    var nheight = node.height();
+
+    return nx <= x && x <= nx + nwidth && ny <= y && y <= ny + nheight;
   };
 
   var LinkConnectorRelation = helper.inherits(function(props) {
