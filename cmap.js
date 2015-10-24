@@ -1707,8 +1707,12 @@
     return helper.wrap(CmapModule, this);
   };
 
+  CmapModule._ = {
+    Cmap: Cmap
+  };
+
   if (typeof module !== 'undefined' && module.exports)
-    module.exports = Cmap;
+    module.exports = CmapModule;
   else
-    global.Cmap = Cmap;
+    global.Cmap = CmapModule;
 })(this);

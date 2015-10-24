@@ -1,5 +1,5 @@
 var assert = require('assert');
-var Cmap = require('../cmap.js');
+var Cmap = require('../cmap.js')._.Cmap;
 
 describe('Cmap', function() {
   it('#createNode', function() {
