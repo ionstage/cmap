@@ -300,22 +300,6 @@
     return this.y() + this.height() / 2;
   };
 
-  Node.prototype.text = function(text) {
-    if (typeof text === 'undefined')
-      return this.content();
-
-    this.content(text);
-    this.contentType(Node.CONTENT_TYPE_TEXT);
-  };
-
-  Node.prototype.html = function(html) {
-    if (typeof html === 'undefined')
-      return this.content();
-
-    this.content(html);
-    this.contentType(Node.CONTENT_TYPE_HTML);
-  };
-
   Node.prototype.borderRadius = function() {
     return 4;
   };
@@ -424,22 +408,6 @@
     this.cache = this.prop({});
     this.relations = this.prop([]);
   }, Component);
-
-  Link.prototype.text = function(text) {
-    if (typeof text === 'undefined')
-      return this.content();
-
-    this.content(text);
-    this.contentType(Link.CONTENT_TYPE_TEXT);
-  };
-
-  Link.prototype.html = function(html) {
-    if (typeof html === 'undefined')
-      return this.content();
-
-    this.content(html);
-    this.contentType(Link.CONTENT_TYPE_HTML);
-  };
 
   Link.prototype.style = function() {
     return {
