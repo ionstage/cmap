@@ -21,12 +21,12 @@
     return ctor;
   };
 
-  helper.wrap = function(ctor, instance) {
+  helper.wrap = function(obj) {
     var wrapper = {};
-    var proto = ctor.prototype;
+    var proto = obj.constructor.prototype;
 
     for (var key in proto) {
-      wrapper[key] = proto[key].bind(instance);
+      wrapper[key] = proto[key].bind(obj);
     }
 
     return wrapper;
@@ -1704,7 +1704,7 @@
     if (!(this instanceof CmapModule))
       return new CmapModule(element);
 
-    return helper.wrap(CmapModule, this);
+    return helper.wrap(this);
   };
 
   CmapModule._ = {
