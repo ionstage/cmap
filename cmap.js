@@ -1211,12 +1211,41 @@
     });
   };
 
+  var DragDisabledComponentList = function() {
+    this.data = [];
+  };
+
+  DragDisabledComponentList.prototype.add = function(component) {
+    if (this.contains(component))
+      return;
+
+    this.data.push(component);
+  };
+
+  DragDisabledComponentList.prototype.remove = function(component) {
+    var data = this.data;
+
+    for (var i = data.length - 1; i >= 0; i--) {
+      var item = data[i];
+
+      if (item === component) {
+        data.splice(i, 1);
+        break;
+      }
+    }
+  };
+
+  DragDisabledComponentList.prototype.contains = function(component) {
+    return this.data.indexOf(component) !== -1;
+  };
+
   var Cmap = helper.inherits(function(rootElement) {
     if (!(this instanceof Cmap))
       return new Cmap(rootElement);
 
     this.componentList = this.prop(new ComponentList());
     this.disabledConnectorList = this.prop(new DisabledConnectorList());
+    this.dragDisabledComponentList = this.prop(new DragDisabledComponentList());
     this.element = this.prop(null);
     this.rootElement = this.prop(rootElement || null);
     this.dragContext = this.prop({});
@@ -1484,6 +1513,20 @@
     this.disabledConnectorList().add(type, link);
   };
 
+  Cmap.prototype.enableDrag = function(component) {
+    if (!component)
+      throw new TypeError('Not enough arguments');
+
+    this.dragDisabledComponentList().remove(component);
+  };
+
+  Cmap.prototype.disableDrag = function(component) {
+    if (!component)
+      throw new TypeError('Not enough arguments');
+
+    this.dragDisabledComponentList().add(component);
+  };
+
   Cmap.prototype.onstart = function(x, y, event) {
     var context = this.dragContext();
     var component = this.componentList().componentFromPoint(x, y);
@@ -1494,6 +1537,13 @@
       this.hideAllConnectors();
 
     if (!component)
+      return;
+
+    var draggable = !this.dragDisabledComponentList().contains(component);
+
+    context.draggable = draggable;
+
+    if (!draggable)
       return;
 
     dom.cancel(event);
@@ -1533,6 +1583,11 @@
     var component = context.component;
 
     if (!component)
+      return;
+
+    var draggable = context.draggable;
+
+    if (!draggable)
       return;
 
     if (component instanceof Node) {
