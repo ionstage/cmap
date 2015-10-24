@@ -21,6 +21,17 @@
     return ctor;
   };
 
+  helper.wrap = function(ctor, instance) {
+    var wrapper = {};
+    var proto = ctor.prototype;
+
+    for (var key in proto) {
+      wrapper[key] = proto[key].bind(instance);
+    }
+
+    return wrapper;
+  };
+
   helper.diffObj = function(newObj, oldObj) {
     var diff = {};
 
@@ -1693,18 +1704,7 @@
     if (!(this instanceof CmapModule))
       return new CmapModule(element);
 
-    return CmapModule.wrapper(this);
-  };
-
-  CmapModule.wrapper = function(instance) {
-    var wrapper = {};
-    var proto = CmapModule.prototype;
-
-    for (var key in proto) {
-      wrapper[key] = proto[key].bind(instance);
-    }
-
-    return wrapper;
+    return helper.wrap(CmapModule, this);
   };
 
   if (typeof module !== 'undefined' && module.exports)
