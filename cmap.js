@@ -914,22 +914,13 @@
     lcx = sncx + cs_d1 * Math.cos(cs_rad1);
     lcy = sncy + cs_d1 * Math.sin(cs_rad1);
 
-    var sp = this.connectedPoint(sourceNode, lcx, lcy);
-    var tp = this.connectedPoint(targetNode, lcx, lcy);
-
     link.cx(lcx);
     link.cy(lcy);
-    link.sourceX(sp.x);
-    link.sourceY(sp.y);
-    link.targetX(tp.x);
-    link.targetY(tp.y);
   };
 
   Triple.prototype.shiftLink = function(link, sourceNode, targetNode, changedNode) {
     var ncx = changedNode.cx();
     var ncy = changedNode.cy();
-    var lcx = link.cx();
-    var lcy = link.cy();
     var lsx = link.sourceX();
     var lsy = link.sourceY();
     var ltx = link.targetX();
@@ -944,6 +935,9 @@
       // difference between current and changed source point
       dx = p.x - lsx;
       dy = p.y - lsy;
+
+      link.targetX(ltx + dx);
+      link.targetY(lty + dy);
     } else if (changedNode === targetNode) {
       // connected point of target node
       p = this.connectedPoint(changedNode, lsx + (ncx - ltx), lsy + (ncy - lty));
@@ -951,14 +945,10 @@
       // difference between current and changed target point
       dx = p.x - ltx;
       dy = p.y - lty;
-    }
 
-    link.cx(lcx + dx);
-    link.cy(lcy + dy);
-    link.sourceX(lsx + dx);
-    link.sourceY(lsy + dy);
-    link.targetX(ltx + dx);
-    link.targetY(lty + dy);
+      link.sourceX(lsx + dx);
+      link.sourceY(lsy + dy);
+    }
   };
 
   Triple.prototype.updateLinkAngle = function(radians) {
