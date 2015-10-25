@@ -762,7 +762,7 @@
     this.sourceNode = this.prop(props.sourceNode || null);
     this.targetNode = this.prop(props.targetNode || null);
     this.skipNextUpdate = this.prop(false);
-    this.nodesIntersect = this.prop(false);
+    this.nodePositionsCache = this.prop({});
   }, Relation);
 
   Triple.prototype.update = function(changedComponent) {
@@ -816,6 +816,8 @@
       this.rotateLink(link, sourceNode, targetNode, sourceNode);
     else
       this.shiftLink(link, sourceNode, targetNode, sourceNode);
+
+    this.updateNodePositionsCache();
   };
 
   Triple.prototype.updateTargetNode = function(link, sourceNode, targetNode) {
@@ -823,61 +825,20 @@
       this.rotateLink(link, sourceNode, targetNode, targetNode);
     else
       this.shiftLink(link, sourceNode, targetNode, targetNode);
+
+    this.updateNodePositionsCache();
   };
 
   Triple.prototype.rotateLink = function(link, sourceNode, targetNode, changedNode) {
-    var nodesIntersect = sourceNode.intersect(targetNode);
-    var isDetached = !nodesIntersect && this.nodesIntersect();
+    var cache = this.nodePositionsCache();
 
-    this.nodesIntersect(nodesIntersect);
-
-    if (nodesIntersect) {
-      link.straighten(sourceNode.cx(), sourceNode.cy(), targetNode.cx(), targetNode.cy());
-      return;
-    }
+    var sncx = cache.sncx;
+    var sncy = cache.sncy;
+    var tncx = cache.tncx;
+    var tncy = cache.tncy;
 
     var lcx = link.cx();
     var lcy = link.cy();
-
-    if (isDetached || changedNode.contains(lcx, lcy)) {
-      var sp = this.connectedPoint(sourceNode, targetNode.cx(), targetNode.cy());
-      var tp = this.connectedPoint(targetNode, sourceNode.cx(), sourceNode.cy());
-
-      link.straighten(sp.x, sp.y, tp.x, tp.y);
-
-      return;
-    }
-
-    var lsx = link.sourceX();
-    var lsy = link.sourceY();
-    var ltx = link.targetX();
-    var lty = link.targetY();
-    var ncx = changedNode.cx();
-    var ncy = changedNode.cy();
-
-    var p, sncx, sncy, tncx, tncy;
-
-    if (changedNode === sourceNode) {
-      // connected point of source node
-      p = this.connectedPoint(changedNode, lcx + (ncx - lsx), lcy + (ncy - lsy));
-
-      // source node position (before change)
-      sncx = lsx + (ncx - p.x);
-      sncy = lsy + (ncy - p.y);
-
-      tncx = targetNode.cx();
-      tncy = targetNode.cy();
-    } else if (changedNode === targetNode) {
-      // connected point of target node
-      p = this.connectedPoint(changedNode, lcx + (ncx - ltx), lcy + (ncy - lty));
-
-      // target node position (before change)
-      tncx = ltx + (ncx - p.x);
-      tncy = lty + (ncy - p.y);
-
-      sncx = sourceNode.cx();
-      sncy = sourceNode.cy();
-    }
 
     var ts_dx = tncx - sncx;
     var ts_dy = tncy - sncy;
@@ -887,11 +848,6 @@
     var ts_rad0 = Math.atan2(ts_dy, ts_dx);
     var cs_rad0 = Math.atan2(cs_dy, cs_dx);
 
-    var ts_d0 = Math.sqrt(ts_dx * ts_dx + ts_dy * ts_dy);
-    var cs_d0 = Math.sqrt(cs_dx * cs_dx + cs_dy * cs_dy);
-
-    var ts_cs_rad = ts_rad0 - cs_rad0;
-
     // changed node position
     if (changedNode === sourceNode) {
       sncx = sourceNode.cx();
@@ -900,6 +856,19 @@
       tncx = targetNode.cx();
       tncy = targetNode.cy();
     }
+
+    // center positions of two nodes are equal
+    if (cs_rad0 === 0) {
+      link.cx((sncx + tncx)/ 2);
+      link.cy((sncy + tncy)/ 2);
+
+      return;
+    }
+
+    var ts_d0 = Math.sqrt(ts_dx * ts_dx + ts_dy * ts_dy);
+    var cs_d0 = Math.sqrt(cs_dx * cs_dx + cs_dy * cs_dy);
+
+    var ts_cs_rad = ts_rad0 - cs_rad0;
 
     ts_dx = tncx - sncx;
     ts_dy = tncy - sncy;
@@ -919,35 +888,17 @@
   };
 
   Triple.prototype.shiftLink = function(link, sourceNode, targetNode, changedNode) {
+    var cache = this.nodePositionsCache();
+
     var ncx = changedNode.cx();
     var ncy = changedNode.cy();
-    var lsx = link.sourceX();
-    var lsy = link.sourceY();
-    var ltx = link.targetX();
-    var lty = link.targetY();
-
-    var p, dx, dy;
 
     if (changedNode === sourceNode) {
-      // connected point of source node
-      p = this.connectedPoint(changedNode, ltx + (ncx - lsx), lty + (ncy - lsy));
-
-      // difference between current and changed source point
-      dx = p.x - lsx;
-      dy = p.y - lsy;
-
-      link.targetX(ltx + dx);
-      link.targetY(lty + dy);
+      link.targetX(link.targetX() + (ncx - cache.sncx));
+      link.targetY(link.targetY() + (ncy - cache.sncy));
     } else if (changedNode === targetNode) {
-      // connected point of target node
-      p = this.connectedPoint(changedNode, lsx + (ncx - ltx), lsy + (ncy - lty));
-
-      // difference between current and changed target point
-      dx = p.x - ltx;
-      dy = p.y - lty;
-
-      link.sourceX(lsx + dx);
-      link.sourceY(lsy + dy);
+      link.sourceX(link.sourceX() + (ncx - cache.tncx));
+      link.sourceY(link.sourceY() + (ncy - cache.tncy));
     }
   };
 
@@ -971,6 +922,22 @@
       link.straighten(p.x, p.y, lx + p.x - cx, ly + p.y - cy);
     else if (connectedNode === targetNode)
       link.straighten(lx + p.x - cx, ly + p.y - cy, p.x, p.y);
+  };
+
+  Triple.prototype.updateNodePositionsCache = function() {
+    var sourceNode = this.sourceNode();
+    var targetNode = this.targetNode();
+    var cache = this.nodePositionsCache();
+
+    if (sourceNode) {
+      cache.sncx = sourceNode.cx();
+      cache.sncy = sourceNode.cy();
+    }
+
+    if (targetNode) {
+      cache.tncx = targetNode.cx();
+      cache.tncy = targetNode.cy();
+    }
   };
 
   Triple.prototype.connectedPoint = function(node, lx, ly) {
@@ -1251,6 +1218,7 @@
 
     // add triple to node
     node.relations().push(triple);
+    triple.updateNodePositionsCache();
 
     // update connectors of link
     helper.eachInstance(linkRelations, LinkConnectorRelation, function(relation) {
