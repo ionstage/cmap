@@ -775,56 +775,17 @@
     var sourceNode = this.sourceNode();
     var targetNode = this.targetNode();
 
-    if (changedComponent === link)
+    if (changedComponent instanceof Node)
+      this.updateNode(link, sourceNode, targetNode, changedComponent);
+    else if (changedComponent instanceof Link)
       this.updateLink(link, sourceNode, targetNode);
-    else if (changedComponent === sourceNode)
-      this.updateSourceNode(link, sourceNode, targetNode);
-    else if (changedComponent === targetNode)
-      this.updateTargetNode(link, sourceNode, targetNode);
   };
 
-  Triple.prototype.updateLink = function(link, sourceNode, targetNode) {
-    var lx, ly, p;
-
-    if (sourceNode) {
-      // connect link to source node
-      lx = targetNode ? link.cx() : link.targetX();
-      ly = targetNode ? link.cy() : link.targetY();
-      p = this.connectedPoint(sourceNode, lx, ly);
-      link.sourceX(p.x);
-      link.sourceY(p.y);
-    }
-
-    if (targetNode) {
-      // connect link to target node
-      lx = sourceNode ? link.cx() : link.sourceX();
-      ly = sourceNode ? link.cy() : link.sourceY();
-      p = this.connectedPoint(targetNode, lx, ly);
-      link.targetX(p.x);
-      link.targetY(p.y);
-    }
-
-    if (!sourceNode || !targetNode) {
-      // link content moves to midpoint
-      link.cx((link.sourceX() + link.targetX()) / 2);
-      link.cy((link.sourceY() + link.targetY()) / 2);
-    }
-  };
-
-  Triple.prototype.updateSourceNode = function(link, sourceNode, targetNode) {
-    if (targetNode)
-      this.rotateLink(link, sourceNode, targetNode, sourceNode);
+  Triple.prototype.updateNode = function(link, sourceNode, targetNode, changedNode) {
+    if (sourceNode && targetNode)
+      this.rotateLink(link, sourceNode, targetNode, changedNode);
     else
-      this.shiftLink(link, sourceNode, targetNode, sourceNode);
-
-    this.updateNodePositionsCache();
-  };
-
-  Triple.prototype.updateTargetNode = function(link, sourceNode, targetNode) {
-    if (sourceNode)
-      this.rotateLink(link, sourceNode, targetNode, targetNode);
-    else
-      this.shiftLink(link, sourceNode, targetNode, targetNode);
+      this.shiftLink(link, sourceNode, targetNode, changedNode);
 
     this.updateNodePositionsCache();
   };
@@ -899,6 +860,34 @@
     } else if (changedNode === targetNode) {
       link.sourceX(link.sourceX() + (ncx - cache.tncx));
       link.sourceY(link.sourceY() + (ncy - cache.tncy));
+    }
+  };
+
+  Triple.prototype.updateLink = function(link, sourceNode, targetNode) {
+    var lx, ly, p;
+
+    if (sourceNode) {
+      // connect link to source node
+      lx = targetNode ? link.cx() : link.targetX();
+      ly = targetNode ? link.cy() : link.targetY();
+      p = this.connectedPoint(sourceNode, lx, ly);
+      link.sourceX(p.x);
+      link.sourceY(p.y);
+    }
+
+    if (targetNode) {
+      // connect link to target node
+      lx = sourceNode ? link.cx() : link.sourceX();
+      ly = sourceNode ? link.cy() : link.sourceY();
+      p = this.connectedPoint(targetNode, lx, ly);
+      link.targetX(p.x);
+      link.targetY(p.y);
+    }
+
+    if (!sourceNode || !targetNode) {
+      // link content moves to midpoint
+      link.cx((link.sourceX() + link.targetX()) / 2);
+      link.cy((link.sourceY() + link.targetY()) / 2);
     }
   };
 
