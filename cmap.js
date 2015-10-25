@@ -313,7 +313,7 @@
     this.borderColor = this.prop(props.borderColor || '#333');
     this.borderWidth = this.prop(helper.toNumber(props.borderWidth, 2));
     this.textColor = this.prop(props.textColor || '#333');
-    this.zIndex = this.prop(helper.toNumber(props.zIndex, 'auto'));
+    this.zIndex = this.prop('auto');
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
     this.cache = this.prop({});
@@ -452,7 +452,7 @@
     this.lineColor = this.prop(props.lineColor || '#333');
     this.lineWidth = this.prop(helper.toNumber(props.lineWidth, 2));
     this.hasArrow = this.prop(!!props.hasArrow);
-    this.zIndex = this.prop(helper.toNumber(props.zIndex, 'auto'));
+    this.zIndex = this.prop('auto');
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
     this.cache = this.prop({});
@@ -669,7 +669,7 @@
     this.x = this.prop(helper.toNumber(props.x, 0));
     this.y = this.prop(helper.toNumber(props.y, 0));
     this.color = this.prop(Connector.COLOR_UNCONNECTED);
-    this.zIndex = this.prop(helper.toNumber(props.zIndex, 'auto'));
+    this.zIndex = this.prop('auto');
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
     this.relations = this.prop([]);
