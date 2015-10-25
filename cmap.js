@@ -32,6 +32,18 @@
     return wrapper;
   };
 
+  helper.eachInstance = function(array, ctor, callback) {
+    array.filter(function(obj) {
+      return obj instanceof ctor;
+    }).forEach(callback);
+  };
+
+  helper.firstInstance = function(array, ctor) {
+    return array.filter(function(obj) {
+      return obj instanceof ctor;
+    })[0];
+  };
+
   helper.diffObj = function(newObj, oldObj) {
     var diff = {};
 
@@ -68,6 +80,7 @@
 
   dom.css = function(el, props) {
     var style = el.style;
+
     for (var key in props) {
       style[key] = props[key];
     }
@@ -188,34 +201,38 @@
     this.startingPoint = dom.pagePoint(event);
 
     var el = this.el;
+    var onstart = this.onstart;
+
     var rect = dom.rect(el);
     var p = dom.clientPoint(event, {
       x: rect.left - dom.scrollLeft(el),
       y: rect.top - dom.scrollTop(el)
     });
 
-    if (typeof this.onstart === 'function')
-      this.onstart(p.x, p.y, event);
+    if (typeof onstart === 'function')
+      onstart(p.x, p.y, event);
 
     dom.on(document, dom.EVENT_TYPE_MOVE, this.move);
     dom.on(document, dom.EVENT_TYPE_END, this.end);
   };
 
   Draggable.move = function(event) {
+    var onmove = this.onmove;
     var d = dom.pagePoint(event, this.startingPoint);
 
-    if (typeof this.onmove === 'function')
-      this.onmove(d.x, d.y, event);
+    if (typeof onmove === 'function')
+      onmove(d.x, d.y, event);
   };
 
   Draggable.end = function(event) {
     dom.off(document, dom.EVENT_TYPE_MOVE, this.move);
     dom.off(document, dom.EVENT_TYPE_END, this.end);
 
+    var onend = this.onend;
     var d = dom.pagePoint(event, this.startingPoint);
 
-    if (typeof this.onend === 'function')
-      this.onend(d.x, d.y, event);
+    if (typeof onend === 'function')
+      onend(d.x, d.y, event);
 
     this.lock = false;
   };
@@ -313,6 +330,28 @@
 
   Node.prototype.borderRadius = function() {
     return 4;
+  };
+
+  Node.prototype.intersect = function(another) {
+    var x0 = this.x();
+    var y0 = this.y();
+    var x1 = x0 + this.width();
+    var y1 = y0 + this.height();
+    var ax0 = another.x();
+    var ay0 = another.y();
+    var ax1 = ax0 + another.width();
+    var ay1 = ay0 + another.height();
+
+    return (x0 <= ax1 && ax0 <= x1 && y0 <= ay1 && ay0 <= y1);
+  };
+
+  Node.prototype.contains = function(x, y) {
+    var nx = this.x();
+    var ny = this.y();
+    var nwidth = this.width();
+    var nheight = this.height();
+
+    return (nx <= x && x <= nx + nwidth && ny <= y && y <= ny + nheight);
   };
 
   Node.prototype.style = function() {
@@ -419,6 +458,31 @@
     this.cache = this.prop({});
     this.relations = this.prop([]);
   }, Component);
+
+  Link.prototype.straighten = function(sx, sy, tx, ty) {
+    if (arguments.length === 0) {
+      this.cx((this.sourceX() + this.targetX()) / 2);
+      this.cy((this.sourceY() + this.targetY()) / 2);
+
+      return;
+    }
+
+    this.cx((sx + tx) / 2);
+    this.cy((sy + ty) / 2);
+    this.sourceX(sx);
+    this.sourceY(sy);
+    this.targetX(tx);
+    this.targetY(ty);
+  };
+
+  Link.prototype.contains = function(x, y) {
+    var lwidth = this.width();
+    var lheight = this.height();
+    var lx = this.cx() - lwidth / 2;
+    var ly = this.cy() - lheight / 2;
+
+    return (lx <= x && x <= lx + lwidth && ly <= y && y <= ly + lheight);
+  };
 
   Link.prototype.style = function() {
     return {
@@ -615,6 +679,14 @@
     return 18;
   };
 
+  Connector.prototype.contains = function(x, y) {
+    var dx = x - this.x();
+    var dy = y - this.y();
+    var r = this.r();
+
+    return (dx * dx + dy * dy <= r * r);
+  };
+
   Connector.prototype.style = function() {
     var r = this.r();
     var x = this.x() - r;
@@ -754,40 +826,24 @@
   };
 
   Triple.prototype.rotateLink = function(link, sourceNode, targetNode, changedNode) {
-    var scx = sourceNode.cx();
-    var scy = sourceNode.cy();
-    var tcx = targetNode.cx();
-    var tcy = targetNode.cy();
-
-    var nodesIntersect = this.intersect(sourceNode, targetNode);
+    var nodesIntersect = sourceNode.intersect(targetNode);
     var isDetached = !nodesIntersect && this.nodesIntersect();
 
     this.nodesIntersect(nodesIntersect);
 
     if (nodesIntersect) {
-      link.sourceX(scx);
-      link.sourceY(scy);
-      link.cx((scx + tcx) / 2);
-      link.cy((scy + tcy) / 2);
-      link.targetX(tcx);
-      link.targetY(tcy);
-
+      link.straighten(sourceNode.cx(), sourceNode.cy(), targetNode.cx(), targetNode.cy());
       return;
     }
 
     var lcx = link.cx();
     var lcy = link.cy();
 
-    if (isDetached || this.contains(changedNode, lcx, lcy)) {
-      var sp = this.connectedPoint(sourceNode, tcx, tcy);
-      var tp = this.connectedPoint(targetNode, scx, scy);
+    if (isDetached || changedNode.contains(lcx, lcy)) {
+      var sp = this.connectedPoint(sourceNode, targetNode.cx(), targetNode.cy());
+      var tp = this.connectedPoint(targetNode, sourceNode.cx(), sourceNode.cy());
 
-      link.sourceX(sp.x);
-      link.sourceY(sp.y);
-      link.cx((sp.x + tp.x) / 2);
-      link.cy((sp.y + tp.y) / 2);
-      link.targetX(tp.x);
-      link.targetY(tp.y);
+      link.straighten(sp.x, sp.y, tp.x, tp.y);
 
       return;
     }
@@ -861,10 +917,10 @@
     var sp = this.connectedPoint(sourceNode, lcx, lcy);
     var tp = this.connectedPoint(targetNode, lcx, lcy);
 
-    link.sourceX(sp.x);
-    link.sourceY(sp.y);
     link.cx(lcx);
     link.cy(lcy);
+    link.sourceX(sp.x);
+    link.sourceY(sp.y);
     link.targetX(tp.x);
     link.targetY(tp.y);
   };
@@ -872,10 +928,10 @@
   Triple.prototype.shiftLink = function(link, sourceNode, targetNode, changedNode) {
     var ncx = changedNode.cx();
     var ncy = changedNode.cy();
-    var lsx = link.sourceX();
-    var lsy = link.sourceY();
     var lcx = link.cx();
     var lcy = link.cy();
+    var lsx = link.sourceX();
+    var lsy = link.sourceY();
     var ltx = link.targetX();
     var lty = link.targetY();
 
@@ -897,10 +953,10 @@
       dy = p.y - lty;
     }
 
-    link.sourceX(lsx + dx);
-    link.sourceY(lsy + dy);
     link.cx(lcx + dx);
     link.cy(lcy + dy);
+    link.sourceX(lsx + dx);
+    link.sourceY(lsy + dy);
     link.targetX(ltx + dx);
     link.targetY(lty + dy);
   };
@@ -921,26 +977,10 @@
     var ly = cy + len * Math.sin(radians);
     var p = this.connectedPoint(connectedNode, lx, ly);
 
-    var lsx, lsy, ltx, lty;
-
-    if (connectedNode === sourceNode) {
-      lsx = p.x;
-      lsy = p.y;
-      ltx = lx + p.x - cx;
-      lty = ly + p.y - cy;
-    } else if (connectedNode === targetNode) {
-      lsx = lx + p.x - cx;
-      lsy = ly + p.y - cy;
-      ltx = p.x;
-      lty = p.y;
-    }
-
-    link.sourceX(lsx);
-    link.sourceY(lsy);
-    link.cx((lsx + ltx) / 2);
-    link.cy((lsy + lty) / 2);
-    link.targetX(ltx);
-    link.targetY(lty);
+    if (connectedNode === sourceNode)
+      link.straighten(p.x, p.y, lx + p.x - cx, ly + p.y - cy);
+    else if (connectedNode === targetNode)
+      link.straighten(lx + p.x - cx, ly + p.y - cy, p.x, p.y);
   };
 
   Triple.prototype.connectedPoint = function(node, lx, ly) {
@@ -1021,28 +1061,6 @@
     };
   };
 
-  Triple.prototype.intersect = function(sourceNode, targetNode) {
-    var sx0 = sourceNode.x();
-    var sy0 = sourceNode.y();
-    var sx1 = sx0 + sourceNode.width();
-    var sy1 = sy0 + sourceNode.height();
-    var tx0 = targetNode.x();
-    var ty0 = targetNode.y();
-    var tx1 = tx0 + targetNode.width();
-    var ty1 = ty0 + targetNode.height();
-
-    return sx0 <= tx1 && tx0 <= sx1 && sy0 <= ty1 && ty0 <= sy1;
-  };
-
-  Triple.prototype.contains = function(node, x, y) {
-    var nx = node.x();
-    var ny = node.y();
-    var nwidth = node.width();
-    var nheight = node.height();
-
-    return nx <= x && x <= nx + nwidth && ny <= y && y <= ny + nheight;
-  };
-
   var LinkConnectorRelation = helper.inherits(function(props) {
     this.type = this.prop(props.type);
     this.link = this.prop(props.link);
@@ -1082,12 +1100,12 @@
       data.splice(index, 1);
   };
 
-  ComponentList.prototype.each = function(callback) {
-    return this.data.forEach(callback);
+  ComponentList.prototype.contains = function(component) {
+    return this.data.indexOf(component) !== -1;
   };
 
-  ComponentList.prototype.filter = function(callback) {
-    return this.data.filter(callback);
+  ComponentList.prototype.forEach = function(callback) {
+    return this.data.forEach(callback);
   };
 
   ComponentList.prototype.toFront = function(component) {
@@ -1101,56 +1119,13 @@
     data.push(component);
   };
 
-  ComponentList.prototype.componentFromPoint = function(x, y) {
+  ComponentList.prototype.fromPoint = function(ctor, x, y) {
     var data = this.data;
 
     for (var i = data.length - 1; i >= 0; i--) {
       var component = data[i];
 
-      if (component instanceof Node) {
-        var c_x = component.x();
-        var c_y = component.y();
-        var c_width = component.width();
-        var c_height = component.height();
-
-        if (c_x <= x && x <= c_x + c_width && c_y <= y && y <= c_y + c_height)
-          return component;
-      } else if (component instanceof Link) {
-        var c_width = component.width();
-        var c_height = component.height();
-        var c_x = component.cx() - c_width / 2;
-        var c_y = component.cy() - c_height / 2;
-
-        if (c_x <= x && x <= c_x + c_width && c_y <= y && y <= c_y + c_height)
-          return component;
-      } else if (component instanceof Connector) {
-        var dx = x - component.x();
-        var dy = y - component.y();
-        var r = component.r();
-
-        if (dx * dx + dy * dy <= r * r)
-          return component;
-      }
-    }
-
-    return null;
-  };
-
-  ComponentList.prototype.nodeFromPoint = function(x, y) {
-    var data = this.data;
-
-    for (var i = data.length - 1; i >= 0; i--) {
-      var component = data[i];
-
-      if (!(component instanceof Node))
-        continue;
-
-      var c_x = component.x();
-      var c_y = component.y();
-      var c_width = component.width();
-      var c_height = component.height();
-
-      if (c_x <= x && x <= c_x + c_width && c_y <= y && y <= c_y + c_height)
+      if (component instanceof ctor && component.contains(x, y))
         return component;
     }
 
@@ -1190,41 +1165,13 @@
     });
   };
 
-  var DragDisabledComponentList = function() {
-    this.data = [];
-  };
-
-  DragDisabledComponentList.prototype.add = function(component) {
-    if (this.contains(component))
-      return;
-
-    this.data.push(component);
-  };
-
-  DragDisabledComponentList.prototype.remove = function(component) {
-    var data = this.data;
-
-    for (var i = data.length - 1; i >= 0; i--) {
-      var item = data[i];
-
-      if (item === component) {
-        data.splice(i, 1);
-        break;
-      }
-    }
-  };
-
-  DragDisabledComponentList.prototype.contains = function(component) {
-    return this.data.indexOf(component) !== -1;
-  };
-
   var Cmap = helper.inherits(function(rootElement) {
     if (!(this instanceof Cmap))
       return new Cmap(rootElement);
 
     this.componentList = this.prop(new ComponentList());
     this.disabledConnectorList = this.prop(new DisabledConnectorList());
-    this.dragDisabledComponentList = this.prop(new DragDisabledComponentList());
+    this.dragDisabledComponentList = this.prop(new ComponentList());
     this.element = this.prop(null);
     this.rootElement = this.prop(rootElement || null);
     this.dragContext = this.prop({});
@@ -1268,19 +1215,19 @@
   };
 
   Cmap.prototype.updateZIndex = function() {
-    this.componentList().filter(function(component) {
-      return component instanceof Node || component instanceof Link;
-    }).forEach(function(component, index) {
+    this.componentList().forEach(function(component, index) {
+      if (component instanceof Connector)
+        return;
+
+      // update z-index of node/link
       var zIndex = index * 10;
       component.zIndex(zIndex);
 
       if (!(component instanceof Link))
         return;
 
-      // update z-index of connector
-      component.relations().filter(function(relation) {
-        return relation instanceof LinkConnectorRelation;
-      }).forEach(function(relation, index) {
+      // update connector z-index of link
+      helper.eachInstance(component.relations(), LinkConnectorRelation, function(relation, index) {
         relation.connector().zIndex(zIndex + index + 1);
       });
     });
@@ -1291,11 +1238,7 @@
       throw new TypeError('Not enough arguments');
 
     var linkRelations = link.relations();
-
-    var triple = linkRelations.filter(function(relation) {
-      return relation instanceof Triple;
-    })[0];
-
+    var triple = helper.firstInstance(linkRelations, Triple);
     var nodeKey = type + 'Node';
 
     if (triple && triple[nodeKey]())
@@ -1318,10 +1261,7 @@
     node.relations().push(triple);
 
     // update connectors of link
-    linkRelations.forEach(function(relation) {
-      if (!(relation instanceof LinkConnectorRelation))
-        return;
-
+    helper.eachInstance(linkRelations, LinkConnectorRelation, function(relation) {
       if (relation.type() === type)
         relation.isConnected(true);
     });
@@ -1336,13 +1276,10 @@
       var relations = component.relations().slice();
 
       // disconnect all connections of component
-      relations.forEach(function(relation) {
-        if (!(relation instanceof Triple))
-          return;
-
-        var link = relation.link();
-        var sourceNode = relation.sourceNode();
-        var targetNode = relation.targetNode();
+      helper.eachInstance(relations, Triple, function(triple) {
+        var link = triple.link();
+        var sourceNode = triple.sourceNode();
+        var targetNode = triple.targetNode();
 
         if (sourceNode && (component === link || component === sourceNode))
           this.disconnect(Cmap.CONNECTION_TYPE_SOURCE, sourceNode, link);
@@ -1358,11 +1295,7 @@
       throw new TypeError('Not enough arguments');
 
     var linkRelations = link.relations();
-
-    var triple = linkRelations.filter(function(relation) {
-      return relation instanceof Triple;
-    })[0];
-
+    var triple = helper.firstInstance(linkRelations, Triple);
     var nodeKey = type + 'Node';
 
     if (!triple || triple[nodeKey]() !== node)
@@ -1379,10 +1312,7 @@
       linkRelations.splice(linkRelations.indexOf(triple), 1);
 
     // update connectors of link
-    linkRelations.forEach(function(relation) {
-      if (!(relation instanceof LinkConnectorRelation))
-        return;
-
+    helper.eachInstance(linkRelations, LinkConnectorRelation, function(relation) {
       if (relation.type() === type)
         relation.isConnected(false);
     });
@@ -1469,7 +1399,7 @@
   };
 
   Cmap.prototype.hideAllConnectors = function() {
-    this.componentList().each(function(component) {
+    this.componentList().forEach(function(component) {
       if (component instanceof Link)
         this.hideConnectors(component);
     }.bind(this));
@@ -1508,8 +1438,8 @@
 
   Cmap.prototype.onstart = function(x, y, event) {
     var context = this.dragContext();
-    var component = this.componentList().componentFromPoint(x, y);
 
+    var component = this.componentList().fromPoint(Component, x, y);
     context.component = component;
 
     if (!(component instanceof Connector))
@@ -1519,7 +1449,6 @@
       return;
 
     var draggable = !this.dragDisabledComponentList().contains(component);
-
     context.draggable = draggable;
 
     if (!draggable)
@@ -1539,19 +1468,14 @@
       context.sourceY = component.sourceY();
       context.targetX = component.targetX();
       context.targetY = component.targetY();
-      context.triple = component.relations().filter(function(relation) {
-        return relation instanceof Triple;
-      })[0];
+      context.triple = helper.firstInstance(component.relations(), Triple);
 
       this.showConnectors(component);
     } else if (component instanceof Connector) {
+      var linkConnectorRelation = helper.firstInstance(component.relations(), LinkConnectorRelation);
+
       context.x = x;
       context.y = y;
-
-      var linkConnectorRelation = component.relations().filter(function(relation) {
-        return relation instanceof LinkConnectorRelation;
-      })[0];
-
       context.type = linkConnectorRelation.type();
       context.link = linkConnectorRelation.link();
     }
@@ -1559,14 +1483,13 @@
 
   Cmap.prototype.onmove = function(dx, dy, event) {
     var context = this.dragContext();
+
     var component = context.component;
 
     if (!component)
       return;
 
-    var draggable = context.draggable;
-
-    if (!draggable)
+    if (!context.draggable)
       return;
 
     if (component instanceof Node) {
@@ -1608,12 +1531,9 @@
       var type = context.type;
       var link = context.link;
 
-      var triple = link.relations().filter(function(relation) {
-        return relation instanceof Triple;
-      })[0];
-
+      var triple = helper.firstInstance(link.relations(), Triple);
       var connectedNode = triple ? triple[type + 'Node']() : null;
-      var node = this.componentList().nodeFromPoint(x, y);
+      var node = this.componentList().fromPoint(Node, x, y);
 
       if (connectedNode && connectedNode === node) {
         // already connected (do nothing)
@@ -1651,11 +1571,8 @@
         link[type + 'X'](x);
         link[type + 'Y'](y);
 
-        if (!anotherSideNode) {
-          // link content moves to midpoint
-          link.cx((link.sourceX() + link.targetX()) / 2);
-          link.cy((link.sourceY() + link.targetY()) / 2);
-        }
+        if (!anotherSideNode)
+          link.straighten();
       }
     }
   };
@@ -1689,7 +1606,7 @@
     dom.draggable(element, this.onstart.bind(this), this.onmove.bind(this));
     this.element(element);
 
-    this.componentList().each(function(component) {
+    this.componentList().forEach(function(component) {
       component.parentElement(element);
     });
 
