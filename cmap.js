@@ -493,9 +493,14 @@
   };
 
   Link.prototype.pathContainerStyle = function() {
+    var width = Math.max(this.cx(), this.sourceX(), this.targetX());
+    var height = Math.max(this.cy(), this.sourceY(), this.targetY());
+
     return {
+      height: height + 'px',
       overflow: 'visible',
-      position: 'absolute'
+      position: 'absolute',
+      width: width + 'px'
     };
   };
 
@@ -591,17 +596,12 @@
     if (!parentElement && !element)
       return;
 
-    var pathContainerElement;
-
     // add element
     if (parentElement && !element) {
       element = dom.el('<div>');
       this.element(element);
 
       dom.html(element, '<svg><path></path><path></path></svg><div></div>');
-
-      pathContainerElement = dom.child(element, 0);
-      dom.css(pathContainerElement, this.pathContainerStyle());
 
       this.redraw();
       dom.append(parentElement, element);
@@ -619,9 +619,14 @@
       return;
     }
 
-    pathContainerElement = dom.child(element, 0);
-
     var cache = this.cache();
+
+    // update path container element
+    var pathContainerElement = dom.child(element, 0);
+    var pathContainerStyle = this.pathContainerStyle();
+
+    dom.css(pathContainerElement, helper.diffObj(pathContainerStyle, cache.pathContainerElementStyle));
+    cache.pathContainerElementStyle = contentStyle;
 
     // update line element
     var lineAttributes = this.lineAttributes();
