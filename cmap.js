@@ -1062,13 +1062,15 @@
     this.connector().color(color);
   };
 
-  LinkConnectorRelation.prototype.update = function() {
+  LinkConnectorRelation.prototype.update = function(changedComponent) {
     var type = this.type();
     var link = this.link();
     var connector = this.connector();
 
-    connector.x(link[type + 'X']());
-    connector.y(link[type + 'Y']());
+    if (changedComponent === link) {
+      connector.x(link[type + 'X']());
+      connector.y(link[type + 'Y']());
+    }
   };
 
   var ComponentList = function() {
