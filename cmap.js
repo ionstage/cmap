@@ -98,6 +98,14 @@
     return el.scrollTop;
   };
 
+  dom.scrollWidth = function(el) {
+    return el.scrollWidth;
+  };
+
+  dom.scrollHeight = function(el) {
+    return el.scrollHeight;
+  };
+
   dom.text = function(el, s) {
     el.textContent = s;
   };
@@ -1127,6 +1135,7 @@
     this.dragDisabledComponentList = this.prop(new ComponentList());
     this.element = this.prop(null);
     this.rootElement = this.prop(rootElement || null);
+    this.retainerElement = this.prop(null);
     this.dragContext = this.prop({});
 
     this.markDirty();
@@ -1433,6 +1442,8 @@
       context.type = linkConnectorRelation.type();
       context.link = linkConnectorRelation.link();
     }
+
+    this.fixScrollSize();
   };
 
   Cmap.prototype.onmove = function(dx, dy, event) {
@@ -1531,6 +1542,46 @@
     }
   };
 
+  Cmap.prototype.onend = function(dx, dy, event) {
+    var context = this.dragContext();
+
+    var component = context.component;
+
+    if (!component)
+      return;
+
+    if (!context.draggable)
+      return;
+
+    this.unfixScrollSize();
+  };
+
+  Cmap.prototype.fixScrollSize = function() {
+    var element = this.element();
+    var retainerElement = this.retainerElement();
+
+    var x = dom.scrollWidth(element) - 1;
+    var y = dom.scrollHeight(element) - 1;
+    var translate = 'translate(' + x + 'px, ' + y + 'px)';
+
+    dom.css(retainerElement, {
+      msTransform: translate,
+      transform: translate,
+      webkitTransform: translate
+    });
+
+    dom.append(element, retainerElement);
+  };
+
+  Cmap.prototype.unfixScrollSize = function() {
+    var retainerElement = this.retainerElement();
+
+    if (!retainerElement)
+      return;
+
+    dom.remove(retainerElement);
+  };
+
   Cmap.prototype.style = function() {
     return {
       color: '#333',
@@ -1548,6 +1599,15 @@
     };
   };
 
+  Cmap.prototype.retainerStyle = function() {
+    return {
+      height: '1px',
+      pointerEvents: 'none',
+      position: 'absolute',
+      width: '1px'
+    };
+  };
+
   Cmap.prototype.redraw = function() {
     var rootElement = this.rootElement();
 
@@ -1557,7 +1617,7 @@
     }
 
     var element = dom.el('<div>');
-    dom.draggable(element, this.onstart.bind(this), this.onmove.bind(this));
+    dom.draggable(element, this.onstart.bind(this), this.onmove.bind(this), this.onend.bind(this));
     this.element(element);
 
     this.componentList().forEach(function(component) {
@@ -1566,6 +1626,10 @@
 
     dom.css(element, this.style());
     dom.append(rootElement, element);
+
+    var retainerElement = dom.el('<div>');
+    dom.css(retainerElement, this.retainerStyle());
+    this.retainerElement(retainerElement);
   };
 
   Cmap.CONNECTION_TYPE_SOURCE = 'source';
