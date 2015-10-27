@@ -55,6 +55,9 @@
     return diff;
   };
 
+  helper.CONTENT_TYPE_TEXT = 'text';
+  helper.CONTENT_TYPE_HTML = 'html';
+
   var dom = {};
 
   dom.disabled = function() {
@@ -312,7 +315,7 @@
 
   var Node = helper.inherits(function(props) {
     this.content = this.prop(props.content || '');
-    this.contentType = this.prop(props.contentType || Node.CONTENT_TYPE_TEXT);
+    this.contentType = this.prop(props.contentType || helper.CONTENT_TYPE_TEXT);
     this.x = this.prop(helper.toNumber(props.x, 0));
     this.y = this.prop(helper.toNumber(props.y, 0));
     this.width = this.prop(helper.toNumber(props.width, 75));
@@ -364,8 +367,8 @@
 
   Node.prototype.style = function() {
     var contentType = this.contentType();
-    var lineHeight = (contentType === Node.CONTENT_TYPE_TEXT) ? this.height() : 14;
-    var textAlign = (contentType === Node.CONTENT_TYPE_TEXT) ? 'center' : 'left';
+    var lineHeight = (contentType === helper.CONTENT_TYPE_TEXT) ? this.height() : 14;
+    var textAlign = (contentType === helper.CONTENT_TYPE_TEXT) ? 'center' : 'left';
     var translate = 'translate(' + this.x() + 'px, ' + this.y() + 'px)';
     var borderWidthOffset = this.borderWidth() * 2;
 
@@ -425,9 +428,9 @@
     if (content !== cache.content) {
       var contentType = this.contentType();
 
-      if (contentType === Node.CONTENT_TYPE_TEXT)
+      if (contentType === helper.CONTENT_TYPE_TEXT)
         dom.text(element, content);
-      else if (contentType === Node.CONTENT_TYPE_HTML)
+      else if (contentType === helper.CONTENT_TYPE_HTML)
         dom.html(element, content);
 
       cache.content = content;
@@ -439,12 +442,9 @@
     cache.style = style;
   };
 
-  Node.CONTENT_TYPE_TEXT = 'text';
-  Node.CONTENT_TYPE_HTML = 'html';
-
   var Link = helper.inherits(function(props) {
     this.content = this.prop(props.content || '');
-    this.contentType = this.prop(props.contentType || Link.CONTENT_TYPE_TEXT);
+    this.contentType = this.prop(props.contentType || helper.CONTENT_TYPE_TEXT);
     this.cx = this.prop(helper.toNumber(props.cx, 100));
     this.cy = this.prop(helper.toNumber(props.cy, 40));
     this.width = this.prop(helper.toNumber(props.width, 50));
@@ -571,8 +571,8 @@
 
   Link.prototype.contentStyle = function() {
     var contentType = this.contentType();
-    var lineHeight = (contentType === Link.CONTENT_TYPE_TEXT) ? this.height() : 14;
-    var textAlign = (contentType === Link.CONTENT_TYPE_TEXT) ? 'center' : 'left';
+    var lineHeight = (contentType === helper.CONTENT_TYPE_TEXT) ? this.height() : 14;
+    var textAlign = (contentType === helper.CONTENT_TYPE_TEXT) ? 'center' : 'left';
     var x = this.cx() - this.width() / 2;
     var y = this.cy() - this.height() / 2;
     var translate = 'translate(' + x + 'px, ' + y + 'px)';
@@ -658,9 +658,9 @@
     if (content !== cache.content) {
       var contentType = this.contentType();
 
-      if (contentType === Link.CONTENT_TYPE_TEXT)
+      if (contentType === helper.CONTENT_TYPE_TEXT)
         dom.text(contentElement, content);
-      else if (contentType === Link.CONTENT_TYPE_HTML)
+      else if (contentType === helper.CONTENT_TYPE_HTML)
         dom.html(contentElement, content);
 
       cache.content = content;
@@ -674,9 +674,6 @@
     dom.css(element, helper.diffObj(style, cache.style));
     cache.style = style;
   };
-
-  Link.CONTENT_TYPE_TEXT = 'text';
-  Link.CONTENT_TYPE_HTML = 'html';
 
   var Connector = helper.inherits(function(props) {
     this.x = this.prop(helper.toNumber(props.x, 0));
