@@ -1401,6 +1401,13 @@
     this.dragDisabledComponentList().add(component);
   };
 
+  Cmap.prototype.dragEnabled = function(component) {
+    if (!component)
+      throw new TypeError('Not enough arguments');
+
+    return !this.dragDisabledComponentList().contains(component);
+  };
+
   Cmap.prototype.onstart = function(x, y, event) {
     var context = this.dragContext();
 
