@@ -6,6 +6,7 @@ describe('Cmap', function() {
     var cmap = new Cmap();
     var props = {
       content: 'node',
+      contentType: 'html',
       x: 100,
       y: 200,
       width: 120,
@@ -31,6 +32,7 @@ describe('Cmap', function() {
     var cmap = new Cmap();
     var props = {
       content: 'link',
+      contentType: 'html',
       cx: 100,
       cy: 200,
       width: 120,
