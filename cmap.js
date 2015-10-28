@@ -682,6 +682,7 @@
     this.zIndex = this.prop('auto');
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
+    this.cache = this.prop({});
     this.relations = this.prop([]);
   }, Component);
 
@@ -746,7 +747,11 @@
       return;
     }
 
-    dom.css(element, this.style());
+    var cache = this.cache();
+    var style = this.style();
+
+    dom.css(element, helper.diffObj(style, cache.style));
+    cache.style = style;
   };
 
   Connector.COLOR_CONNECTED = 'lightgreen';
