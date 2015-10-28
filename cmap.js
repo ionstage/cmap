@@ -630,8 +630,8 @@
     var cache = this.cache();
 
     // update path container element
-    var pathContainerElement = dom.child(element, 0);
     var pathContainerStyle = this.pathContainerStyle();
+    var pathContainerElement = dom.child(element, 0);
 
     dom.css(pathContainerElement, helper.diffObj(pathContainerStyle, cache.pathContainerElementStyle));
     cache.pathContainerElementStyle = contentStyle;
@@ -830,8 +830,8 @@
 
     // center positions of two nodes are equal
     if (cs_rad0 === 0) {
-      link.cx((sncx + tncx)/ 2);
-      link.cy((sncy + tncy)/ 2);
+      link.cx((sncx + tncx) / 2);
+      link.cy((sncy + tncy) / 2);
 
       return;
     }
