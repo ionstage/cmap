@@ -7,6 +7,11 @@
     return !isNaN(value) ? +value : defaultValue;
   };
 
+  helper.isPlainObject = function(obj) {
+    return (typeof obj === 'object' && obj !== null &&
+            Object.prototype.toString.call(obj) === '[object Object]');
+  };
+
   helper.inherits = function(ctor, superCtor) {
     ctor.super_ = superCtor;
     ctor.prototype = Object.create(superCtor.prototype, {
@@ -53,6 +58,20 @@
     }
 
     return diff;
+  };
+
+  helper.pick = function(obj, keys) {
+    var ret = {};
+
+    if (!obj)
+      return ret;
+
+    keys.forEach(function(key) {
+      if (key in obj)
+        ret[key] = obj[key];
+    });
+
+    return ret;
   };
 
   helper.CONTENT_TYPE_TEXT = 'text';
@@ -1644,11 +1663,96 @@
   Cmap.CONNECTION_TYPE_SOURCE = 'source';
   Cmap.CONNECTION_TYPE_TARGET = 'target';
 
+  var NodeModule = function(node, cmap) {
+    this.node = node;
+    this.cmap = cmap;
+
+    return helper.wrap(this);
+  };
+
+  NodeModule.prototype.attr = function(key, value) {
+    if (helper.isPlainObject(key)) {
+      var props = key;
+
+      for (key in props) {
+        this.attr(key, props[key]);
+      }
+
+      return;
+    }
+
+    if (NodeModule.ATTR_KEYS.indexOf(key) === -1)
+      return;
+
+    var node = this.node;
+
+    if (typeof value === 'undefined')
+      return node[key]();
+
+    node[key](value);
+  };
+
+  NodeModule.prototype.remove = function() {
+    this.cmap.remove(this.node);
+
+    this.node = null;
+    this.cmap = null;
+  };
+
+  NodeModule.prototype.toFront = function() {
+    this.cmap.toFront(this.node);
+  };
+
+  NodeModule.prototype.element = function() {
+    return this.node.element();
+  };
+
+  NodeModule.prototype.redraw = function() {
+    this.node.redraw();
+  };
+
+  NodeModule.prototype.draggable = function(value) {
+    var node = this.node;
+    var cmap = this.cmap;
+
+    if (typeof value === 'undefined')
+      return cmap.dragEnabled(node);
+
+    if (value)
+      cmap.enableDrag(node);
+    else
+      cmap.disableDrag(node);
+  };
+
+  NodeModule.ATTR_KEYS = [
+    'content',
+    'contentType',
+    'x',
+    'y',
+    'width',
+    'height',
+    'backgroundColor',
+    'borderColor',
+    'borderWidth',
+    'textColor'
+  ];
+
   var CmapModule = function(element) {
     if (!(this instanceof CmapModule))
       return new CmapModule(element);
 
+    this.cmap = new Cmap(element);
+
     return helper.wrap(this);
+  };
+
+  CmapModule.prototype.node = function(props) {
+    var cmap = this.cmap;
+    var node = new Node(helper.pick(props, NodeModule.ATTR_KEYS));
+
+    cmap.add(node);
+
+    return new NodeModule(node, cmap);
   };
 
   CmapModule._ = {
