@@ -26,15 +26,8 @@
     return ctor;
   };
 
-  helper.wrap = function(obj) {
-    var wrapper = {};
-    var proto = obj.constructor.prototype;
-
-    for (var key in proto) {
-      wrapper[key] = proto[key].bind(obj);
-    }
-
-    return wrapper;
+  helper.wrap = function(obj, key) {
+    return new Wrapper(obj, key);
   };
 
   helper.eachInstance = function(array, ctor, callback) {
@@ -76,6 +69,26 @@
 
   helper.CONTENT_TYPE_TEXT = 'text';
   helper.CONTENT_TYPE_HTML = 'html';
+
+  var Wrapper = function(obj, key) {
+    this.obj = obj;
+    this.key = key;
+
+    var wrapper = this.unwrap.bind(this);
+
+    var proto = obj.constructor.prototype;
+
+    for (var key in proto) {
+      wrapper[key] = proto[key].bind(obj);
+    }
+
+    return wrapper;
+  };
+
+  Wrapper.prototype.unwrap = function(key) {
+    if (this.key === key)
+        return this.obj;
+  };
 
   var dom = {};
 
@@ -1676,7 +1689,7 @@
     this.node = node;
     this.cmap = cmap;
 
-    return helper.wrap(this);
+    return helper.wrap(this, cmap);
   };
 
   NodeModule.prototype.attr = function(key, value) {
@@ -1750,9 +1763,11 @@
     if (!(this instanceof CmapModule))
       return new CmapModule(element);
 
-    this.cmap = new Cmap(element);
+    var cmap = new Cmap(element);
 
-    return helper.wrap(this);
+    this.cmap = cmap;
+
+    return helper.wrap(this, cmap);
   };
 
   CmapModule.prototype.node = function(props) {
