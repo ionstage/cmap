@@ -1305,6 +1305,15 @@
     link.markDirty();
   };
 
+  Cmap.prototype.connectedNode = function(type, link) {
+    if (!link)
+      throw new TypeError('Not enough arguments');
+
+    var triple = helper.firstInstance(link.relations(), Triple);
+
+    return triple[type + 'Node']();
+  };
+
   Cmap.prototype.showConnector = function(type, link) {
     if (!link)
       throw new TypeError('Not enough arguments');
