@@ -1685,11 +1685,11 @@
   Cmap.CONNECTION_TYPE_SOURCE = 'source';
   Cmap.CONNECTION_TYPE_TARGET = 'target';
 
-  var NodeModule = function(node, cmap) {
-    this.node = node;
+  var NodeModule = function(component, cmap) {
+    this.component = component;
     this.cmap = cmap;
 
-    return helper.wrap(this, cmap);
+    return helper.wrap(this, cmap.component);
   };
 
   NodeModule.prototype.attr = function(key, value) {
@@ -1706,44 +1706,44 @@
     if (NodeModule.ATTR_KEYS.indexOf(key) === -1)
       return;
 
-    var node = this.node;
+    var component = this.component;
 
     if (typeof value === 'undefined')
-      return node[key]();
+      return component[key]();
 
-    node[key](value);
+    component[key](value);
   };
 
   NodeModule.prototype.remove = function() {
-    this.cmap.remove(this.node);
+    this.cmap.component.remove(this.component);
 
-    this.node = null;
+    this.component = null;
     this.cmap = null;
   };
 
   NodeModule.prototype.toFront = function() {
-    this.cmap.toFront(this.node);
+    this.cmap.component.toFront(this.component);
   };
 
   NodeModule.prototype.element = function() {
-    return this.node.element();
+    return this.component.element();
   };
 
   NodeModule.prototype.redraw = function() {
-    this.node.redraw();
+    this.component.redraw();
   };
 
   NodeModule.prototype.draggable = function(value) {
-    var node = this.node;
+    var component = this.component;
     var cmap = this.cmap;
 
     if (typeof value === 'undefined')
-      return cmap.dragEnabled(node);
+      return cmap.component.dragEnabled(component);
 
     if (value)
-      cmap.enableDrag(node);
+      cmap.component.enableDrag(component);
     else
-      cmap.disableDrag(node);
+      cmap.component.disableDrag(component);
   };
 
   NodeModule.ATTR_KEYS = [
@@ -1763,20 +1763,19 @@
     if (!(this instanceof CmapModule))
       return new CmapModule(element);
 
-    var cmap = new Cmap(element);
+    this.component = new Cmap(element);
 
-    this.cmap = cmap;
-
-    return helper.wrap(this, cmap);
+    return helper.wrap(this, this.component);
   };
 
   CmapModule.prototype.node = function(props) {
-    var cmap = this.cmap;
-    var node = new Node(helper.pick(props, NodeModule.ATTR_KEYS));
+    var component = this.component;
 
-    cmap.add(node);
+    var nodeComponent = new Node(helper.pick(props, NodeModule.ATTR_KEYS));
 
-    return new NodeModule(node, cmap);
+    component.add(nodeComponent);
+
+    return new NodeModule(nodeComponent, this);
   };
 
   CmapModule._ = {
