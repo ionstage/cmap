@@ -1685,14 +1685,12 @@
   Cmap.CONNECTION_TYPE_SOURCE = 'source';
   Cmap.CONNECTION_TYPE_TARGET = 'target';
 
-  var NodeModule = function(component, cmap) {
+  var ComponentModule = function(component, cmap) {
     this.component = component;
     this.cmap = cmap;
-
-    return helper.wrap(this, cmap.component);
   };
 
-  NodeModule.prototype.attr = function(key, value) {
+  ComponentModule.prototype.attr = function(key, value) {
     if (helper.isPlainObject(key)) {
       var props = key;
 
@@ -1703,7 +1701,7 @@
       return;
     }
 
-    if (NodeModule.ATTR_KEYS.indexOf(key) === -1)
+    if (this.constructor.attributeKeys().indexOf(key) === -1)
       return;
 
     var component = this.component;
@@ -1714,26 +1712,26 @@
     component[key](value);
   };
 
-  NodeModule.prototype.remove = function() {
+  ComponentModule.prototype.remove = function() {
     this.cmap.component.remove(this.component);
 
     this.component = null;
     this.cmap = null;
   };
 
-  NodeModule.prototype.toFront = function() {
+  ComponentModule.prototype.toFront = function() {
     this.cmap.component.toFront(this.component);
   };
 
-  NodeModule.prototype.element = function() {
+  ComponentModule.prototype.element = function() {
     return this.component.element();
   };
 
-  NodeModule.prototype.redraw = function() {
+  ComponentModule.prototype.redraw = function() {
     this.component.redraw();
   };
 
-  NodeModule.prototype.draggable = function(value) {
+  ComponentModule.prototype.draggable = function(value) {
     var component = this.component;
     var cmap = this.cmap;
 
@@ -1746,18 +1744,30 @@
       cmap.component.disableDrag(component);
   };
 
-  NodeModule.ATTR_KEYS = [
-    'content',
-    'contentType',
-    'x',
-    'y',
-    'width',
-    'height',
-    'backgroundColor',
-    'borderColor',
-    'borderWidth',
-    'textColor'
-  ];
+  ComponentModule.attributeKeys = function() {
+    return [];
+  };
+
+  var NodeModule = helper.inherits(function(props, cmap) {
+    var component = new Node(helper.pick(props, NodeModule.attributeKeys()));
+
+    NodeModule.super_.call(this, component, cmap);
+  }, ComponentModule);
+
+  NodeModule.attributeKeys = function() {
+    return [
+      'content',
+      'contentType',
+      'x',
+      'y',
+      'width',
+      'height',
+      'backgroundColor',
+      'borderColor',
+      'borderWidth',
+      'textColor'
+    ];
+  };
 
   var CmapModule = function(element) {
     if (!(this instanceof CmapModule))
@@ -1771,11 +1781,11 @@
   CmapModule.prototype.node = function(props) {
     var component = this.component;
 
-    var nodeComponent = new Node(helper.pick(props, NodeModule.ATTR_KEYS));
+    var node = new NodeModule(props, this);
 
-    component.add(nodeComponent);
+    component.add(node.component);
 
-    return new NodeModule(nodeComponent, this);
+    return helper.wrap(node, component);
   };
 
   CmapModule._ = {
