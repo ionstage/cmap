@@ -30,6 +30,12 @@
     return new Wrapper(obj, key);
   };
 
+  helper.deactivate = function(obj) {
+    for (var key in obj) {
+      delete obj[key];
+    }
+  };
+
   helper.eachInstance = function(array, ctor, callback) {
     array.filter(function(obj) {
       return obj instanceof ctor;
@@ -1729,6 +1735,8 @@
 
   ComponentModule.prototype.remove = function() {
     this.cmap.component.remove(this.component);
+
+    helper.deactivate(this.wrapper);
 
     this.component = null;
     this.cmap = null;
