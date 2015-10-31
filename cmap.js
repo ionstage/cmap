@@ -1250,6 +1250,11 @@
     if (triple && triple[nodeKey]())
       throw new Error('Already connected');
 
+    var anotherType = Cmap.anotherConnectionType(type);
+
+    if (triple && triple[anotherType + 'Node']() === node)
+      throw new Error('Already connected to the ' + anotherType + ' of the link');
+
     if (triple) {
       triple[nodeKey](node);
     } else {
@@ -1859,14 +1864,23 @@
       return connectedNode.wrapper;
     }
 
+    if (node !== null) {
+      // unwrap node module
+      node = node(cmap.component);
+
+      // cannot connect the same node to the source and the target of the link
+      var anotherType = Cmap.anotherConnectionType(type);
+      var anotherNodeComponent = cmapComponent.connectedNode(anotherType, component);
+
+      if (anotherNodeComponent === node.component)
+        return;
+    }
+
     if (connectedNodeComponent)
       cmapComponent.disconnect(type, connectedNodeComponent, component);
 
     if (node === null)
       return;
-
-    // unwrap node module
-    node = node(cmap.component);
 
     cmapComponent.connect(type, node.component, component);
   };
