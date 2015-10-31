@@ -1939,13 +1939,11 @@
   };
 
   CmapModule.prototype.link = function(props) {
-    var component = this.component;
-
     var link = new LinkModule(props, this);
 
-    component.add(link.component);
+    this.component.add(link.component);
 
-    return helper.wrap(link, component);
+    return link.wrapper;
   };
 
   CmapModule._ = {
