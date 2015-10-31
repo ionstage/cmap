@@ -1324,6 +1324,9 @@
 
     var triple = helper.firstInstance(link.relations(), Triple);
 
+    if (!triple)
+      return null;
+
     return triple[type + 'Node']();
   };
 
