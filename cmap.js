@@ -1575,12 +1575,7 @@
         return;
       }
 
-      var anotherType;
-      if (type === Cmap.CONNECTION_TYPE_SOURCE)
-        anotherType = Cmap.CONNECTION_TYPE_TARGET;
-      else if (type === Cmap.CONNECTION_TYPE_TARGET)
-        anotherType = Cmap.CONNECTION_TYPE_SOURCE;
-
+      var anotherType = Cmap.anotherConnectionType(type);
       var anotherSideNode = triple ? triple[anotherType + 'Node']() : null;
 
       if (connectedNode && connectedNode !== node) {
@@ -1700,6 +1695,13 @@
     var retainerElement = dom.el('<div>');
     dom.css(retainerElement, this.retainerStyle());
     this.retainerElement(retainerElement);
+  };
+
+  Cmap.anotherConnectionType = function(type) {
+    if (type === Cmap.CONNECTION_TYPE_SOURCE)
+      return Cmap.CONNECTION_TYPE_TARGET;
+    else if (type === Cmap.CONNECTION_TYPE_TARGET)
+      return Cmap.CONNECTION_TYPE_SOURCE;
   };
 
   Cmap.CONNECTION_TYPE_SOURCE = 'source';
@@ -1882,11 +1884,7 @@
       cmapComponent.enableConnector(type, component);
 
       // show the connector if another connector is showing
-      var anotherType;
-      if (type === Cmap.CONNECTION_TYPE_SOURCE)
-        anotherType = Cmap.CONNECTION_TYPE_TARGET;
-      else if (type === Cmap.CONNECTION_TYPE_TARGET)
-        anotherType = Cmap.CONNECTION_TYPE_SOURCE;
+      var anotherType = Cmap.anotherConnectionType(type);
 
       if (cmapComponent.connectorVisible(anotherType, component))
         cmapComponent.showConnector(type, component);
