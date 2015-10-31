@@ -1781,11 +1781,133 @@
     ];
   };
 
+  var LinkModule = helper.inherits(function(props, cmap) {
+    var component = new Link(helper.pick(props, LinkModule.attributeKeys()));
+
+    LinkModule.super_.call(this, component, cmap);
+  }, ComponentModule);
+
+  LinkModule.prototype.sourceNode = function(node) {
+    return LinkModule.connectNode(this, Cmap.CONNECTION_TYPE_SOURCE, node);
+  };
+
+  LinkModule.prototype.targetNode = function(node) {
+    return LinkModule.connectNode(this, Cmap.CONNECTION_TYPE_TARGET, node);
+  };
+
+  LinkModule.prototype.sourceConnectorEnabled = function(enabled) {
+    return LinkModule.connectorEnabled(this, Cmap.CONNECTION_TYPE_SOURCE, enabled);
+  };
+
+  LinkModule.prototype.targetConnectorEnabled = function(enabled) {
+    return LinkModule.connectorEnabled(this, Cmap.CONNECTION_TYPE_TARGET, enabled);
+  };
+
+  LinkModule.attributeKeys = function() {
+    return [
+      'content',
+      'contentType',
+      'cx',
+      'cy',
+      'width',
+      'height',
+      'backgroundColor',
+      'borderColor',
+      'borderWidth',
+      'textColor',
+      'sourceX',
+      'sourceY',
+      'targetX',
+      'targetY',
+      'lineColor',
+      'lineWidth',
+      'hasArrow'
+    ];
+  };
+
+  LinkModule.connectNode = function(module, type, node) {
+    var component = module.component;
+    var cmap = module.cmap;
+
+    var cmapComponent = cmap.component;
+    var connectedNodeComponent = cmapComponent.connectedNode(type, component);
+
+    if (typeof node === 'undefined') {
+      if (!connectedNodeComponent)
+        return null;
+
+      var connectedNode = cmap.nodeModuleList.fromComponent(connectedNodeComponent);
+      return connectedNode.wrapper;
+    }
+
+    if (connectedNodeComponent)
+      cmapComponent.disconnect(type, connectedNodeComponent, component);
+
+    if (node === null)
+      return;
+
+    // unwrap node module
+    node = node(cmap.component);
+
+    cmapComponent.connect(type, node.component, component);
+  };
+
+  LinkModule.connectorEnabled = function(module, type, enabled) {
+    var component = module.component;
+    var cmap = module.cmap;
+
+    var cmapComponent = cmap.component;
+
+    if (typeof enabled === 'undefined')
+      return cmapComponent.connectorEnabled(type, component);
+
+    if (enabled) {
+      cmapComponent.enableConnector(type, component);
+
+      // show the connector if another connector is showing
+      var anotherType;
+      if (type === Cmap.CONNECTION_TYPE_SOURCE)
+        anotherType = Cmap.CONNECTION_TYPE_TARGET;
+      else if (type === Cmap.CONNECTION_TYPE_TARGET)
+        anotherType = Cmap.CONNECTION_TYPE_SOURCE;
+
+      if (cmapComponent.connectorVisible(anotherType, component))
+        cmapComponent.showConnector(type, component);
+    } else {
+      cmapComponent.disableConnector(type, component);
+    }
+  };
+
+  var NodeModuleList = function() {
+    this.data = [];
+  };
+
+  NodeModuleList.prototype.add = function(node) {
+    var data = this.data;
+
+    if (data.indexOf(node) === -1)
+      data.push(node);
+  };
+
+  NodeModuleList.prototype.fromComponent = function(component) {
+    var data = this.data;
+
+    for (var i = 0, len = data.length; i < len; i++) {
+      var node = data[i];
+
+      if (node.component === component)
+        return node;
+    }
+
+    return null;
+  };
+
   var CmapModule = function(element) {
     if (!(this instanceof CmapModule))
       return new CmapModule(element);
 
     this.component = new Cmap(element);
+    this.nodeModuleList = new NodeModuleList();
 
     return helper.wrap(this, this.component);
   };
@@ -1794,8 +1916,19 @@
     var node = new NodeModule(props, this);
 
     this.component.add(node.component);
+    this.nodeModuleList.add(node);
 
     return node.wrapper;
+  };
+
+  CmapModule.prototype.link = function(props) {
+    var component = this.component;
+
+    var link = new LinkModule(props, this);
+
+    component.add(link.component);
+
+    return helper.wrap(link, component);
   };
 
   CmapModule._ = {
