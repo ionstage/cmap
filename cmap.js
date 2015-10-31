@@ -1766,6 +1766,11 @@
     NodeModule.super_.call(this, component, cmap);
   }, ComponentModule);
 
+  NodeModule.prototype.remove = function() {
+    this.cmap.nodeModuleList.remove(this);
+    NodeModule.super_.prototype.remove.call(this);
+  };
+
   NodeModule.attributeKeys = function() {
     return [
       'content',
@@ -1887,6 +1892,14 @@
 
     if (data.indexOf(node) === -1)
       data.push(node);
+  };
+
+  NodeModuleList.prototype.remove = function(node) {
+    var data = this.data;
+    var index = data.indexOf(node);
+
+    if (index !== -1)
+      data.splice(index, 1);
   };
 
   NodeModuleList.prototype.fromComponent = function(component) {
