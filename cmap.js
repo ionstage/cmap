@@ -1688,6 +1688,7 @@
   var ComponentModule = function(component, cmap) {
     this.component = component;
     this.cmap = cmap;
+    this.wrapper = helper.wrap(this, cmap.component);
   };
 
   ComponentModule.prototype.attr = function(key, value) {
@@ -1717,6 +1718,7 @@
 
     this.component = null;
     this.cmap = null;
+    this.wrapper = null;
   };
 
   ComponentModule.prototype.toFront = function() {
@@ -1779,13 +1781,11 @@
   };
 
   CmapModule.prototype.node = function(props) {
-    var component = this.component;
-
     var node = new NodeModule(props, this);
 
-    component.add(node.component);
+    this.component.add(node.component);
 
-    return helper.wrap(node, component);
+    return node.wrapper;
   };
 
   CmapModule._ = {
