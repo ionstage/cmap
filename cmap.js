@@ -1197,6 +1197,10 @@
       throw new TypeError('Not enough arguments');
 
     component.parentElement(null);
+
+    if (component instanceof Link)
+      this.hideConnectors(component);
+
     this.disconnect(component);
     this.componentList().remove(component);
     this.updateZIndex();
