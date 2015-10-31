@@ -1431,6 +1431,13 @@
     this.disabledConnectorList().add(type, link);
   };
 
+  Cmap.prototype.connectorEnabled = function(type, link) {
+    if (!link)
+      throw new TypeError('Not enough arguments');
+
+    return !this.disabledConnectorList().contains(type, link);
+  };
+
   Cmap.prototype.enableDrag = function(component) {
     if (!component)
       throw new TypeError('Not enough arguments');
