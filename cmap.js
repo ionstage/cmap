@@ -1719,6 +1719,19 @@
   };
 
   ComponentModule.prototype.attr = function(key, value) {
+    var component = this.component;
+    var attributeKeys = this.constructor.attributeKeys();
+
+    if (typeof key === 'undefined') {
+      var props = {};
+
+      attributeKeys.forEach(function(key) {
+        props[key] = component[key]();
+      });
+
+      return props;
+    }
+
     if (helper.isPlainObject(key)) {
       var props = key;
 
@@ -1729,10 +1742,8 @@
       return;
     }
 
-    if (this.constructor.attributeKeys().indexOf(key) === -1)
+    if (attributeKeys.indexOf(key) === -1)
       return;
-
-    var component = this.component;
 
     if (typeof value === 'undefined')
       return component[key]();
