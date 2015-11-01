@@ -1988,10 +1988,6 @@
     return link.wrapper;
   };
 
-  CmapModule._ = {
-    Cmap: Cmap
-  };
-
   if (typeof module !== 'undefined' && module.exports)
     module.exports = CmapModule;
   else
