@@ -1,9 +1,42 @@
 var assert = require('assert');
-var Cmap = require('../cmap.js')._.Cmap;
+var sinon = require('sinon');
+var Cmap = require('../cmap.js');
 
 describe('Cmap', function() {
-  it('#createNode', function() {
-    var cmap = new Cmap();
+  var cmap;
+
+  beforeEach(function() {
+    cmap = Cmap();
+  });
+
+  it('#node', function() {
+    assert.doesNotThrow(function() { cmap.node(); });
+    assert.doesNotThrow(function() { cmap.node({}); });
+  });
+
+  it('#link', function() {
+    assert.doesNotThrow(function() { cmap.link(); });
+    assert.doesNotThrow(function() { cmap.link({}); });
+  });
+});
+
+describe('Node', function() {
+  var cmap;
+  var cmapComponent;
+
+  before(function() {
+    // for internal access
+    Cmap.prototype._component = function() {
+      return this.component;
+    };
+  });
+
+  beforeEach(function() {
+    cmap = Cmap();
+    cmapComponent = cmap._component();
+  });
+
+  describe('#attr', function() {
     var props = {
       content: 'node',
       contentType: 'html',
@@ -16,20 +49,106 @@ describe('Cmap', function() {
       borderWidth: 4,
       textColor: 'black'
     };
-    var node = cmap.createNode(props);
-    for (var key in props) {
-      assert.equal(node[key](), props[key]);
-    }
-    node = cmap.createNode();
-    for (var key in props) {
-      var value = props[key];
-      node[key](value);
-      assert.equal(node[key](), value);
-    }
+
+    it('attr()', function() {
+      var node = cmap.node(props);
+      assert.deepEqual(node.attr(), props);
+    });
+
+    it('attr(key)', function() {
+      var node = cmap.node(props);
+      for (var key in props) {
+        assert.equal(node.attr(key), props[key]);
+      }
+    });
+
+    it('attr(key, value)', function() {
+      var node = cmap.node();
+      for (var key in props) {
+        node.attr(key, props[key]);
+      }
+      assert.deepEqual(node.attr(), props);
+    });
+
+    it('attr(props)', function() {
+      var node = cmap.node();
+      node.attr(props);
+      assert.deepEqual(node.attr(), props);
+    });
   });
 
-  it('#createLink', function() {
-    var cmap = new Cmap();
+  it('#remove', function() {
+    var node = cmap.node();
+    var nodeComponent = node(cmapComponent).component;
+    cmapComponent.remove = sinon.spy();
+    node.remove();
+    assert(cmapComponent.remove.calledWith(nodeComponent));
+  });
+
+  it('#toFront', function() {
+    var node = cmap.node();
+    var nodeComponent = node(cmapComponent).component;
+    cmapComponent.toFront = sinon.spy();
+    node.toFront();
+    assert(cmapComponent.toFront.calledWith(nodeComponent));
+  });
+
+  it('#element', function() {
+    var node = cmap.node();
+    var nodeComponent = node(cmapComponent).component;
+    var dummy = {};
+    nodeComponent.element = sinon.spy(function() {
+      return dummy;
+    });
+    assert.strictEqual(node.element(), dummy);
+  });
+
+  it('#redraw', function() {
+    var node = cmap.node();
+    var nodeComponent = node(cmapComponent).component;
+    nodeComponent.redraw = sinon.spy();
+    node.redraw();
+    assert(nodeComponent.redraw.called);
+  });
+
+  describe('#draggable', function() {
+    it('draggable()', function() {
+      var node = cmap.node();
+      assert.equal(node.draggable(), true);
+      node.draggable(false);
+      assert.equal(node.draggable(), false);
+    });
+
+    it('draggable(enabled)', function() {
+      var node = cmap.node();
+      var nodeComponent = node(cmapComponent).component;
+      cmapComponent.enableDrag = sinon.spy();
+      node.draggable(true);
+      assert(cmapComponent.enableDrag.calledWith(nodeComponent));
+      cmapComponent.disableDrag = sinon.spy();
+      node.draggable(false);
+      assert(cmapComponent.disableDrag.calledWith(nodeComponent));
+    });
+  });
+});
+
+describe('Link', function() {
+  var cmap;
+  var cmapComponent;
+
+  before(function() {
+    // for internal access
+    Cmap.prototype._component = function() {
+      return this.component;
+    };
+  });
+
+  beforeEach(function() {
+    cmap = Cmap();
+    cmapComponent = cmap._component();
+  });
+
+  describe('#attr', function() {
     var props = {
       content: 'link',
       contentType: 'html',
@@ -49,142 +168,187 @@ describe('Cmap', function() {
       lineWidth: 4,
       hasArrow: true
     };
-    var link = cmap.createLink(props);
-    for (var key in props) {
-      assert.equal(link[key](), props[key]);
-    }
-    link = cmap.createLink();
-    for (var key in props) {
-      var value = props[key];
-      link[key](value);
-      assert.equal(link[key](), value);
-    }
-  });
 
-  it('#add', function() {
-    var cmap = new Cmap();
-    var node = cmap.createNode();
-    var link = cmap.createLink();
-    cmap.element({});
-    cmap.add(node);
-    cmap.add(link);
-    assert.equal(node.parentElement(), cmap.element());
-    assert.equal(link.parentElement(), cmap.element());
+    it('attr()', function() {
+      var link = cmap.link(props);
+      assert.deepEqual(link.attr(), props);
+    });
+
+    it('attr(key)', function() {
+      var link = cmap.link(props);
+      for (var key in props) {
+        assert.equal(link.attr(key), props[key]);
+      }
+    });
+
+    it('attr(key, value)', function() {
+      var link = cmap.link();
+      for (var key in props) {
+        link.attr(key, props[key]);
+      }
+      assert.deepEqual(link.attr(), props);
+    });
+
+    it('attr(props)', function() {
+      var link = cmap.link();
+      link.attr(props);
+      assert.deepEqual(link.attr(), props);
+    });
   });
 
   it('#remove', function() {
-    var cmap = new Cmap();
-    var node = cmap.createNode();
-    var link = cmap.createLink();
-    cmap.element({});
-    cmap.add(node);
-    cmap.add(link);
-    cmap.remove(node);
-    cmap.remove(link);
-    assert.equal(node.parentElement(), null);
-    assert.equal(link.parentElement(), null);
+    var link = cmap.link();
+    var linkComponent = link(cmapComponent).component;
+    cmapComponent.remove = sinon.spy();
+    link.remove();
+    assert(cmapComponent.remove.calledWith(linkComponent));
   });
 
-  it('#remove - connection', function() {
-    var cmap = new Cmap();
-    var link = cmap.createLink();
-    var sourceNode = cmap.createNode();
-    var targetNode = cmap.createNode();
-    cmap.connect(Cmap.CONNECTION_TYPE_SOURCE, sourceNode, link);
-    cmap.connect(Cmap.CONNECTION_TYPE_TARGET, targetNode, link);
-    cmap.remove(sourceNode);
-    var triple = link.relations()[0];
-    assert.equal(triple.sourceNode(), null);
-    cmap.remove(link);
-    assert.equal(targetNode.relations().length, 0);
+  it('#toFront', function() {
+    var link = cmap.link();
+    var linkComponent = link(cmapComponent).component;
+    cmapComponent.toFront = sinon.spy();
+    link.toFront();
+    assert(cmapComponent.toFront.calledWith(linkComponent));
   });
 
-  it('#connect', function() {
-    var cmap = new Cmap();
-    var link = cmap.createLink();
-    var sourceNode = cmap.createNode();
-    var targetNode = cmap.createNode();
-    var linkRelations = link.relations();
-    var sourceNodeRelations = sourceNode.relations();
-    var targetNodeRelations = targetNode.relations();
-    cmap.connect(Cmap.CONNECTION_TYPE_SOURCE, sourceNode, link);
-    var triple = sourceNodeRelations[0];
-    assert.equal(triple, linkRelations[0]);
-    assert.equal(triple.sourceNode(), sourceNode);
-    assert.equal(triple.link(), link);
-    assert.equal(triple.targetNode(), null);
-    cmap.connect(Cmap.CONNECTION_TYPE_TARGET, targetNode, link);
-    assert.equal(triple, targetNodeRelations[0]);
-    assert.equal(triple.targetNode(), targetNode);
+  it('#element', function() {
+    var link = cmap.link();
+    var linkComponent = link(cmapComponent).component;
+    var dummy = {};
+    linkComponent.element = sinon.spy(function() {
+      return dummy;
+    });
+    assert.strictEqual(link.element(), dummy);
   });
 
-  it('#disconnect', function() {
-    var cmap = new Cmap();
-    var node = cmap.createNode();
-    var link = cmap.createLink();
-    cmap.connect(Cmap.CONNECTION_TYPE_SOURCE, node, link);
-    cmap.disconnect(Cmap.CONNECTION_TYPE_SOURCE, node, link);
-    assert.equal(node.relations().length, 0);
-    assert.equal(link.relations().length, 0);
+  it('#redraw', function() {
+    var link = cmap.link();
+    var linkComponent = link(cmapComponent).component;
+    linkComponent.redraw = sinon.spy();
+    link.redraw();
+    assert(linkComponent.redraw.called);
   });
 
-  it('#showConnector', function() {
-    var cmap = new Cmap();
-    var link = cmap.createLink();
-    var linkRelations = link.relations();
-    cmap.showConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
-    cmap.showConnector(Cmap.CONNECTION_TYPE_TARGET, link);
-    assert.equal(linkRelations.length, 2);
-    assert.equal(linkRelations[0].link(), link);
-    assert.equal(linkRelations[1].link(), link);
-    cmap.showConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
-    assert.equal(linkRelations.length, 2);
+  describe('#draggable', function() {
+    it('draggable()', function() {
+      var link = cmap.link();
+      assert.equal(link.draggable(), true);
+      link.draggable(false);
+      assert.equal(link.draggable(), false);
+    });
+
+    it('draggable(enabled)', function() {
+      var link = cmap.link();
+      var linkComponent = link(cmapComponent).component;
+      cmapComponent.enableDrag = sinon.spy();
+      link.draggable(true);
+      assert(cmapComponent.enableDrag.calledWith(linkComponent));
+      cmapComponent.disableDrag = sinon.spy();
+      link.draggable(false);
+      assert(cmapComponent.disableDrag.calledWith(linkComponent));
+    });
   });
 
-  it('#hideConnector', function() {
-    var cmap = new Cmap();
-    var link = cmap.createLink();
-    var linkRelations = link.relations();
-    cmap.showConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
-    cmap.showConnector(Cmap.CONNECTION_TYPE_TARGET, link);
-    cmap.hideConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
-    assert.equal(linkRelations.length, 1);
+  describe('#sourceNode', function() {
+    it('sourceNode()', function() {
+      var link = cmap.link();
+      var node = cmap.node();
+      assert.equal(link.sourceNode(), null);
+      link.sourceNode(node);
+      assert.equal(link.sourceNode(), node);
+    });
+
+    it('sourceNode(node)', function() {
+      var link = cmap.link();
+      var node = cmap.node();
+      var linkComponent = link(cmapComponent).component;
+      var nodeComponent = node(cmapComponent).component;
+      cmapComponent.connect = sinon.spy();
+      link.sourceNode(node);
+      assert(cmapComponent.connect.calledWith('source', nodeComponent, linkComponent));
+    });
+
+    it('sourceNode(null)', function() {
+      var link = cmap.link();
+      var node = cmap.node();
+      var linkComponent = link(cmapComponent).component;
+      var nodeComponent = node(cmapComponent).component;
+      link.sourceNode(node);
+      cmapComponent.disconnect = sinon.spy();
+      link.sourceNode(null);
+      assert(cmapComponent.disconnect.calledWith('source', nodeComponent, linkComponent));
+    });
   });
 
-  it('#enableConnector', function() {
-    var cmap = new Cmap();
-    var link = cmap.createLink();
-    var disabledConnectorList = cmap.disabledConnectorList();
-    cmap.disableConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
-    cmap.enableConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
-    assert(!disabledConnectorList.contains(Cmap.CONNECTION_TYPE_SOURCE, link));
+  describe('#targetNode', function() {
+    it('targetNode()', function() {
+      var link = cmap.link();
+      var node = cmap.node();
+      assert.equal(link.targetNode(), null);
+      link.targetNode(node);
+      assert.equal(link.targetNode(), node);
+    });
+
+    it('targetNode(node)', function() {
+      var link = cmap.link();
+      var node = cmap.node();
+      var linkComponent = link(cmapComponent).component;
+      var nodeComponent = node(cmapComponent).component;
+      cmapComponent.connect = sinon.spy();
+      link.targetNode(node);
+      assert(cmapComponent.connect.calledWith('target', nodeComponent, linkComponent));
+    });
+
+    it('targetNode(null)', function() {
+      var link = cmap.link();
+      var node = cmap.node();
+      var linkComponent = link(cmapComponent).component;
+      var nodeComponent = node(cmapComponent).component;
+      link.targetNode(node);
+      cmapComponent.disconnect = sinon.spy();
+      link.targetNode(null);
+      assert(cmapComponent.disconnect.calledWith('target', nodeComponent, linkComponent));
+    });
   });
 
-  it('#disableConnector', function() {
-    var cmap = new Cmap();
-    var link = cmap.createLink();
-    var linkRelations = link.relations();
-    var disabledConnectorList = cmap.disabledConnectorList();
-    cmap.disableConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
-    assert(disabledConnectorList.contains(Cmap.CONNECTION_TYPE_SOURCE, link));
-    cmap.showConnector(Cmap.CONNECTION_TYPE_SOURCE, link);
-    assert.equal(linkRelations.length, 0);
+  describe('#sourceConnectorEnabled', function() {
+    it('sourceConnectorEnabled()', function() {
+      var link = cmap.link();
+      assert.equal(link.sourceConnectorEnabled(), true);
+      link.sourceConnectorEnabled(false);
+      assert.equal(link.sourceConnectorEnabled(), false);
+    });
+
+    it('sourceConnectorEnabled(enabled)', function() {
+      var link = cmap.link();
+      var linkComponent = link(cmapComponent).component;
+      cmapComponent.enableConnector = sinon.spy();
+      link.sourceConnectorEnabled(true);
+      assert(cmapComponent.enableConnector.calledWith('source', linkComponent));
+      cmapComponent.disableConnector = sinon.spy();
+      link.sourceConnectorEnabled(false);
+      assert(cmapComponent.disableConnector.calledWith('source', linkComponent));
+    });
   });
 
-  it('#enableDrag', function() {
-    var cmap = new Cmap();
-    var node = cmap.createNode();
-    var dragDisabledComponentList = cmap.dragDisabledComponentList();
-    cmap.disableDrag(node);
-    cmap.enableDrag(node);
-    assert(!dragDisabledComponentList.contains(node));
-  });
+  describe('#targetConnectorEnabled', function() {
+    it('targetConnectorEnabled()', function() {
+      var link = cmap.link();
+      assert.equal(link.targetConnectorEnabled(), true);
+      link.targetConnectorEnabled(false);
+      assert.equal(link.targetConnectorEnabled(), false);
+    });
 
-  it('#disableDrag', function() {
-    var cmap = new Cmap();
-    var node = cmap.createNode();
-    var dragDisabledComponentList = cmap.dragDisabledComponentList();
-    cmap.disableDrag(node);
-    assert(dragDisabledComponentList.contains(node));
+    it('targetConnectorEnabled(enabled)', function() {
+      var link = cmap.link();
+      var linkComponent = link(cmapComponent).component;
+      cmapComponent.enableConnector = sinon.spy();
+      link.targetConnectorEnabled(true);
+      assert(cmapComponent.enableConnector.calledWith('target', linkComponent));
+      cmapComponent.disableConnector = sinon.spy();
+      link.targetConnectorEnabled(false);
+      assert(cmapComponent.disableConnector.calledWith('target', linkComponent));
+    });
   });
 });
