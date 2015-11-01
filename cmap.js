@@ -85,7 +85,7 @@
     var proto = obj.constructor.prototype;
 
     for (var key in proto) {
-      wrapper[key] = proto[key].bind(obj);
+      wrapper[key] = this.chain(proto[key], obj);
     }
 
     return wrapper;
@@ -94,6 +94,17 @@
   Wrapper.prototype.unwrap = function(key) {
     if (this.key === key)
         return this.obj;
+  };
+
+  Wrapper.prototype.chain = function(func, ctx) {
+    return function() {
+      var ret = func.apply(ctx, arguments);
+
+      if (typeof ret === 'undefined')
+        return this;
+
+      return ret;
+    };
   };
 
   var dom = {};
