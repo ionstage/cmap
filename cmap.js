@@ -1178,9 +1178,6 @@
   };
 
   var Cmap = helper.inherits(function(rootElement) {
-    if (!(this instanceof Cmap))
-      return new Cmap(rootElement);
-
     this.componentList = this.prop(new ComponentList());
     this.disabledConnectorList = this.prop(new DisabledConnectorList());
     this.dragDisabledComponentList = this.prop(new ComponentList());
