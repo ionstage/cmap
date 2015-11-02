@@ -7,6 +7,13 @@
     return !isNaN(value) ? +value : defaultValue;
   };
 
+  helper.toContentType = function(value, defaultValue) {
+    if (value === helper.CONTENT_TYPE_TEXT || value === helper.CONTENT_TYPE_HTML)
+      return value;
+
+    return defaultValue;
+  };
+
   helper.isPlainObject = function(obj) {
     return (typeof obj === 'object' && obj !== null &&
             Object.prototype.toString.call(obj) === '[object Object]');
@@ -364,7 +371,7 @@
 
   var Node = helper.inherits(function(props) {
     this.content = this.prop(props.content || '');
-    this.contentType = this.prop(props.contentType || helper.CONTENT_TYPE_TEXT);
+    this.contentType = this.prop(helper.toContentType(props.contentType, helper.CONTENT_TYPE_TEXT));
     this.x = this.prop(helper.toNumber(props.x, 0));
     this.y = this.prop(helper.toNumber(props.y, 0));
     this.width = this.prop(helper.toNumber(props.width, 75));
@@ -493,7 +500,7 @@
 
   var Link = helper.inherits(function(props) {
     this.content = this.prop(props.content || '');
-    this.contentType = this.prop(props.contentType || helper.CONTENT_TYPE_TEXT);
+    this.contentType = this.prop(helper.toContentType(props.contentType, helper.CONTENT_TYPE_TEXT));
     this.cx = this.prop(helper.toNumber(props.cx, 100));
     this.cy = this.prop(helper.toNumber(props.cy, 40));
     this.width = this.prop(helper.toNumber(props.width, 50));
