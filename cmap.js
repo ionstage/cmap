@@ -1201,18 +1201,12 @@
   };
 
   Cmap.prototype.add = function(component) {
-    if (!component)
-      throw new TypeError('Not enough arguments');
-
     component.parentElement(this.element());
     this.componentList().add(component);
     this.updateZIndex();
   };
 
   Cmap.prototype.remove = function(component) {
-    if (!component)
-      throw new TypeError('Not enough arguments');
-
     component.parentElement(null);
 
     if (component instanceof Link)
@@ -1224,9 +1218,6 @@
   };
 
   Cmap.prototype.toFront = function(component) {
-    if (!component)
-      throw new TypeError('Not enough arguments');
-
     this.componentList().toFront(component);
     this.updateZIndex();
   };
@@ -1251,9 +1242,6 @@
   };
 
   Cmap.prototype.connect = function(type, node, link) {
-    if (!node || !link)
-      throw new TypeError('Not enough arguments');
-
     var linkRelations = link.relations();
     var triple = helper.firstInstance(linkRelations, Triple);
     var nodeKey = type + 'Node';
@@ -1314,9 +1302,6 @@
       return;
     }
 
-    if (!node || !link)
-      throw new TypeError('Not enough arguments');
-
     var linkRelations = link.relations();
     var triple = helper.firstInstance(linkRelations, Triple);
     var nodeKey = type + 'Node';
@@ -1345,9 +1330,6 @@
   };
 
   Cmap.prototype.connectedNode = function(type, link) {
-    if (!link)
-      throw new TypeError('Not enough arguments');
-
     var triple = helper.firstInstance(link.relations(), Triple);
 
     if (!triple)
@@ -1357,9 +1339,6 @@
   };
 
   Cmap.prototype.showConnector = function(type, link) {
-    if (!link)
-      throw new TypeError('Not enough arguments');
-
     if (this.connectorVisible(type, link))
       return;
 
@@ -1402,9 +1381,6 @@
   };
 
   Cmap.prototype.hideConnector = function(type, link) {
-    if (!link)
-      throw new TypeError('Not enough arguments');
-
     var linkRelations = link.relations();
 
     for (var i = linkRelations.length - 1; i >= 0; i--) {
@@ -1441,16 +1417,10 @@
   };
 
   Cmap.prototype.enableConnector = function(type, link) {
-    if (!link)
-      throw new TypeError('Not enough arguments');
-
     this.disabledConnectorList().remove(type, link);
   };
 
   Cmap.prototype.disableConnector = function(type, link) {
-    if (!link)
-      throw new TypeError('Not enough arguments');
-
     // remove showing connector
     this.hideConnector(type, link);
 
@@ -1458,30 +1428,18 @@
   };
 
   Cmap.prototype.connectorEnabled = function(type, link) {
-    if (!link)
-      throw new TypeError('Not enough arguments');
-
     return !this.disabledConnectorList().contains(type, link);
   };
 
   Cmap.prototype.enableDrag = function(component) {
-    if (!component)
-      throw new TypeError('Not enough arguments');
-
     this.dragDisabledComponentList().remove(component);
   };
 
   Cmap.prototype.disableDrag = function(component) {
-    if (!component)
-      throw new TypeError('Not enough arguments');
-
     this.dragDisabledComponentList().add(component);
   };
 
   Cmap.prototype.dragEnabled = function(component) {
-    if (!component)
-      throw new TypeError('Not enough arguments');
-
     return !this.dragDisabledComponentList().contains(component);
   };
 
