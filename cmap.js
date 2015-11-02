@@ -1934,6 +1934,9 @@
   };
 
   CmapModule.prototype.node = function(props) {
+    if (typeof props !== 'undefined' && !helper.isPlainObject(props))
+      throw TypeError('Type error');
+
     var node = new NodeModule(props, this);
 
     this.component.add(node.component);
@@ -1943,6 +1946,9 @@
   };
 
   CmapModule.prototype.link = function(props) {
+    if (typeof props !== 'undefined' && !helper.isPlainObject(props))
+      throw TypeError('Type error');
+
     var link = new LinkModule(props, this);
 
     this.component.add(link.component);

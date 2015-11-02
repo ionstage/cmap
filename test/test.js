@@ -12,11 +12,19 @@ describe('Cmap', function() {
   it('#node', function() {
     assert.doesNotThrow(function() { cmap.node(); });
     assert.doesNotThrow(function() { cmap.node({}); });
+    assert.throws(function() { cmap.node(null); }, TypeError);
+    assert.throws(function() { cmap.node('a'); }, TypeError);
+    assert.throws(function() { cmap.node(1); }, TypeError);
+    assert.throws(function() { cmap.node([]); }, TypeError);
   });
 
   it('#link', function() {
     assert.doesNotThrow(function() { cmap.link(); });
     assert.doesNotThrow(function() { cmap.link({}); });
+    assert.throws(function() { cmap.link(null); }, TypeError);
+    assert.throws(function() { cmap.link('a'); }, TypeError);
+    assert.throws(function() { cmap.link(1); }, TypeError);
+    assert.throws(function() { cmap.link([]); }, TypeError);
   });
 });
 
