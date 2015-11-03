@@ -37,9 +37,42 @@
     return ctor;
   };
 
-  helper.wrap = function(obj, key) {
-    return new Wrapper(obj, key);
-  };
+  helper.wrap = (function() {
+    var Wrapper = function(obj, key) {
+      this.obj = obj;
+      this.key = key;
+
+      var wrapper = this.unwrap.bind(this);
+
+      var proto = obj.constructor.prototype;
+
+      for (var key in proto) {
+        wrapper[key] = this.chain(proto[key], obj);
+      }
+
+      return wrapper;
+    };
+
+    Wrapper.prototype.unwrap = function(key) {
+      if (this.key === key)
+          return this.obj;
+    };
+
+    Wrapper.prototype.chain = function(func, ctx) {
+      return function() {
+        var ret = func.apply(ctx, arguments);
+
+        if (typeof ret === 'undefined')
+          return this;
+
+        return ret;
+      };
+    };
+
+    return function(obj, key) {
+      return new Wrapper(obj, key);
+    };
+  })();
 
   helper.deactivate = function(obj) {
     for (var key in obj) {
@@ -128,37 +161,6 @@
 
   helper.CONTENT_TYPE_TEXT = 'text';
   helper.CONTENT_TYPE_HTML = 'html';
-
-  var Wrapper = function(obj, key) {
-    this.obj = obj;
-    this.key = key;
-
-    var wrapper = this.unwrap.bind(this);
-
-    var proto = obj.constructor.prototype;
-
-    for (var key in proto) {
-      wrapper[key] = this.chain(proto[key], obj);
-    }
-
-    return wrapper;
-  };
-
-  Wrapper.prototype.unwrap = function(key) {
-    if (this.key === key)
-        return this.obj;
-  };
-
-  Wrapper.prototype.chain = function(func, ctx) {
-    return function() {
-      var ret = func.apply(ctx, arguments);
-
-      if (typeof ret === 'undefined')
-        return this;
-
-      return ret;
-    };
-  };
 
   var dom = {};
 
