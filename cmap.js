@@ -7,6 +7,10 @@
     return !isNaN(value) ? +value : defaultValue;
   };
 
+  helper.toString = function(value, defaultValue) {
+    return (typeof value !== 'undefined') ? '' + value : defaultValue;
+  };
+
   helper.toContentType = function(value, defaultValue) {
     if (value === helper.CONTENT_TYPE_TEXT || value === helper.CONTENT_TYPE_HTML)
       return value;
@@ -78,6 +82,10 @@
     });
 
     return ret;
+  };
+
+  helper.identity = function(value) {
+    return value;
   };
 
   helper.CONTENT_TYPE_TEXT = 'text';
@@ -306,8 +314,11 @@
 
   var Component = function() {};
 
-  Component.prototype.prop = function(initialValue) {
-    var cache = initialValue;
+  Component.prototype.prop = function(initialValue, defaultValue, converter) {
+    if (typeof converter !== 'function')
+      converter = helper.identity;
+
+    var cache = converter(initialValue, defaultValue);
 
     return function(value) {
       if (typeof value === 'undefined')
@@ -316,7 +327,7 @@
       if (value === cache)
         return;
 
-      cache = value;
+      cache = converter(value, cache);
       this.markDirty();
     };
   };
@@ -370,16 +381,16 @@
   })();
 
   var Node = helper.inherits(function(props) {
-    this.content = this.prop(props.content || '');
-    this.contentType = this.prop(helper.toContentType(props.contentType, helper.CONTENT_TYPE_TEXT));
-    this.x = this.prop(helper.toNumber(props.x, 0));
-    this.y = this.prop(helper.toNumber(props.y, 0));
-    this.width = this.prop(helper.toNumber(props.width, 75));
-    this.height = this.prop(helper.toNumber(props.height, 30));
-    this.backgroundColor = this.prop(props.backgroundColor || '#a7cbe6');
-    this.borderColor = this.prop(props.borderColor || '#333');
-    this.borderWidth = this.prop(helper.toNumber(props.borderWidth, 2));
-    this.textColor = this.prop(props.textColor || '#333');
+    this.content = this.prop(props.content, '', helper.toString);
+    this.contentType = this.prop(props.contentType, helper.CONTENT_TYPE_TEXT, helper.toContentType);
+    this.x = this.prop(props.x, 0, helper.toNumber);
+    this.y = this.prop(props.y, 0, helper.toNumber);
+    this.width = this.prop(props.width, 75, helper.toNumber);
+    this.height = this.prop(props.height, 30, helper.toNumber);
+    this.backgroundColor = this.prop(props.backgroundColor, '#a7cbe6', helper.toString);
+    this.borderColor = this.prop(props.borderColor, '#333', helper.toString);
+    this.borderWidth = this.prop(props.borderWidth, 2, helper.toNumber);
+    this.textColor = this.prop(props.textColor, '#333', helper.toString);
     this.zIndex = this.prop('auto');
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
@@ -499,23 +510,23 @@
   };
 
   var Link = helper.inherits(function(props) {
-    this.content = this.prop(props.content || '');
-    this.contentType = this.prop(helper.toContentType(props.contentType, helper.CONTENT_TYPE_TEXT));
-    this.cx = this.prop(helper.toNumber(props.cx, 100));
-    this.cy = this.prop(helper.toNumber(props.cy, 40));
-    this.width = this.prop(helper.toNumber(props.width, 50));
-    this.height = this.prop(helper.toNumber(props.height, 20));
-    this.backgroundColor = this.prop(props.backgroundColor || 'white');
-    this.borderColor = this.prop(props.borderColor || '#333');
-    this.borderWidth = this.prop(helper.toNumber(props.borderWidth, 2));
-    this.textColor = this.prop(props.textColor || '#333');
-    this.sourceX = this.prop(helper.toNumber(props.sourceX, this.cx() - 70));
-    this.sourceY = this.prop(helper.toNumber(props.sourceY, this.cy()));
-    this.targetX = this.prop(helper.toNumber(props.targetX, this.cx() + 70));
-    this.targetY = this.prop(helper.toNumber(props.targetY, this.cy()));
-    this.lineColor = this.prop(props.lineColor || '#333');
-    this.lineWidth = this.prop(helper.toNumber(props.lineWidth, 2));
-    this.hasArrow = this.prop(!!props.hasArrow);
+    this.content = this.prop(props.content, '', helper.toString);
+    this.contentType = this.prop(props.contentType, helper.CONTENT_TYPE_TEXT, helper.toContentType);
+    this.cx = this.prop(props.cx, 100, helper.toNumber);
+    this.cy = this.prop(props.cy, 40, helper.toNumber);
+    this.width = this.prop(props.width, 50, helper.toNumber);
+    this.height = this.prop(props.height, 20, helper.toNumber);
+    this.backgroundColor = this.prop(props.backgroundColor, 'white', helper.toString);
+    this.borderColor = this.prop(props.borderColor, '#333', helper.toString);
+    this.borderWidth = this.prop(props.borderWidth, 2, helper.toNumber);
+    this.textColor = this.prop(props.textColor, '#333', helper.toString);
+    this.sourceX = this.prop(props.sourceX, this.cx() - 70, helper.toNumber);
+    this.sourceY = this.prop(props.sourceY, this.cy(), helper.toNumber);
+    this.targetX = this.prop(props.targetX, this.cx() + 70, helper.toNumber);
+    this.targetY = this.prop(props.targetY, this.cy(), helper.toNumber);
+    this.lineColor = this.prop(props.lineColor, '#333', helper.toString);
+    this.lineWidth = this.prop(props.lineWidth, 2, helper.toNumber);
+    this.hasArrow = this.prop(props.hasArrow, false, Boolean);
     this.zIndex = this.prop('auto');
     this.element = this.prop(null);
     this.parentElement = this.prop(null);

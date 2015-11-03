@@ -83,6 +83,34 @@ describe('Node', function() {
       node.attr(props);
       assert.deepEqual(node.attr(), props);
     });
+
+    it('validate type of value', function() {
+      var node = cmap.node(props);
+      node.attr({
+        content: 1,
+        contentType: 1,
+        x: '200',
+        y: '300',
+        width: '220',
+        height: '145',
+        backgroundColor: 1,
+        borderColor: 1,
+        borderWidth: '8',
+        textColor: 1
+      });
+      assert.deepStrictEqual(node.attr(), {
+        content: '1',
+        contentType: 'html',
+        x: 200,
+        y: 300,
+        width: 220,
+        height: 145,
+        backgroundColor: '1',
+        borderColor: '1',
+        borderWidth: 8,
+        textColor: '1'
+      });
+    });
   });
 
   it('#remove', function() {
@@ -201,6 +229,48 @@ describe('Link', function() {
       var link = cmap.link();
       link.attr(props);
       assert.deepEqual(link.attr(), props);
+    });
+
+    it('validate type of value', function() {
+      var link = cmap.link(props);
+      link.attr({
+        content: 1,
+        contentType: 1,
+        cx: '200',
+        cy: '300',
+        width: '320',
+        height: '145',
+        backgroundColor: 1,
+        borderColor: 1,
+        borderWidth: '8',
+        textColor: 1,
+        sourceX: '150',
+        sourceY: '200',
+        targetX: '250',
+        targetY: '400',
+        lineColor: 1,
+        lineWidth: '8',
+        hasArrow: 1
+      });
+      assert.deepStrictEqual(link.attr(), {
+        content: '1',
+        contentType: 'html',
+        cx: 200,
+        cy: 300,
+        width: 320,
+        height: 145,
+        backgroundColor: '1',
+        borderColor: '1',
+        borderWidth: 8,
+        textColor: '1',
+        sourceX: 150,
+        sourceY: 200,
+        targetX: 250,
+        targetY: 400,
+        lineColor: '1',
+        lineWidth: 8,
+        hasArrow: true
+      });
     });
   });
 
