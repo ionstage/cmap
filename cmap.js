@@ -593,10 +593,49 @@
   Link.prototype.contains = function(x, y) {
     var lwidth = this.width();
     var lheight = this.height();
-    var lx = this.cx() - lwidth / 2;
-    var ly = this.cy() - lheight / 2;
+    var lcx = this.cx();
+    var lcy = this.cy();
+    var lx = lcx - lwidth / 2;
+    var ly = lcy - lheight / 2;
 
-    return (lx <= x && x <= lx + lwidth && ly <= y && y <= ly + lheight);
+    // content area
+    if (lx <= x && x <= lx + lwidth && ly <= y && y <= ly + lheight)
+      return true;
+
+    var lineWidth = this.lineWidth();
+
+    // source path
+    if (this.containsPath(this.sourceX(), this.sourceY(), lcx, lcy, x, y, lineWidth / 2))
+      return true;
+
+    // target path
+    if (this.containsPath(this.targetX(), this.targetY(), lcx, lcy, x, y, lineWidth / 2))
+      return true;
+
+    return false;
+  };
+
+  Link.prototype.containsPath = function(x0, y0, x1, y1, x, y, d) {
+    var ax = x1 - x0;
+    var ay = y1 - y0;
+
+    var bx = x - x0;
+    var by = y - y0;
+
+    var r = (ax * bx + ay * by) / (ax * ax + ay * ay);
+
+    if (0 <= r && r <= 1) {
+      var px = x0 + r * ax;
+      var py = y0 + r * ay;
+
+      var dx = px - x;
+      var dy = py - y;
+
+      if (dx * dx + dy * dy <= d * d)
+        return true;
+    }
+
+    return false;
   };
 
   Link.prototype.style = function() {
