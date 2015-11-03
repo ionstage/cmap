@@ -119,6 +119,10 @@
       return a === b;
     };
 
+    List.prototype.toArray = function() {
+      return this.data.slice();
+    };
+
     return List;
   })();
 
@@ -1149,10 +1153,6 @@
     ComponentList.super_.call(this);
   }, helper.List);
 
-  ComponentList.prototype.forEach = function(callback) {
-    return this.data.forEach(callback);
-  };
-
   ComponentList.prototype.toFront = function(component) {
     var data = this.data;
     var index = data.indexOf(component);
@@ -1249,7 +1249,7 @@
   };
 
   Cmap.prototype.updateZIndex = function() {
-    this.componentList().forEach(function(component, index) {
+    this.componentList().toArray().forEach(function(component, index) {
       if (component instanceof Connector)
         return;
 
@@ -1436,7 +1436,7 @@
   };
 
   Cmap.prototype.hideAllConnectors = function() {
-    this.componentList().forEach(function(component) {
+    this.componentList().toArray().forEach(function(component) {
       if (component instanceof Link)
         this.hideConnectors(component);
     }.bind(this));
@@ -1685,7 +1685,7 @@
     dom.draggable(element, this.onstart.bind(this), this.onmove.bind(this), this.onend.bind(this));
     this.element(element);
 
-    this.componentList().forEach(function(component) {
+    this.componentList().toArray().forEach(function(component) {
       component.parentElement(element);
     });
 
