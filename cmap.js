@@ -88,6 +88,40 @@
     return value;
   };
 
+  helper.List = (function() {
+    var List = function() {
+      this.data = [];
+    };
+
+    List.prototype.add = function(item) {
+      if (!this.contains(item))
+        this.data.push(item);
+    };
+
+    List.prototype.remove = function(item) {
+      var data = this.data;
+
+      for (var i = data.length - 1; i >= 0; i--) {
+        if (this.equal(data[i], item)) {
+          data.splice(i, 1);
+          break;
+        }
+      }
+    };
+
+    List.prototype.contains = function(item) {
+      return this.data.some(function(dataItem) {
+        return this.equal(dataItem, item);
+      }.bind(this));
+    };
+
+    List.prototype.equal = function(a, b) {
+      return a === b;
+    };
+
+    return List;
+  })();
+
   helper.CONTENT_TYPE_TEXT = 'text';
   helper.CONTENT_TYPE_HTML = 'html';
 
@@ -1111,28 +1145,9 @@
     }
   };
 
-  var ComponentList = function() {
-    this.data = [];
-  };
-
-  ComponentList.prototype.add = function(component) {
-    var data = this.data;
-
-    if (data.indexOf(component) === -1)
-      data.push(component);
-  };
-
-  ComponentList.prototype.remove = function(component) {
-    var data = this.data;
-    var index = data.indexOf(component);
-
-    if (index !== -1)
-      data.splice(index, 1);
-  };
-
-  ComponentList.prototype.contains = function(component) {
-    return this.data.indexOf(component) !== -1;
-  };
+  var ComponentList = helper.inherits(function() {
+    ComponentList.super_.call(this);
+  }, helper.List);
 
   ComponentList.prototype.forEach = function(callback) {
     return this.data.forEach(callback);
@@ -1162,37 +1177,33 @@
     return null;
   };
 
-  var DisabledConnectorList = function() {
-    this.data = [];
-  };
+  var DisabledConnectorList = helper.inherits(function() {
+    DisabledConnectorList.super_.call(this);
+  }, helper.List);
 
   DisabledConnectorList.prototype.add = function(type, link) {
-    if (this.contains(type, link))
-      return;
-
-    this.data.push({
+    DisabledConnectorList.super_.prototype.add.call(this, {
       type: type,
       link: link
     });
   };
 
   DisabledConnectorList.prototype.remove = function(type, link) {
-    var data = this.data;
-
-    for (var i = data.length - 1; i >= 0; i--) {
-      var item = data[i];
-
-      if (item.type === type && item.link === link) {
-        data.splice(i, 1);
-        break;
-      }
-    }
+    DisabledConnectorList.super_.prototype.remove.call(this, {
+      type: type,
+      link: link
+    });
   };
 
   DisabledConnectorList.prototype.contains = function(type, link) {
-    return this.data.some(function(item) {
-      return item.type === type && item.link === link;
+    return DisabledConnectorList.super_.prototype.contains.call(this, {
+      type: type,
+      link: link
     });
+  };
+
+  DisabledConnectorList.prototype.equal = function(a, b) {
+    return a.type === b.type && a.link === b.link;
   };
 
   var Cmap = helper.inherits(function(rootElement) {
@@ -1902,24 +1913,9 @@
     }
   };
 
-  var NodeModuleList = function() {
-    this.data = [];
-  };
-
-  NodeModuleList.prototype.add = function(node) {
-    var data = this.data;
-
-    if (data.indexOf(node) === -1)
-      data.push(node);
-  };
-
-  NodeModuleList.prototype.remove = function(node) {
-    var data = this.data;
-    var index = data.indexOf(node);
-
-    if (index !== -1)
-      data.splice(index, 1);
-  };
+  var NodeModuleList = helper.inherits(function() {
+    NodeModuleList.super_.call(this);
+  }, helper.List);
 
   NodeModuleList.prototype.fromComponent = function(component) {
     var data = this.data;
