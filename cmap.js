@@ -463,13 +463,14 @@
     return (x0 <= ax1 && ax0 <= x1 && y0 <= ay1 && ay0 <= y1);
   };
 
-  Node.prototype.contains = function(x, y) {
+  Node.prototype.contains = function(x, y, tolerance) {
     var nx = this.x();
     var ny = this.y();
     var nwidth = this.width();
     var nheight = this.height();
 
-    return (nx <= x && x <= nx + nwidth && ny <= y && y <= ny + nheight);
+    return (nx - tolerance <= x && x <= nx + nwidth + tolerance &&
+            ny - tolerance <= y && y <= ny + nheight + tolerance);
   };
 
   Node.prototype.style = function() {
@@ -590,7 +591,7 @@
     this.targetY(ty);
   };
 
-  Link.prototype.contains = function(x, y) {
+  Link.prototype.contains = function(x, y, tolerance) {
     var lwidth = this.width();
     var lheight = this.height();
     var lcx = this.cx();
@@ -599,17 +600,19 @@
     var ly = lcy - lheight / 2;
 
     // content area
-    if (lx <= x && x <= lx + lwidth && ly <= y && y <= ly + lheight)
+    if (lx - tolerance <= x && x <= lx + lwidth + tolerance &&
+        ly - tolerance <= y && y <= ly + lheight + tolerance) {
       return true;
+    }
 
     var lineWidth = this.lineWidth();
 
     // source path
-    if (this.containsPath(this.sourceX(), this.sourceY(), lcx, lcy, x, y, lineWidth / 2))
+    if (this.containsPath(this.sourceX(), this.sourceY(), lcx, lcy, x, y, lineWidth / 2 + tolerance))
       return true;
 
     // target path
-    if (this.containsPath(this.targetX(), this.targetY(), lcx, lcy, x, y, lineWidth / 2))
+    if (this.containsPath(this.targetX(), this.targetY(), lcx, lcy, x, y, lineWidth / 2 + tolerance))
       return true;
 
     return false;
@@ -836,10 +839,10 @@
     return 18;
   };
 
-  Connector.prototype.contains = function(x, y) {
+  Connector.prototype.contains = function(x, y, tolerance) {
     var dx = x - this.x();
     var dy = y - this.y();
-    var r = this.r();
+    var r = this.r() + tolerance;
 
     return (dx * dx + dy * dy <= r * r);
   };
@@ -1207,15 +1210,22 @@
 
   ComponentList.prototype.fromPoint = function(ctor, x, y) {
     var data = this.data;
+    var closeComponent = null;
 
     for (var i = data.length - 1; i >= 0; i--) {
       var component = data[i];
 
-      if (component instanceof ctor && component.contains(x, y))
+      if (!(component instanceof ctor))
+        continue;
+
+      if (component.contains(x, y, 0))
         return component;
+
+      if (!closeComponent && component.contains(x, y, 4))
+        closeComponent = component;
     }
 
-    return null;
+    return closeComponent;
   };
 
   var DisabledConnectorList = helper.inherits(function() {
