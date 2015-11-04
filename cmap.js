@@ -836,7 +836,7 @@
   }, Component);
 
   Connector.prototype.r = function() {
-    return 18;
+    return 16;
   };
 
   Connector.prototype.contains = function(x, y, tolerance) {
