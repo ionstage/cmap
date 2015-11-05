@@ -197,6 +197,14 @@
     return el.getBoundingClientRect();
   };
 
+  dom.clientWidth = function(el) {
+    return el.clientWidth;
+  };
+
+  dom.clientHeight = function(el) {
+    return el.clientHeight;
+  };
+
   dom.scrollLeft = function(el) {
     return el.scrollLeft;
   };
@@ -1674,28 +1682,33 @@
 
   Cmap.prototype.fixScrollSize = function() {
     var element = this.element();
-    var retainerElement = this.retainerElement();
 
-    var x = dom.scrollWidth(element) - 1;
-    var y = dom.scrollHeight(element) - 1;
-    var translate = 'translate(' + x + 'px, ' + y + 'px)';
+    var clientWidth = dom.clientWidth(element);
+    var clientHeight = dom.clientHeight(element);
+    var scrollWidth = dom.scrollWidth(element);
+    var scrollHeight = dom.scrollHeight(element);
 
-    dom.css(retainerElement, {
+    // check if scrolled
+    if (clientWidth === scrollWidth && clientHeight === scrollHeight)
+      return;
+
+    var translate = 'translate(' + (scrollWidth - 1) + 'px, ' + (scrollHeight - 1) + 'px)';
+
+    dom.css(this.retainerElement(), {
       msTransform: translate,
       transform: translate,
       webkitTransform: translate
     });
-
-    dom.append(element, retainerElement);
   };
 
   Cmap.prototype.unfixScrollSize = function() {
-    var retainerElement = this.retainerElement();
+    var translate = 'translate(-1px, -1px)';
 
-    if (!retainerElement)
-      return;
-
-    dom.remove(retainerElement);
+    dom.css(this.retainerElement(), {
+      msTransform: translate,
+      transform: translate,
+      webkitTransform: translate
+    });
   };
 
   Cmap.prototype.style = function() {
@@ -1740,12 +1753,16 @@
       component.parentElement(element);
     });
 
-    dom.css(element, this.style());
-    dom.append(rootElement, element);
-
     var retainerElement = dom.el('<div>');
     dom.css(retainerElement, this.retainerStyle());
+    dom.append(element, retainerElement);
     this.retainerElement(retainerElement);
+
+    // set initial position of retainer
+    this.unfixScrollSize();
+
+    dom.css(element, this.style());
+    dom.append(rootElement, element);
   };
 
   Cmap.anotherConnectionType = function(type) {
