@@ -1229,7 +1229,7 @@
       if (component.contains(x, y, 0))
         return component;
 
-      if (!closeComponent && component.contains(x, y, 4))
+      if (!closeComponent && component.contains(x, y, 8))
         closeComponent = component;
     }
 
