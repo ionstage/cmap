@@ -1939,8 +1939,14 @@
     }
 
     if (node !== null) {
+      if (typeof node !== 'function')
+        throw TypeError('Invalid node');
+
       // unwrap node module
       node = node(cmap.component);
+
+      if (!(node instanceof NodeModule))
+        throw TypeError('Invalid node');
 
       // cannot connect the same node to the source and the target of the link
       var anotherType = Cmap.anotherConnectionType(type);

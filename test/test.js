@@ -357,6 +357,20 @@ describe('Link', function() {
       link.sourceNode(null);
       assert(cmapComponent.disconnect.calledWith('source', nodeComponent, linkComponent));
     });
+
+    it('should throw exception for invalid node', function() {
+      var link = cmap.link();
+      var node = cmap.node();
+      var nodeComponent = node(cmapComponent).component;
+      assert.throws(function() { link.sourceNode({}); }, TypeError);
+      assert.throws(function() {
+        link.sourceNode(function() {
+          return {
+            component: nodeComponent
+          };
+        });
+      }, TypeError);
+    });
   });
 
   describe('#targetNode', function() {
@@ -387,6 +401,20 @@ describe('Link', function() {
       cmapComponent.disconnect = sinon.spy();
       link.targetNode(null);
       assert(cmapComponent.disconnect.calledWith('target', nodeComponent, linkComponent));
+    });
+
+    it('should throw exception for invalid node', function() {
+      var link = cmap.link();
+      var node = cmap.node();
+      var nodeComponent = node(cmapComponent).component;
+      assert.throws(function() { link.targetNode({}); }, TypeError);
+      assert.throws(function() {
+        link.targetNode(function() {
+          return {
+            component: nodeComponent
+          };
+        });
+      }, TypeError);
     });
   });
 
