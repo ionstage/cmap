@@ -11,6 +11,10 @@
     return (typeof value !== 'undefined') ? '' + value : defaultValue;
   };
 
+  helper.toBoolean = function(value, defaultValue) {
+    return (typeof value !== 'undefined') ? !!value : defaultValue;
+  };
+
   helper.toContentType = function(value, defaultValue) {
     if (value === helper.CONTENT_TYPE_TEXT || value === helper.CONTENT_TYPE_HTML)
       return value;
@@ -575,7 +579,7 @@
     this.targetY = this.prop(props.targetY, this.cy(), helper.toNumber);
     this.lineColor = this.prop(props.lineColor, '#333', helper.toString);
     this.lineWidth = this.prop(props.lineWidth, 2, helper.toNumber);
-    this.hasArrow = this.prop(props.hasArrow, false, Boolean);
+    this.hasArrow = this.prop(props.hasArrow, true, helper.toBoolean);
     this.zIndex = this.prop('auto');
     this.element = this.prop(null);
     this.parentElement = this.prop(null);
