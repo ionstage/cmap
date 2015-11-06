@@ -600,17 +600,22 @@
   };
 
   Link.prototype.contains = function(x, y, tolerance) {
-    var lwidth = this.width();
-    var lheight = this.height();
+    var content = this.content();
     var lcx = this.cx();
     var lcy = this.cy();
-    var lx = lcx - lwidth / 2;
-    var ly = lcy - lheight / 2;
 
     // content area
-    if (lx - tolerance <= x && x <= lx + lwidth + tolerance &&
-        ly - tolerance <= y && y <= ly + lheight + tolerance) {
-      return true;
+    if (content) {
+      var lwidth = this.width();
+      var lheight = this.height();
+
+      var lx = lcx - lwidth / 2;
+      var ly = lcy - lheight / 2;
+
+      if (lx - tolerance <= x && x <= lx + lwidth + tolerance &&
+          ly - tolerance <= y && y <= ly + lheight + tolerance) {
+        return true;
+      }
     }
 
     var lineWidth = this.lineWidth();
@@ -748,6 +753,7 @@
       textAlign: textAlign,
       textOverflow: 'ellipsis',
       transform: translate,
+      visibility: this.content() ? 'visible' : 'hidden',
       webkitTransform: translate,
       whiteSpace: 'nowrap',
       width: (this.width() - borderWidthOffset) + 'px'
@@ -1611,7 +1617,9 @@
         var y = cy - connectedNode.cy();
         triple.updateLinkAngle(Math.atan2(y, x));
         triple.skipNextUpdate(true);
-      } else {
+      } else if (!triple || component.content()) {
+        // not connected or link has content
+        // (except two nodes connected but link has no content)
         component.cx(cx);
         component.cy(cy);
         component.sourceX(context.sourceX + dx);
