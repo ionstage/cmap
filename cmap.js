@@ -1462,7 +1462,7 @@
 
     var linkRelations = link.relations();
     var triple = helper.firstInstance(linkRelations, Triple);
-    var isConnected = !!triple[type + 'Node']();
+    var isConnected = (triple && !!triple[type + 'Node']());
 
     linkConnectorRelation.isConnected(isConnected);
     linkRelations.push(linkConnectorRelation);
