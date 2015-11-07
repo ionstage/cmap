@@ -47,7 +47,6 @@
       this.key = key;
 
       var wrapper = this.unwrap.bind(this);
-
       var proto = obj.constructor.prototype;
 
       for (var key in proto) {
@@ -59,7 +58,7 @@
 
     Wrapper.prototype.unwrap = function(key) {
       if (this.key === key)
-          return this.obj;
+        return this.obj;
     };
 
     Wrapper.prototype.chain = function(func, ctx) {
@@ -380,6 +379,7 @@
         return;
 
       cache = converter(value, cache);
+
       this.markDirty();
     };
   };
@@ -524,7 +524,6 @@
     if (parentElement && !element) {
       element = dom.el('<div>');
       this.element(element);
-
       this.redraw();
       dom.append(parentElement, element);
 
@@ -535,7 +534,6 @@
     if (!parentElement && element) {
       dom.remove(element);
       this.element(null);
-
       this.cache({});
 
       return;
@@ -543,6 +541,7 @@
 
     var cache = this.cache();
 
+    // update element
     var content = this.content();
 
     if (content !== cache.content) {
@@ -774,10 +773,8 @@
     // add element
     if (parentElement && !element) {
       element = dom.el('<div>');
-      this.element(element);
-
       dom.html(element, '<svg><path></path><path></path></svg><div></div>');
-
+      this.element(element);
       this.redraw();
       dom.append(parentElement, element);
 
@@ -788,7 +785,6 @@
     if (!parentElement && element) {
       dom.remove(element);
       this.element(null);
-
       this.cache({});
 
       return;
@@ -836,6 +832,7 @@
     dom.css(contentElement, helper.diffObj(contentStyle, cache.contentStyle));
     cache.contentStyle = contentStyle;
 
+    // update container element
     var style = this.style();
 
     dom.css(element, helper.diffObj(style, cache.style));
@@ -899,7 +896,6 @@
     if (parentElement && !element) {
       element = dom.el('<div>');
       this.element(element);
-
       this.redraw();
       dom.append(parentElement, element);
 
@@ -915,6 +911,8 @@
     }
 
     var cache = this.cache();
+
+    // update element
     var style = this.style();
 
     dom.css(element, helper.diffObj(style, cache.style));
@@ -1080,13 +1078,13 @@
 
     var ldx = link.targetX() - link.sourceX();
     var ldy = link.targetY() - link.sourceY();
-    var len = Math.sqrt(ldx * ldx + ldy * ldy);
+    var d = Math.sqrt(ldx * ldx + ldy * ldy);
 
     var connectedNode = sourceNode || targetNode;
     var cx = connectedNode.cx();
     var cy = connectedNode.cy();
-    var lx = cx + len * Math.cos(radians);
-    var ly = cy + len * Math.sin(radians);
+    var lx = cx + d * Math.cos(radians);
+    var ly = cy + d * Math.sin(radians);
     var p = this.connectedPoint(connectedNode, lx, ly);
 
     if (connectedNode === sourceNode)
@@ -1463,10 +1461,8 @@
     });
 
     var linkRelations = link.relations();
-
-    var isConnected = linkRelations.some(function(relation) {
-      return relation instanceof Triple && !!relation[type + 'Node']();
-    });
+    var triple = helper.firstInstance(linkRelations, Triple);
+    var isConnected = !!triple[type + 'Node']();
 
     linkConnectorRelation.isConnected(isConnected);
     linkRelations.push(linkConnectorRelation);
@@ -1828,7 +1824,6 @@
 
   ComponentModule.prototype.remove = function() {
     this.cmap.component.remove(this.component);
-
     helper.deactivate(this.wrapper);
 
     this.component = null;
@@ -1848,14 +1843,14 @@
     this.component.redraw();
   };
 
-  ComponentModule.prototype.draggable = function(value) {
+  ComponentModule.prototype.draggable = function(enabled) {
     var component = this.component;
     var cmap = this.cmap;
 
-    if (typeof value === 'undefined')
+    if (typeof enabled === 'undefined')
       return cmap.component.dragEnabled(component);
 
-    if (value)
+    if (enabled)
       cmap.component.enableDrag(component);
     else
       cmap.component.disableDrag(component);
