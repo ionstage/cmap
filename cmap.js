@@ -462,19 +462,6 @@
     return 4;
   };
 
-  Node.prototype.intersect = function(another) {
-    var x0 = this.x();
-    var y0 = this.y();
-    var x1 = x0 + this.width();
-    var y1 = y0 + this.height();
-    var ax0 = another.x();
-    var ay0 = another.y();
-    var ax1 = ax0 + another.width();
-    var ay1 = ay0 + another.height();
-
-    return (x0 <= ax1 && ax0 <= x1 && y0 <= ay1 && ay0 <= y1);
-  };
-
   Node.prototype.contains = function(x, y, tolerance) {
     var nx = this.x();
     var ny = this.y();
@@ -1284,14 +1271,6 @@
 
     this.markDirty();
   }, Component);
-
-  Cmap.prototype.createNode = function(props) {
-    return new Node(props || {});
-  };
-
-  Cmap.prototype.createLink = function(props) {
-    return new Link(props || {});
-  };
 
   Cmap.prototype.add = function(component) {
     component.parentElement(this.element());
