@@ -1322,8 +1322,9 @@
       throw new Error('Already connected');
 
     var anotherType = Cmap.anotherConnectionType(type);
+    var anotherSideNode = triple ? triple[anotherType + 'Node']() : null;
 
-    if (triple && triple[anotherType + 'Node']() === node)
+    if (anotherSideNode === node)
       throw new Error('Already connected to the ' + anotherType + ' of the link');
 
     if (triple) {
@@ -1348,6 +1349,12 @@
       if (relation.type() === type)
         relation.isConnected(true);
     });
+
+    // link content moves to midpoint of connected nodes
+    if (anotherSideNode) {
+      link.cx((node.cx() + anotherSideNode.cx()) / 2);
+      link.cy((node.cy() + anotherSideNode.cy()) / 2);
+    }
 
     // do not need to mark node dirty (stay unchanged)
     link.markDirty();
