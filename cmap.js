@@ -47,7 +47,7 @@
       this.key = key;
 
       var wrapper = this.unwrap.bind(this);
-      var proto = obj.constructor.prototype;
+      var proto = Object.getPrototypeOf(obj);
 
       for (var key in proto) {
         wrapper[key] = this.chain(proto[key], obj);
