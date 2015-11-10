@@ -284,84 +284,82 @@
     event.preventDefault();
   };
 
-  dom.draggable = function(el, onstart, onmove, onend) {
-    new Draggable({
-      el: el,
-      onstart: onstart,
-      onmove: onmove,
-      onend: onend
-    });
-  };
-
-  // define event types for mouse/touch events
-  (function() {
+  dom.draggable = (function() {
     if (dom.disabled())
-      return;
+      return function() {};
 
     var supportsTouch = dom.supportsTouch();
+    var EVENT_TYPE_START = supportsTouch ? 'touchstart' : 'mousedown';
+    var EVENT_TYPE_MOVE = supportsTouch ? 'touchmove' : 'mousemove';
+    var EVENT_TYPE_END = supportsTouch ? 'touchend' : 'mouseup';
 
-    dom.EVENT_TYPE_START = supportsTouch ? 'touchstart' : 'mousedown';
-    dom.EVENT_TYPE_MOVE = supportsTouch ? 'touchmove' : 'mousemove';
-    dom.EVENT_TYPE_END = supportsTouch ? 'touchend' : 'mouseup';
+    var Draggable = function(props) {
+      this.el = props.el;
+      this.onstart = props.onstart;
+      this.onmove = props.onmove;
+      this.onend = props.onend;
+      this.start = start.bind(this);
+      this.move = move.bind(this);
+      this.end = end.bind(this);
+      this.lock = false;
+      this.startingPoint = null;
+
+      dom.on(this.el, EVENT_TYPE_START, this.start);
+    };
+
+    var start = function(event) {
+      if (this.lock)
+        return;
+
+      this.lock = true;
+      this.startingPoint = dom.pagePoint(event);
+
+      var el = this.el;
+      var onstart = this.onstart;
+
+      var rect = dom.rect(el);
+      var p = dom.clientPoint(event, {
+        x: rect.left - dom.scrollLeft(el),
+        y: rect.top - dom.scrollTop(el)
+      });
+
+      if (typeof onstart === 'function')
+        onstart(p.x, p.y, event);
+
+      dom.on(document, EVENT_TYPE_MOVE, this.move);
+      dom.on(document, EVENT_TYPE_END, this.end);
+    };
+
+    var move = function(event) {
+      var onmove = this.onmove;
+      var d = dom.pagePoint(event, this.startingPoint);
+
+      if (typeof onmove === 'function')
+        onmove(d.x, d.y, event);
+    };
+
+    var end = function(event) {
+      dom.off(document, EVENT_TYPE_MOVE, this.move);
+      dom.off(document, EVENT_TYPE_END, this.end);
+
+      var onend = this.onend;
+      var d = dom.pagePoint(event, this.startingPoint);
+
+      if (typeof onend === 'function')
+        onend(d.x, d.y, event);
+
+      this.lock = false;
+    };
+
+    return function(el, onstart, onmove, onend) {
+      new Draggable({
+        el: el,
+        onstart: onstart,
+        onmove: onmove,
+        onend: onend
+      });
+    };
   })();
-
-  var Draggable = function(props) {
-    this.el = props.el;
-    this.onstart = props.onstart;
-    this.onmove = props.onmove;
-    this.onend = props.onend;
-    this.start = Draggable.start.bind(this);
-    this.move = Draggable.move.bind(this);
-    this.end = Draggable.end.bind(this);
-    this.lock = false;
-    this.startingPoint = null;
-
-    dom.on(this.el, dom.EVENT_TYPE_START, this.start);
-  };
-
-  Draggable.start = function(event) {
-    if (this.lock)
-      return;
-
-    this.lock = true;
-    this.startingPoint = dom.pagePoint(event);
-
-    var el = this.el;
-    var onstart = this.onstart;
-
-    var rect = dom.rect(el);
-    var p = dom.clientPoint(event, {
-      x: rect.left - dom.scrollLeft(el),
-      y: rect.top - dom.scrollTop(el)
-    });
-
-    if (typeof onstart === 'function')
-      onstart(p.x, p.y, event);
-
-    dom.on(document, dom.EVENT_TYPE_MOVE, this.move);
-    dom.on(document, dom.EVENT_TYPE_END, this.end);
-  };
-
-  Draggable.move = function(event) {
-    var onmove = this.onmove;
-    var d = dom.pagePoint(event, this.startingPoint);
-
-    if (typeof onmove === 'function')
-      onmove(d.x, d.y, event);
-  };
-
-  Draggable.end = function(event) {
-    dom.off(document, dom.EVENT_TYPE_MOVE, this.move);
-    dom.off(document, dom.EVENT_TYPE_END, this.end);
-
-    var onend = this.onend;
-    var d = dom.pagePoint(event, this.startingPoint);
-
-    if (typeof onend === 'function')
-      onend(d.x, d.y, event);
-
-    this.lock = false;
-  };
 
   var Component = function() {};
 
