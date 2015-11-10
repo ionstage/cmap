@@ -46,22 +46,22 @@
       this.obj = obj;
       this.key = key;
 
-      var wrapper = this.unwrap.bind(this);
+      var wrapper = unwrap.bind(this);
       var proto = Object.getPrototypeOf(obj);
 
       for (var key in proto) {
-        wrapper[key] = this.chain(proto[key], obj);
+        wrapper[key] = chain(proto[key], obj);
       }
 
       return wrapper;
     };
 
-    Wrapper.prototype.unwrap = function(key) {
+    var unwrap = function(key) {
       if (this.key === key)
         return this.obj;
     };
 
-    Wrapper.prototype.chain = function(func, ctx) {
+    var chain = function(func, ctx) {
       return function() {
         var ret = func.apply(ctx, arguments);
 
