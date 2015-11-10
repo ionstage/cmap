@@ -827,8 +827,8 @@
   };
 
   var Connector = helper.inherits(function(props) {
-    this.x = this.prop(helper.toNumber(props.x, 0));
-    this.y = this.prop(helper.toNumber(props.y, 0));
+    this.x = this.prop(props.x, 0, helper.toNumber);
+    this.y = this.prop(props.y, 0, helper.toNumber);
     this.color = this.prop(Connector.COLOR_UNCONNECTED);
     this.zIndex = this.prop('auto');
     this.element = this.prop(null);
