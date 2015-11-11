@@ -48,10 +48,8 @@ Works on IE10+, Firefox, Safari, Chrome
 
 ## API
 
-<h4>
-Cmap()<br>
-Cmap(element)
-</h4>
+<h4>Cmap()<br>
+Cmap(element)</h4>
 
 Create a element or wrap a existing element for drawing a concept map.
 
@@ -100,12 +98,10 @@ var link = cmap.link({
 });
 ```
 
-<h4 id="node-attr">
-node.attr()<br>
+<h4 id="node-attr">node.attr()<br>
 node.attr(key)<br>
 node.attr(key, value)<br>
-node.attr(props)
-</h4>
+node.attr(props)</h4>
 
 Get or set given attributes of the node.
 
@@ -187,19 +183,15 @@ node.redraw();
 console.log(element.textContent);   // Paper
 ```
 
-<h4>
-node.draggable()<br>
-node.draggable(true|false)
-</h4>
+<h4>node.draggable()<br>
+node.draggable(true|false)</h4>
 
 Get or set whether or not to allow dragging the node (default: true).
 
-<h4 id="link-attr">
-link.attr()<br>
+<h4 id="link-attr">link.attr()<br>
 link.attr(key)<br>
 link.attr(key, value)<br>
-link.attr(props)
-</h4>
+link.attr(props)</h4>
 
 Get or set given attributes of the link.
 
@@ -262,18 +254,14 @@ Get the DOM element of the link.
 
 Force a synchronous redraw of the link (same as [*node.redraw()*](#node-redraw)).
 
-<h4>
-link.draggable()<br>
-link.draggable(true|false)
-</h4>
+<h4>link.draggable()<br>
+link.draggable(true|false)</h4>
 
 Get or set whether or not to allow dragging the link (default: true).
 
-<h4>
-link.sourceNode()<br>
+<h4>link.sourceNode()<br>
 link.sourceNode(node)<br>
-link.sourceNode(null)
-</h4>
+link.sourceNode(null)</h4>
 
 Get or set the node which is connected to the starting point of the path.
 
@@ -294,11 +282,9 @@ link.sourceNode(null);
 console.log(link.sourceNode());             // null
 ```
 
-<h4>
-link.targetNode()<br>
+<h4>link.targetNode()<br>
 link.targetNode(node)<br>
-link.targetNode(null)
-</h4>
+link.targetNode(null)</h4>
 
 Get or set the node which is connected to the ending point of the path.
 
@@ -319,17 +305,13 @@ link.targetNode(null);
 console.log(link.targetNode());             // null
 ```
 
-<h4>
-link.sourceConnectorEnabled()<br>
-link.sourceConnectorEnabled(true|false)
-</h4>
+<h4>link.sourceConnectorEnabled()<br>
+link.sourceConnectorEnabled(true|false)</h4>
 
 Get or set whether or not to enable a connector at the starting point of the path (default: true).
 
-<h4>
-link.targetConnectorEnabled()<br>
-link.targetConnectorEnabled(true|false)
-</h4>
+<h4>link.targetConnectorEnabled()<br>
+link.targetConnectorEnabled(true|false)</h4>
 
 Get or set whether or not to enable a connector at the ending point of the path (default: true).
 
