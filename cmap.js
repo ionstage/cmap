@@ -1740,6 +1740,11 @@
 
     if (!rootElement) {
       rootElement = dom.body();
+      dom.css(rootElement, {
+        height: '100vh',
+        margin: '0',
+        width: '100vw'
+      });
       this.rootElement(rootElement);
     }
 
