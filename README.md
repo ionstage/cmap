@@ -128,10 +128,10 @@ var node = cmap.node({
 });
 
 // get all attributes as object
-node.attr();
+var attr = node.attr();
 
 // get the value of an attribute
-node.attr('x');
+var x = node.attr('x');
 
 // set the value of an attribute
 node.attr('x', 100);
@@ -225,10 +225,10 @@ var link = cmap.link({
 });
 
 // get all attributes as object
-link.attr();
+var attr = link.attr();
 
 // get the value of an attribute
-link.attr('cx');
+var cx = link.attr('cx');
 
 // set the value of an attribute
 link.attr('cx', 150);
