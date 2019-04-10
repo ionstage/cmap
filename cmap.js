@@ -4,7 +4,7 @@
  * Released under the MIT License.
  */
 
-(function(global) {
+(function() {
   'use strict';
 
   var helper = {};
@@ -2042,5 +2042,5 @@
   if (typeof module !== 'undefined' && module.exports)
     module.exports = CmapModule;
   else
-    global.Cmap = CmapModule;
-})(this);
+    window.Cmap = CmapModule;
+})();
