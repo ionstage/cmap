@@ -2,7 +2,7 @@
 
 Interactive visualization library for concept map
 
-[Demo](https://jsfiddle.net/m82amq73/)
+[Demo](https://jsfiddle.net/k3uang1e/)
 
 ![Screen Shot](assets/screenshot.png)
 
