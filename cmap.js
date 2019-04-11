@@ -1,5 +1,5 @@
 /**
- * cmap v0.1.2
+ * cmap v0.1.3
  * (c) 2015 iOnStage
  * Released under the MIT License.
  */
